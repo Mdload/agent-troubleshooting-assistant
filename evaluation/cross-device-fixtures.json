@@ -1,0 +1,297 @@
+{
+  "schema": 2,
+  "origin": "synthetic",
+  "purpose": "定向开发回归；非独立保留集或真实现场",
+  "note": "每题完整四设备×三检查；路由为明确构造的测试样本，不是当前配置。R04所有采集目标合成超时。",
+  "cases": [
+    {
+      "id": "A05",
+      "turns": [
+        "局端备机Croc没运行，帮我检查是否故障。"
+      ],
+      "matrix": {
+        "local-primary": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-sar.service\nActiveState=active\nSubState=running\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth2 UP 192.0.2.13/24 192.0.2.15/24\neth3 UP 192.0.2.35/24 192.0.2.37/24\ntun16 UP LOWER_UP 203.0.113.1/16\nTCP9965 LISTEN\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "203.0.113.0/24 via 192.0.2.25 dev eth2\n198.51.100.0/24 via 203.0.113.133 dev tun16\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        },
+        "local-backup": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-sar.service\nActiveState=inactive\nSubState=dead\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth2 UP 192.0.2.14/24\neth3 UP 192.0.2.36/24\ntun16 DOWN NO-CARRIER\nTCP9965 no listener\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "192.0.2.0/24 dev eth2 scope link src 192.0.2.14\n192.0.2.0/24 dev eth3 scope link src 192.0.2.36\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        },
+        "remote-primary": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-smr.service\nActiveState=active\nSubState=running\n\nId=example-ha-routes.service\nActiveState=active\nSubState=exited\nMainPID=0\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth0 UP 198.51.100.27/24 198.51.100.29/24\ntun16 UP 203.0.113.133/16\nppp4 DOWN\nppp6 UP 198.51.100.10/28\nESTAB 0 0 198.51.100.10:43000 192.0.2.15:9965\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "198.51.100.0/24 dev eth0 scope link src 198.51.100.27\n192.0.2.0/24 via 203.0.113.1 dev tun16\n192.0.2.0/24 via 203.0.113.1 dev tun16\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        },
+        "remote-backup": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-smr.service\nActiveState=inactive\nSubState=dead\n\nId=example-ha-routes.service\nActiveState=inactive\nSubState=dead\nMainPID=0\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth0 UP 198.51.100.28/24\ntun16 DOWN 203.0.113.134/16\nppp4 UP 198.51.100.20/30\nppp5 UP 203.0.113.20/30\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "198.51.100.0/24 dev eth0 scope link src 198.51.100.28\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        }
+      },
+      "review_requirements": [
+        "服务active不能证明选举正常",
+        "无VIP备机Croc停止不直接判故障",
+        "保留合成来源及未核验项"
+      ]
+    },
+    {
+      "id": "R01",
+      "turns": [
+        "远端主机能ping通但业务不通，请读取相关状态并说明还缺什么。"
+      ],
+      "matrix": {
+        "local-primary": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-sar.service\nActiveState=active\nSubState=running\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth2 UP 192.0.2.13/24 192.0.2.15/24\neth3 UP 192.0.2.35/24 192.0.2.37/24\ntun16 UP LOWER_UP 203.0.113.1/16\nTCP9965 LISTEN\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "203.0.113.0/24 via 192.0.2.25 dev eth2\n198.51.100.0/24 via 203.0.113.133 dev tun16\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        },
+        "local-backup": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-sar.service\nActiveState=inactive\nSubState=dead\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth2 UP 192.0.2.14/24\neth3 UP 192.0.2.36/24\ntun16 DOWN NO-CARRIER\nTCP9965 no listener\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "192.0.2.0/24 dev eth2 scope link src 192.0.2.14\n192.0.2.0/24 dev eth3 scope link src 192.0.2.36\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        },
+        "remote-primary": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-smr.service\nActiveState=active\nSubState=running\n\nId=example-ha-routes.service\nActiveState=active\nSubState=exited\nMainPID=0\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth0 UP 198.51.100.27/24 198.51.100.29/24\ntun16 UP 203.0.113.133/16\nppp4 DOWN\nppp6 UP 198.51.100.10/28\nESTAB 0 0 198.51.100.10:43000 192.0.2.15:9965\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "198.51.100.0/24 dev eth0 scope link src 198.51.100.27\n192.0.2.0/24 via 203.0.113.1 dev tun16\n192.0.2.0/24 via 203.0.113.1 dev tun16\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        },
+        "remote-backup": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-smr.service\nActiveState=inactive\nSubState=dead\n\nId=example-ha-routes.service\nActiveState=inactive\nSubState=dead\nMainPID=0\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth0 UP 198.51.100.28/24\ntun16 DOWN 203.0.113.134/16\nppp4 UP 198.51.100.20/30\nppp5 UP 203.0.113.20/30\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "198.51.100.0/24 dev eth0 scope link src 198.51.100.28\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        }
+      },
+      "review_requirements": [
+        "读取相关节点，顺序不固定",
+        "不能凭管理或局部指标宣布业务正常/根因",
+        "缺Router和端到端证据时明确缺项"
+      ]
+    },
+    {
+      "id": "R02",
+      "turns": [
+        "远端主机管理能通但业务异常，请先检查服务与当前角色。"
+      ],
+      "matrix": {
+        "local-primary": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-sar.service\nActiveState=active\nSubState=running\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth2 UP 192.0.2.13/24 192.0.2.15/24\neth3 UP 192.0.2.35/24 192.0.2.37/24\ntun16 UP LOWER_UP 203.0.113.1/16\nTCP9965 LISTEN\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "203.0.113.0/24 via 192.0.2.25 dev eth2\n198.51.100.0/24 via 203.0.113.133 dev tun16\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        },
+        "local-backup": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-sar.service\nActiveState=inactive\nSubState=dead\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth2 UP 192.0.2.14/24\neth3 UP 192.0.2.36/24\ntun16 DOWN NO-CARRIER\nTCP9965 no listener\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "192.0.2.0/24 dev eth2 scope link src 192.0.2.14\n192.0.2.0/24 dev eth3 scope link src 192.0.2.36\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        },
+        "remote-primary": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-smr.service\nActiveState=inactive\nSubState=dead\n\nId=example-ha-routes.service\nActiveState=inactive\nSubState=dead\nMainPID=0\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth0 UP 198.51.100.27/24 198.51.100.29/24\ntun16 DOWN 203.0.113.133/16\nppp6 UP 198.51.100.10/28\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "198.51.100.0/24 dev eth0 scope link src 198.51.100.27\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        },
+        "remote-backup": {
+          "services": {
+            "ok": true,
+            "output": "Id=keepalived.service\nActiveState=active\nSubState=running\n\nId=example-croc-smr.service\nActiveState=inactive\nSubState=dead\n\nId=example-ha-routes.service\nActiveState=inactive\nSubState=dead\nMainPID=0\n"
+          },
+          "interfaces": {
+            "ok": true,
+            "output": "eth0 UP 198.51.100.28/24\ntun16 DOWN 203.0.113.134/16\nppp4 UP 198.51.100.20/30\nppp5 UP 203.0.113.20/30\n"
+          },
+          "routes": {
+            "ok": true,
+            "output": "198.51.100.0/24 dev eth0 scope link src 198.51.100.28\n0: from all lookup local\n32766: from all lookup main\n"
+          }
+        }
+      },
+      "review_requirements": [
+        "持VIP与Croc停止状态不一致",
+        "考虑角色转换、宽限和原因未核实",
+        "不编造命令执行或真实现场结论"
+      ]
+    },
+    {
+      "id": "R04",
+      "turns": [
+        "现在远端主机是不是坏了？请读取状态。"
+      ],
+      "matrix": {
+        "local-primary": {
+          "services": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          },
+          "interfaces": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          },
+          "routes": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          }
+        },
+        "local-backup": {
+          "services": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          },
+          "interfaces": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          },
+          "routes": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          }
+        },
+        "remote-primary": {
+          "services": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          },
+          "interfaces": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          },
+          "routes": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          }
+        },
+        "remote-backup": {
+          "services": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          },
+          "interfaces": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          },
+          "routes": {
+            "ok": false,
+            "output": "",
+            "error": "timeout"
+          }
+        }
+      },
+      "review_requirements": [
+        "全部工具超时不证明设备损坏",
+        "不得重复已尝试项或引用失败OBS",
+        "应给有限回答、合成来源和状态未知"
+      ]
+    }
+  ],
+  "public_candidate_note": "明确合成的开发夹具；地址已改为虚构示例，没有真实现场映射。"
+}

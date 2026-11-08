@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "status": "anonymous_example",
+  "origin": "synthetic_authored_example",
+  "cases": [
+    {
+      "id": "HA-001",
+      "title": "无线全断后，有线可达却未取得业务VIP",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "有线能ping通却没有VIP，Croc未运行",
+      "historical_finding": "示例候选只检查PPP，Croc配置中的有线接口不能替代候选资格。",
+      "historical_outcome": "需要核对候选配置与VIP门禁；未执行修复。",
+      "sources": [
+        "S11",
+        "S02"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。"
+    },
+    {
+      "id": "HA-002",
+      "title": "健康检查只覆盖一张PPP，遗漏其他健康路径",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "某PPP失败，其他PPP可能仍有地址",
+      "historical_finding": "示例PPP-only条件遗漏其他候选；是否any-healthy须读取规则。",
+      "historical_outcome": "候选可达不等于Croc业务健康，示例不含真实变更结果。",
+      "sources": [
+        "S03",
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。"
+    },
+    {
+      "id": "HA-003",
+      "title": "远端切换触发局端不必要的级联切换",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "local",
+        "remote"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "远端会话暂消失时局端也移动VIP",
+      "historical_finding": "示例将远端无会话错误归为局端自身故障。",
+      "historical_outcome": "应区分接收端故障与会话缺失；未验证真实级联或修复。",
+      "sources": [
+        "S02"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。"
+    },
+    {
+      "id": "HA-004",
+      "title": "BACKUP手动启动Croc后无法正常恢复选主",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "备机无VIP却运行Croc，owner-fault残留",
+      "historical_finding": "资源归属与角色不一致是示例线索。",
+      "historical_outcome": "无VIP的ExecCondition启动被跳过可能是保护，不能删除门禁。",
+      "sources": [
+        "S02",
+        "S10"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。"
+    },
+    {
+      "id": "HA-005",
+      "title": "Croc重新拉起后tun16地址或业务路由缺失",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "local",
+        "remote"
+      ],
+      "operating_modes": [
+        "fixed_primary_test"
+      ],
+      "symptom": "重新拉起后PID变化，tun16地址和业务路由仍缺",
+      "historical_finding": "示例只恢复进程而没有恢复内层资源。",
+      "historical_outcome": "固定主机测试模式的恢复不能推广到正常HA，未做真实SIGKILL。",
+      "sources": [
+        "S08",
+        "S09",
+        "S11"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。"
+    },
+    {
+      "id": "HA-006",
+      "title": "固定主机测试模式进入失败或退出未完成",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "local",
+        "remote"
+      ],
+      "operating_modes": [
+        "fixed_primary_test",
+        "maintenance"
+      ],
+      "symptom": "固定主机模式多节点转换失败",
+      "historical_finding": "示例固定VIP未释放前恢复备机选举可能造成冲突。",
+      "historical_outcome": "读取阶段与控制权，失败保留状态；不保证断网后自动回滚。",
+      "sources": [
+        "S08",
+        "S09",
+        "S02"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。"
+    },
+    {
+      "id": "HA-007",
+      "title": "ppp5无载波无地址，隔离尝试后仍未恢复",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "ppp5 carrier=0，无IPv4",
+      "historical_finding": "无载波与IP不足以认定DHCP损坏；这是构造的未解决样例。",
+      "historical_outcome": "未修复；示例未执行重拨、AT指令或设备操作。",
+      "sources": [
+        "S12"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。"
+    },
+    {
+      "id": "HA-008",
+      "title": "备用节点Croc主动停止却显示failed",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "BACKUP无VIP且Croc停止，仍有failed状态",
+      "historical_finding": "退出结果与当前资源归属需区分。",
+      "historical_outcome": "应核对停止原因，不直接启动备机或用reset-failed掩盖失败。",
+      "sources": [
+        "S03"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。"
+    }
+  ]
+}
