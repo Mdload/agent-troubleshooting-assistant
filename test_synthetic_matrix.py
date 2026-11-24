@@ -8,7 +8,7 @@ from unittest.mock import Mock
 from device_tools import DEVICES,CHECKS
 from diagnostic_core import AuditStore
 from unified_chat import run
-from evaluation.synthetic_matrix import validate_cases,make_probe
+from evaluation.synthetic_matrix import validate_cases,make_probe,BASE_CHECKS
 
 CASES=json.loads((Path(__file__).parent/'evaluation/cross-device-fixtures.json').read_text(encoding='utf-8'))['cases']
 
@@ -19,12 +19,14 @@ class SyntheticMatrixTests(unittest.TestCase):
         for case in CASES:
             probe=make_probe(case)
             for device in DEVICES:
-                for check in CHECKS:
+                for check in BASE_CHECKS:
                     item=probe(device,check)
                     self.assertEqual(item['collected_at'],'SIMULATION')
                     self.assertNotEqual(item.get('error'),'synthetic_fixture_unavailable')
                     item['output']='modified'
                     self.assertNotEqual(probe(device,check)['output'],'modified')
+                with self.assertRaisesRegex(ValueError,'Synthetic check not provided'):
+                    probe(device,'logs')
 
     def test_missing_cell_rejected_before_any_planning(self):
         case=copy.deepcopy(CASES[0]);del case['matrix']['local-primary']['interfaces']

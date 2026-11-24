@@ -12,7 +12,7 @@ SLOT = threading.BoundedSemaphore(1)
 def remote_probe(device, check):
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as conn:
         conn.settimeout(25)
-        conn.connect('/run/ata-example/worker.sock')
+        conn.connect('/run/ata-diagnostics/worker.sock')
         conn.sendall(json.dumps({'device': device, 'check': check}).encode() + b'\n')
         with conn.makefile('rb') as stream:
             line = stream.readline(65537)

@@ -15,3 +15,10 @@ local-state/
 artifacts/
 evaluation/results/
 *.log
+
+.codex/
+backups/
+candidates/
+releases/
+evaluation/human-review/
+evaluation/live-chain-*/

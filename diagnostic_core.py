@@ -3,22 +3,68 @@ import json
 import sqlite3
 import uuid
 import time
+import threading
+from contextlib import closing, contextmanager
 from device_tools import DEVICES, CHECKS, tool_catalog
+from diagnostic_logs import echoes_log_credential, filter_log_output
+
+class RequestTrace(threading.local):
+    # HTTP 处理在同一线程内同步完成，后台使用已保存的任务 ID。
+    value = None
+
+    def get(self):
+        return self.value
+
+    def set(self, value):
+        previous = self.value
+        self.value = value
+        return previous
+
+    def reset(self, previous):
+        self.value = previous
+
+
+request_trace = RequestTrace()
+
+
+def audit_text(value, credentials=()):
+    if not isinstance(value,str):
+        return ''
+    text, _ = filter_log_output(value[:16000])
+    if echoes_log_credential(text,credentials):
+        return '[含请求中的敏感值，已隐藏]'
+    return text
 
 class AuditStore:
     """独立SQLite诊断记录，不连接业务数据库。路径由可信操作员配置。"""
     def __init__(self, path):
         self.path = str(path)
-        with sqlite3.connect(self.path) as db:
+        with self.connect() as db:
             db.execute('CREATE TABLE IF NOT EXISTS events (task TEXT, step INTEGER, kind TEXT, body TEXT)')
 
+    @contextmanager
+    def connect(self):
+        # sqlite3 的事务上下文不会关闭连接，需在提交或回滚后释放句柄。
+        with closing(sqlite3.connect(self.path, timeout=5)) as db, db:
+            db.execute('PRAGMA busy_timeout=5000')
+            yield db
+
     def add(self, task, step, kind, body):
-        with sqlite3.connect(self.path) as db:
+        with self.connect() as db:
             db.execute('INSERT INTO events VALUES (?, ?, ?, ?)',
                        (task, step, kind, json.dumps(body, ensure_ascii=False)))
 
+    def record(self, task, step, kind, body):
+        """Optional trace fields stay independent of execution and recovery state."""
+        try:
+            self.add(task,step,kind,dict(body,at=time.time()))
+        except sqlite3.Error:
+            # A telemetry write cannot change an approval or re-run a tool.
+            return False
+        return True
+
     def read(self, task):
-        with sqlite3.connect(self.path) as db:
+        with self.connect() as db:
             return [(r[0], r[1], json.loads(r[2])) for r in db.execute(
                 'SELECT step,kind,body FROM events WHERE task=? ORDER BY rowid', (task,))]
 

@@ -1,0 +1,3450 @@
+{
+  "schema_version": 1,
+  "architecture": "module_handbooks_with_source_archive",
+  "records": [
+    {
+      "id": "HA-001",
+      "title": "无线全断后，有线可达却未取得业务VIP",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "有线能ping通却没有VIP，Croc未运行",
+      "sources": [
+        "S11",
+        "S02"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "remote_ha": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-002",
+      "title": "健康检查只覆盖一张PPP，遗漏其他健康路径",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "某PPP失败，其他PPP可能仍有地址",
+      "sources": [
+        "S03",
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "remote_ha": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-003",
+      "title": "远端切换触发局端不必要的级联切换",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "local",
+        "remote"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "远端会话暂消失时局端也移动VIP",
+      "sources": [
+        "S02"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。",
+      "knowledge_libraries": [
+        "ha_system",
+        "croc_local"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "local_ha": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "croc_local",
+      "module_path": "docs/module-knowledge/croc_local.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-004",
+      "title": "BACKUP手动启动Croc后无法正常恢复选主",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "备机无VIP却运行Croc，owner-fault残留",
+      "sources": [
+        "S02",
+        "S10"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "remote_ha": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-005",
+      "title": "Croc重新拉起后tun16地址或业务路由缺失",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "local",
+        "remote"
+      ],
+      "operating_modes": [
+        "fixed_primary_test"
+      ],
+      "symptom": "重新拉起后PID变化，tun16地址和业务路由仍缺",
+      "sources": [
+        "S08",
+        "S09",
+        "S11"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "fixed_test": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-006",
+      "title": "固定主机测试模式进入失败或退出未完成",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "local",
+        "remote"
+      ],
+      "operating_modes": [
+        "fixed_primary_test",
+        "maintenance"
+      ],
+      "symptom": "固定主机模式多节点转换失败",
+      "sources": [
+        "S08",
+        "S09",
+        "S02"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "fixed_test": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-007",
+      "title": "ppp5无载波无地址，隔离尝试后仍未恢复",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "ppp5 carrier=0，无IPv4",
+      "sources": [
+        "S12"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "ppp": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-008",
+      "title": "备用节点Croc主动停止却显示failed",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "BACKUP无VIP且Croc停止，仍有failed状态",
+      "sources": [
+        "S03"
+      ],
+      "proposed_read_only_checks": [
+        "核对角色与运行模式",
+        "读取对应受控状态与缺项"
+      ],
+      "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
+      "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。",
+      "knowledge_libraries": [
+        "ha_system",
+        "croc_local"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "local_ha": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "croc_local",
+      "module_path": "docs/module-knowledge/croc_local.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-009",
+      "title": "单向有线路径可达，回程路由缺失",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote",
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "局端无法应答",
+      "sources": [
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "查看接口与选路",
+        "分别核对去程和回程"
+      ],
+      "repair_direction_for_review": "核对证据和未知项。",
+      "verification_limits": "合成演示案例。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "business_path": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-010",
+      "title": "PPP 有地址，业务回程仍缺失",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote",
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "用户网段流量无应答",
+      "sources": [
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "查看接口与选路",
+        "分别核对去程和回程"
+      ],
+      "repair_direction_for_review": "核对证据和未知项。",
+      "verification_limits": "合成演示案例。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "ppp": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-011",
+      "title": "运行 NAT 与启动配置不一致",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote",
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "应用重启后业务异常",
+      "sources": [
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "查看接口与选路",
+        "分别核对去程和回程"
+      ],
+      "repair_direction_for_review": "核对证据和未知项。",
+      "verification_limits": "合成演示案例。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "ppp": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-012",
+      "title": "管理入口不可达，业务探测仍有回包",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote",
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "多台节点状态未知，内层探测有应答",
+      "sources": [
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "查看接口与选路",
+        "分别核对去程和回程"
+      ],
+      "repair_direction_for_review": "核对证据和未知项。",
+      "verification_limits": "合成演示案例。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "management": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "HA-013",
+      "title": "普通 ping 失败，指定有线源后成功",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote",
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "两种探测结果不同",
+      "sources": [
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "查看接口与选路",
+        "分别核对去程和回程"
+      ],
+      "repair_direction_for_review": "核对证据和未知项。",
+      "verification_limits": "合成演示案例。",
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "business_path": [
+            "history"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "historical_example",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding",
+        "historical_outcome"
+      ]
+    },
+    {
+      "id": "KB-001",
+      "title": "三层分工",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "示例文件从现场电脑出发，由远端封装并经过中间转发设备，到局端解封后交给目标终端。候选检查通过只支持其中一段前提，端到端业务仍需核对实际收发。",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-001"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "device_common"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "business_path": [
+            "mechanism"
+          ],
+          "management": [
+            "mechanism"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "device_common",
+      "module_path": "docs/module-knowledge/device_common.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-002",
+      "title": "外层与内层",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-002"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "device_common"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "business_path": [
+            "configuration"
+          ],
+          "croc": [
+            "mechanism",
+            "configuration",
+            "ports"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "device_common",
+      "module_path": "docs/module-knowledge/device_common.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-003",
+      "title": "Router",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "device_groups": [
+        "router"
+      ],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-003"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "network_support"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "router_ha": [
+            "mechanism",
+            "configuration"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "network_support",
+      "module_path": "docs/module-knowledge/network_support.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-004",
+      "title": "远端",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "远端承接现场电脑流量，活动节点启动本机 Croc 并维持业务入口。",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "device_groups": [
+        "remote"
+      ],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-004"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "remote_ha": [
+            "mechanism",
+            "configuration"
+          ],
+          "ppp": [
+            "mechanism",
+            "configuration"
+          ],
+          "startup": [
+            "mechanism"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-005",
+      "title": "局端",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "device_groups": [
+        "local"
+      ],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-005"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "croc_local"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "local_ha": [
+            "mechanism",
+            "configuration"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "croc_local",
+      "module_path": "docs/module-knowledge/croc_local.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-006",
+      "title": "固定主机测试模式",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [
+        "fixed_primary_test"
+      ],
+      "device_groups": [],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-006"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "fixed_test": [
+            "mechanism",
+            "configuration"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-007",
+      "title": "对排障助手的要求",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-007"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "device_common"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "read_only": [
+            "mechanism",
+            "checklist"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "device_common",
+      "module_path": "docs/module-knowledge/device_common.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-008",
+      "title": "设备与程序",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-09-28",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-008"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "inventory": [
+            "history"
+          ]
+        },
+        "topic_modes": {
+          "inventory": [
+            "normal_ha"
+          ]
+        },
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-009",
+      "title": "关键程序路径",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-09-28",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-009"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "device_common"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "startup": [
+            "mechanism",
+            "paths"
+          ],
+          "croc": [
+            "paths"
+          ]
+        },
+        "topic_modes": {
+          "startup": [
+            "normal_ha"
+          ]
+        },
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "device_common",
+      "module_path": "docs/module-knowledge/device_common.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-010",
+      "title": "角色与网络细节",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-09-28",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-010"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "local_ha": [
+            "configuration"
+          ],
+          "remote_ha": [
+            "configuration"
+          ],
+          "router_ha": [
+            "configuration"
+          ]
+        },
+        "topic_modes": {
+          "local_ha": [
+            "normal_ha"
+          ],
+          "remote_ha": [
+            "normal_ha"
+          ],
+          "router_ha": [
+            "normal_ha"
+          ]
+        },
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-011",
+      "title": "已识别的冲突",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-011"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "history": [
+            "history",
+            "mechanism"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-012",
+      "title": "未确认与后续取证",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-012"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {},
+        "topic_modes": {},
+        "gap_topics": [
+          "wiring",
+          "operator",
+          "algorithm",
+          "application"
+        ],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-013",
+      "title": "局端触发切换的规则",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-10-01",
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "device_groups": [
+        "local"
+      ],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-013"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "croc_local"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "local_ha": [
+            "mechanism",
+            "configuration"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "croc_local",
+      "module_path": "docs/module-knowledge/croc_local.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-014",
+      "title": "局端健康判据和故障计数",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-10-01",
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "device_groups": [
+        "local"
+      ],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-014"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "croc_local"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "local_health": [
+            "mechanism",
+            "configuration",
+            "checklist"
+          ],
+          "local_ha": [
+            "mechanism",
+            "checklist"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "croc_local",
+      "module_path": "docs/module-knowledge/croc_local.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-015",
+      "title": "局端watchdog恢复与切换的区别",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-10-01",
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "device_groups": [
+        "local"
+      ],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-015"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "croc_local"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "local_watchdog": [
+            "mechanism",
+            "configuration",
+            "checklist"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "croc_local",
+      "module_path": "docs/module-knowledge/croc_local.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-016",
+      "title": "局端备机停止与异常的区分",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "device_groups": [
+        "local"
+      ],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-016"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "croc_local"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "local_ha": [
+            "mechanism",
+            "checklist"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "croc_local",
+      "module_path": "docs/module-knowledge/croc_local.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-017",
+      "title": "排障路径与工具覆盖的边界",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-017"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "business_path": [
+            "mechanism",
+            "checklist"
+          ],
+          "tool_scope": [
+            "mechanism",
+            "checklist"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "ha_system",
+      "module_path": "docs/module-knowledge/ha_system.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-018",
+      "title": "配置阈值与实测恢复时间",
+      "kind": "topology",
+      "evidence_date": "2026-09-28",
+      "teaching_summary": "",
+      "documentation_date": "2026-11-19",
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "device_groups": [
+        "local"
+      ],
+      "symptom": "",
+      "proposed_read_only_checks": [],
+      "verification_limits": "匿名机制示例及合成历史夹具。日期用于演练证据范围；实际运行状态需要现场核验。",
+      "sources": [
+        "DOC-KB-018"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "ha_system",
+        "croc_local"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "unconfirmed",
+      "source_scope": "historical_snapshot",
+      "knowledge_coverage": {
+        "supports": {
+          "recovery_time": [
+            "mechanism"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [
+          "recovery_time"
+        ],
+        "scope": "documented",
+        "current_state_supported": false
+      },
+      "module_id": "croc_local",
+      "module_path": "docs/module-knowledge/croc_local.md",
+      "provenance_notes": [],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-101",
+      "title": "文件与路径",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "文件路径 绝对路径 相对路径 工作目录 目录 pwd ls",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-101"
+      ],
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/coreutils/ls.1.en.html",
+        "https://manpages.debian.org/bookworm/coreutils/stat.1.en.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-101": [
+            "mechanism",
+            "checklist",
+            "examples",
+            "paths"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[ls手册](https://manpages.debian.org/bookworm/coreutils/ls.1.en.html)、[stat手册](https://manpages.debian.org/bookworm/coreutils/stat.1.en.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-102",
+      "title": "用户与权限",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "文件权限 权限不足 permission denied sudo chmod 用户组",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-102"
+      ],
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/coreutils/id.1.en.html",
+        "https://manpages.debian.org/bookworm/coreutils/chmod.1.en.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-102": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[id手册](https://manpages.debian.org/bookworm/coreutils/id.1.en.html)、[chmod手册](https://manpages.debian.org/bookworm/coreutils/chmod.1.en.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-103",
+      "title": "进程与资源",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "进程 cpu 内存 free ps top",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-103"
+      ],
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/procps/ps.1.en.html",
+        "https://manpages.debian.org/bookworm/procps/free.1.en.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-103": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[ps手册](https://manpages.debian.org/bookworm/procps/ps.1.en.html)、[free手册](https://manpages.debian.org/bookworm/procps/free.1.en.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-104",
+      "title": "磁盘与文件大小",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "磁盘 磁盘满 no space left df du 文件大小",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-104"
+      ],
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/coreutils/df.1.en.html",
+        "https://manpages.debian.org/bookworm/coreutils/du.1.en.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-104": [
+            "mechanism",
+            "checklist",
+            "examples",
+            "paths"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[df手册](https://manpages.debian.org/bookworm/coreutils/df.1.en.html)、[du手册](https://manpages.debian.org/bookworm/coreutils/du.1.en.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-105",
+      "title": "IP与路由",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "子网 网关 默认路由 ip route 路由表",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-105"
+      ],
+      "reference_urls": [
+        "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/configuring_and_managing_networking/index"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-105": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[Red Hat网络配置手册](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/configuring_and_managing_networking/index)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-106",
+      "title": "DNS与域名",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "dns 域名解析 域名 getent nslookup",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-106"
+      ],
+      "reference_urls": [
+        "https://www.rfc-editor.org/rfc/rfc1034.html",
+        "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/configuring_and_managing_networking/index"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-106": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[DNS基础规范RFC 1034](https://www.rfc-editor.org/rfc/rfc1034.html)、[Red Hat网络配置手册](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/configuring_and_managing_networking/index)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-107",
+      "title": "TCP与UDP及端口",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "tcp udp 端口 listen estab ss",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-107"
+      ],
+      "reference_urls": [
+        "https://www.rfc-editor.org/rfc/rfc9293.html",
+        "https://www.rfc-editor.org/rfc/rfc768.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-107": [
+            "mechanism",
+            "checklist",
+            "examples",
+            "ports"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[TCP规范RFC 9293](https://www.rfc-editor.org/rfc/rfc9293.html)、[UDP规范RFC 768](https://www.rfc-editor.org/rfc/rfc768.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-108",
+      "title": "NAT与回程",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "nat 回程 私网 公网 地址转换",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-108"
+      ],
+      "reference_urls": [
+        "https://www.rfc-editor.org/rfc/rfc1918.html",
+        "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/configuring_and_managing_networking/index"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-108": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[私有地址RFC 1918](https://www.rfc-editor.org/rfc/rfc1918.html)、[Red Hat网络配置手册](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/configuring_and_managing_networking/index)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-109",
+      "title": "SSH与身份验证",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "ssh publickey 主机密钥 host key 远程登录",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-109"
+      ],
+      "reference_urls": [
+        "https://man.openbsd.org/ssh"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-109": [
+            "mechanism",
+            "checklist",
+            "examples",
+            "ports"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[OpenSSH ssh手册](https://man.openbsd.org/ssh)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-110",
+      "title": "SCP与SFTP",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "scp sftp 文件传输 复制文件 上传 下载文件",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-110"
+      ],
+      "reference_urls": [
+        "https://man.openbsd.org/scp",
+        "https://man.openbsd.org/sftp"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-110": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[OpenSSH scp手册](https://man.openbsd.org/scp)、[OpenSSH sftp手册](https://man.openbsd.org/sftp)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-111",
+      "title": "SSH端口转发",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "ssh隧道 ssh 隧道 端口转发 本机转发 本地转发",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-111"
+      ],
+      "reference_urls": [
+        "https://man.openbsd.org/ssh",
+        "https://man.openbsd.org/ssh_config"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-111": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[OpenSSH ssh手册](https://man.openbsd.org/ssh)、[OpenSSH客户端配置手册](https://man.openbsd.org/ssh_config)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-112",
+      "title": "代理与HTTPS",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "代理 https tls 证书 model_connection_failed",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-112"
+      ],
+      "reference_urls": [
+        "https://man.openbsd.org/ssh_config",
+        "https://www.rfc-editor.org/rfc/rfc9110.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-112": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[OpenSSH代理配置手册](https://man.openbsd.org/ssh_config)、[HTTP语义RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-113",
+      "title": "systemd服务状态",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "systemd systemctl active inactive oneshot 服务状态",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-113"
+      ],
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/systemd/systemctl.1.en.html",
+        "https://manpages.debian.org/bookworm/systemd/systemd.service.5.en.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-113": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[systemctl手册](https://manpages.debian.org/bookworm/systemd/systemctl.1.en.html)、[systemd.service手册](https://manpages.debian.org/bookworm/systemd/systemd.service.5.en.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-114",
+      "title": "启动与开机自启",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "开机自启 启动顺序 enabled disabled rc.local 启动入口",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-114"
+      ],
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/systemd/systemctl.1.en.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-114": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[systemctl手册](https://manpages.debian.org/bookworm/systemd/systemctl.1.en.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-115",
+      "title": "日志与时间",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "日志 journalctl 时间戳 时区 utc",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-115"
+      ],
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/systemd/journalctl.1.en.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-115": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[journalctl手册](https://manpages.debian.org/bookworm/systemd/journalctl.1.en.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-116",
+      "title": "HTTP与nginx及Node",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "http nginx node 反向代理 502 404 401",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-116"
+      ],
+      "reference_urls": [
+        "https://nginx.org/en/docs/beginners_guide.html",
+        "https://nodejs.org/learn/getting-started/introduction-to-nodejs",
+        "https://www.rfc-editor.org/rfc/rfc9110.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-116": [
+            "mechanism",
+            "checklist",
+            "examples",
+            "ports"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[nginx入门](https://nginx.org/en/docs/beginners_guide.html)、[Node官方介绍](https://nodejs.org/learn/getting-started/introduction-to-nodejs)、[HTTP语义RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-117",
+      "title": "数据库与表",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "数据库 数据表 表与字段 字段 mysql 达梦 数据库模式 schema",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-117"
+      ],
+      "reference_urls": [
+        "https://dev.mysql.com/doc/refman/8.4/en/tutorial.html",
+        "https://eco.dameng.com/document/dm/zh-cn/pm/check-phrases.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-117": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[MySQL官方入门](https://dev.mysql.com/doc/refman/8.4/en/tutorial.html)、[达梦查询手册](https://eco.dameng.com/document/dm/zh-cn/pm/check-phrases.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-118",
+      "title": "SELECT与条件查询",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "select where limit order by sql 查询语句 条件查询",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-118"
+      ],
+      "reference_urls": [
+        "https://dev.mysql.com/doc/refman/8.4/en/select.html",
+        "https://eco.dameng.com/document/dm/zh-cn/pm/check-phrases.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-118": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[MySQL SELECT语法](https://dev.mysql.com/doc/refman/8.4/en/select.html)、[达梦查询手册](https://eco.dameng.com/document/dm/zh-cn/pm/check-phrases.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-119",
+      "title": "数据库连接问题",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "数据库连接 连接数据库 access denied 数据库连不上 mysql连接",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-119"
+      ],
+      "reference_urls": [
+        "https://dev.mysql.com/doc/refman/8.4/en/connecting-disconnecting.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-119": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[MySQL连接与断开说明](https://dev.mysql.com/doc/refman/8.4/en/connecting-disconnecting.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-120",
+      "title": "备份与导出",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "mysqldump 数据库备份 数据库导出 sql文件 sql 文件 数据恢复",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-120"
+      ],
+      "reference_urls": [
+        "https://dev.mysql.com/doc/refman/8.4/en/mysqldump.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-120": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[MySQL mysqldump手册](https://dev.mysql.com/doc/refman/8.4/en/mysqldump.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-121",
+      "title": "ping与时延丢包",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "ping rtt 时延 延迟 丢包",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-121"
+      ],
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/iputils-ping/ping.8.en.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-121": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[ping手册](https://manpages.debian.org/bookworm/iputils-ping/ping.8.en.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-122",
+      "title": "iperf与吞吐",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "iperf 吞吐 带宽测试 mbps mb/s",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-122"
+      ],
+      "reference_urls": [
+        "https://software.es.net/iperf/invoking.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-122": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[ESnet iperf3官方调用说明](https://software.es.net/iperf/invoking.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-123",
+      "title": "抓包与过滤",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "tcpdump wireshark 抓包 pcap 报文",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-123"
+      ],
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/tcpdump/tcpdump.8.en.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-123": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[tcpdump手册](https://manpages.debian.org/bookworm/tcpdump/tcpdump.8.en.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-124",
+      "title": "实验记录与数据整理",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "csv 实验记录 实验数据 数据整理 缺失值 绘图 时间对齐",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-124"
+      ],
+      "reference_urls": [
+        "https://docs.python.org/3/library/csv.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-124": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[Python csv文档](https://docs.python.org/3/library/csv.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-125",
+      "title": "Python脚本与报错",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "python脚本 python 脚本 运行脚本 traceback modulenotfounderror importerror",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-125"
+      ],
+      "reference_urls": [
+        "https://docs.python.org/3/tutorial/errors.html",
+        "https://docs.python.org/3/tutorial/modules.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-125": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[Python异常入门](https://docs.python.org/3/tutorial/errors.html)、[Python模块入门](https://docs.python.org/3/tutorial/modules.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-126",
+      "title": "虚拟环境与依赖",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "venv pip 虚拟环境 依赖包 解释器",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-126"
+      ],
+      "reference_urls": [
+        "https://docs.python.org/3/library/venv.html",
+        "https://docs.python.org/3/installing/index.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-126": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[Python venv文档](https://docs.python.org/3/library/venv.html)、[Python包安装说明](https://docs.python.org/3/installing/index.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-127",
+      "title": "JSON与接口请求",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "json api接口 api 接口 接口请求 请求响应 jsondecodeerror",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-127"
+      ],
+      "reference_urls": [
+        "https://docs.python.org/3/library/json.html",
+        "https://www.rfc-editor.org/rfc/rfc9110.html"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-127": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[Python json文档](https://docs.python.org/3/library/json.html)、[HTTP语义RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-128",
+      "title": "Git与版本管理",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-12",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "git 暂存 commit 版本管理 工作区",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-128"
+      ],
+      "reference_urls": [
+        "https://git-scm.com/docs/git-status",
+        "https://git-scm.com/docs/git-add",
+        "https://git-scm.com/docs/git-commit"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-128": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[git status](https://git-scm.com/docs/git-status)、[git add](https://git-scm.com/docs/git-add)、[git commit](https://git-scm.com/docs/git-commit)。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-129",
+      "title": "Keepalived配置阅读与切换条件",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-21",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "keepalived配置阅读",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-129"
+      ],
+      "reference_urls": [
+        "https://www.keepalived.org/documentation/keepalived-conf/",
+        "https://www.keepalived.org/documentation/user-guide/programs-synopsis/",
+        "https://curl.se/docs/manpage.html#-f"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-129": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[Keepalived配置手册的VRRP脚本与实例章节](https://www.keepalived.org/documentation/keepalived-conf/)、[Keepalived启动参数与默认配置位置](https://www.keepalived.org/documentation/user-guide/programs-synopsis/)、[curl手册的HTTP失败处理](https://curl.se/docs/manpage.html#-f)。分别支持跟踪/退出码/权重/回调、配置入口和HTTP返回码处理；HTTP传输成功不能独立证明业务逻辑正确，版本差异以实际安装版本手册为准。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    },
+    {
+      "id": "KB-130",
+      "title": "工具超时与重试补偿边界",
+      "kind": "lab_basics",
+      "evidence_date": null,
+      "documentation_date": "2026-10-21",
+      "operating_modes": [],
+      "device_groups": [],
+      "symptom": "工具超时 幂等 结果未知 补偿",
+      "proposed_read_only_checks": [],
+      "verification_limits": "公开通用基础知识；不是实验室具体配置或当前设备观测。示例命令不表示已执行。",
+      "sources": [
+        "DOC-KB-130"
+      ],
+      "reference_urls": [
+        "https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2",
+        "https://docs.stripe.com/api/idempotent_requests",
+        "https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction"
+      ],
+      "repair_enabled": false,
+      "knowledge_libraries": [
+        "general_basics"
+      ],
+      "device_types": [],
+      "deployment_environments": [],
+      "software_versions": [],
+      "version_status": "principle",
+      "source_scope": "public_principle",
+      "knowledge_coverage": {
+        "supports": {
+          "basic_KB-130": [
+            "mechanism",
+            "checklist",
+            "examples"
+          ]
+        },
+        "topic_modes": {},
+        "gap_topics": [],
+        "scope": "general_principle",
+        "current_state_supported": false
+      },
+      "module_id": "general_basics",
+      "module_path": "docs/module-knowledge/general_basics.md",
+      "provenance_notes": [
+        "参考：[RFC 9110第9.2.2节：HTTP幂等方法与自动重试条件](https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2)、[Stripe：服务端幂等键、参数检查与有效期](https://docs.stripe.com/api/idempotent_requests)、[微软补偿事务模式：并发、业务规则与失败恢复](https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction)。这些链接在资料整理时核对，不代表助手在每次回答中都重新联网。"
+      ],
+      "body_fields": [
+        "historical_finding"
+      ]
+    }
+  ],
+  "knowledge_sources": [
+    {
+      "id": "DOC-KB-001",
+      "title": "三层分工",
+      "path": "docs/topology/mechanisms.md",
+      "coverage": "三层分工",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-002",
+      "title": "外层与内层",
+      "path": "docs/topology/mechanisms.md",
+      "coverage": "外层与内层",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-003",
+      "title": "Router",
+      "path": "docs/topology/mechanisms.md",
+      "coverage": "Router",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-004",
+      "title": "远端",
+      "path": "docs/topology/mechanisms.md",
+      "coverage": "远端",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-005",
+      "title": "局端",
+      "path": "docs/topology/mechanisms.md",
+      "coverage": "局端",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-006",
+      "title": "固定主机测试模式",
+      "path": "docs/topology/mechanisms.md",
+      "coverage": "固定主机测试模式",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-007",
+      "title": "对排障助手的要求",
+      "path": "docs/topology/mechanisms.md",
+      "coverage": "对排障助手的要求",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-008",
+      "title": "设备与程序",
+      "path": "docs/topology/devices-and-programs.md",
+      "coverage": "设备与程序",
+      "note": "资料整理：2026-09-28；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-009",
+      "title": "关键程序路径",
+      "path": "docs/topology/devices-and-programs.md",
+      "coverage": "关键程序路径",
+      "note": "资料整理：2026-09-28；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-010",
+      "title": "角色与网络细节",
+      "path": "docs/topology/devices-and-programs.md",
+      "coverage": "角色与网络细节",
+      "note": "资料整理：2026-09-28；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-011",
+      "title": "已识别的冲突",
+      "path": "docs/topology/sources-and-gaps.md",
+      "coverage": "已识别的冲突",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-012",
+      "title": "未确认与后续取证",
+      "path": "docs/topology/sources-and-gaps.md",
+      "coverage": "未确认与后续取证",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-013",
+      "title": "局端触发切换的规则",
+      "path": "docs/topology/local-ha-rules.md",
+      "coverage": "局端触发切换的规则",
+      "note": "资料整理：2026-10-01；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-014",
+      "title": "局端健康判据和故障计数",
+      "path": "docs/topology/local-ha-rules.md",
+      "coverage": "局端健康判据和故障计数",
+      "note": "资料整理：2026-10-01；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-015",
+      "title": "局端watchdog恢复与切换的区别",
+      "path": "docs/topology/local-ha-rules.md",
+      "coverage": "局端watchdog恢复与切换的区别",
+      "note": "资料整理：2026-10-01；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-016",
+      "title": "局端备机停止与异常的区分",
+      "path": "docs/topology/diagnostic-guide.md",
+      "coverage": "局端备机停止与异常的区分",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-017",
+      "title": "排障路径与工具覆盖的边界",
+      "path": "docs/topology/diagnostic-guide.md",
+      "coverage": "排障路径与工具覆盖的边界",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-018",
+      "title": "配置阈值与实测恢复时间",
+      "path": "docs/topology/diagnostic-guide.md",
+      "coverage": "配置阈值与实测恢复时间",
+      "note": "资料整理：2026-11-19；示例证据日期：2026-09-28；机制、配置和观察请按原文区分"
+    },
+    {
+      "id": "DOC-KB-101",
+      "title": "文件与路径",
+      "path": "docs/lab-basics/linux.md",
+      "coverage": "文件与路径",
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/coreutils/ls.1.en.html",
+        "https://manpages.debian.org/bookworm/coreutils/stat.1.en.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-102",
+      "title": "用户与权限",
+      "path": "docs/lab-basics/linux.md",
+      "coverage": "用户与权限",
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/coreutils/id.1.en.html",
+        "https://manpages.debian.org/bookworm/coreutils/chmod.1.en.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-103",
+      "title": "进程与资源",
+      "path": "docs/lab-basics/linux.md",
+      "coverage": "进程与资源",
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/procps/ps.1.en.html",
+        "https://manpages.debian.org/bookworm/procps/free.1.en.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-104",
+      "title": "磁盘与文件大小",
+      "path": "docs/lab-basics/linux.md",
+      "coverage": "磁盘与文件大小",
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/coreutils/df.1.en.html",
+        "https://manpages.debian.org/bookworm/coreutils/du.1.en.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-105",
+      "title": "IP与路由",
+      "path": "docs/lab-basics/network.md",
+      "coverage": "IP与路由",
+      "reference_urls": [
+        "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/configuring_and_managing_networking/index"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-106",
+      "title": "DNS与域名",
+      "path": "docs/lab-basics/network.md",
+      "coverage": "DNS与域名",
+      "reference_urls": [
+        "https://www.rfc-editor.org/rfc/rfc1034.html",
+        "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/configuring_and_managing_networking/index"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-107",
+      "title": "TCP与UDP及端口",
+      "path": "docs/lab-basics/network.md",
+      "coverage": "TCP与UDP及端口",
+      "reference_urls": [
+        "https://www.rfc-editor.org/rfc/rfc9293.html",
+        "https://www.rfc-editor.org/rfc/rfc768.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-108",
+      "title": "NAT与回程",
+      "path": "docs/lab-basics/network.md",
+      "coverage": "NAT与回程",
+      "reference_urls": [
+        "https://www.rfc-editor.org/rfc/rfc1918.html",
+        "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/configuring_and_managing_networking/index"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-109",
+      "title": "SSH与身份验证",
+      "path": "docs/lab-basics/remote.md",
+      "coverage": "SSH与身份验证",
+      "reference_urls": [
+        "https://man.openbsd.org/ssh"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-110",
+      "title": "SCP与SFTP",
+      "path": "docs/lab-basics/remote.md",
+      "coverage": "SCP与SFTP",
+      "reference_urls": [
+        "https://man.openbsd.org/scp",
+        "https://man.openbsd.org/sftp"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-111",
+      "title": "SSH端口转发",
+      "path": "docs/lab-basics/remote.md",
+      "coverage": "SSH端口转发",
+      "reference_urls": [
+        "https://man.openbsd.org/ssh",
+        "https://man.openbsd.org/ssh_config"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-112",
+      "title": "代理与HTTPS",
+      "path": "docs/lab-basics/remote.md",
+      "coverage": "代理与HTTPS",
+      "reference_urls": [
+        "https://man.openbsd.org/ssh_config",
+        "https://www.rfc-editor.org/rfc/rfc9110.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-113",
+      "title": "systemd服务状态",
+      "path": "docs/lab-basics/services.md",
+      "coverage": "systemd服务状态",
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/systemd/systemctl.1.en.html",
+        "https://manpages.debian.org/bookworm/systemd/systemd.service.5.en.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-114",
+      "title": "启动与开机自启",
+      "path": "docs/lab-basics/services.md",
+      "coverage": "启动与开机自启",
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/systemd/systemctl.1.en.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-115",
+      "title": "日志与时间",
+      "path": "docs/lab-basics/services.md",
+      "coverage": "日志与时间",
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/systemd/journalctl.1.en.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-116",
+      "title": "HTTP与nginx及Node",
+      "path": "docs/lab-basics/services.md",
+      "coverage": "HTTP与nginx及Node",
+      "reference_urls": [
+        "https://nginx.org/en/docs/beginners_guide.html",
+        "https://nodejs.org/learn/getting-started/introduction-to-nodejs",
+        "https://www.rfc-editor.org/rfc/rfc9110.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-117",
+      "title": "数据库与表",
+      "path": "docs/lab-basics/database.md",
+      "coverage": "数据库与表",
+      "reference_urls": [
+        "https://dev.mysql.com/doc/refman/8.4/en/tutorial.html",
+        "https://eco.dameng.com/document/dm/zh-cn/pm/check-phrases.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-118",
+      "title": "SELECT与条件查询",
+      "path": "docs/lab-basics/database.md",
+      "coverage": "SELECT与条件查询",
+      "reference_urls": [
+        "https://dev.mysql.com/doc/refman/8.4/en/select.html",
+        "https://eco.dameng.com/document/dm/zh-cn/pm/check-phrases.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-119",
+      "title": "数据库连接问题",
+      "path": "docs/lab-basics/database.md",
+      "coverage": "数据库连接问题",
+      "reference_urls": [
+        "https://dev.mysql.com/doc/refman/8.4/en/connecting-disconnecting.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-120",
+      "title": "备份与导出",
+      "path": "docs/lab-basics/database.md",
+      "coverage": "备份与导出",
+      "reference_urls": [
+        "https://dev.mysql.com/doc/refman/8.4/en/mysqldump.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-121",
+      "title": "ping与时延丢包",
+      "path": "docs/lab-basics/testing.md",
+      "coverage": "ping与时延丢包",
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/iputils-ping/ping.8.en.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-122",
+      "title": "iperf与吞吐",
+      "path": "docs/lab-basics/testing.md",
+      "coverage": "iperf与吞吐",
+      "reference_urls": [
+        "https://software.es.net/iperf/invoking.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-123",
+      "title": "抓包与过滤",
+      "path": "docs/lab-basics/testing.md",
+      "coverage": "抓包与过滤",
+      "reference_urls": [
+        "https://manpages.debian.org/bookworm/tcpdump/tcpdump.8.en.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-124",
+      "title": "实验记录与数据整理",
+      "path": "docs/lab-basics/testing.md",
+      "coverage": "实验记录与数据整理",
+      "reference_urls": [
+        "https://docs.python.org/3/library/csv.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-125",
+      "title": "Python脚本与报错",
+      "path": "docs/lab-basics/development.md",
+      "coverage": "Python脚本与报错",
+      "reference_urls": [
+        "https://docs.python.org/3/tutorial/errors.html",
+        "https://docs.python.org/3/tutorial/modules.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-126",
+      "title": "虚拟环境与依赖",
+      "path": "docs/lab-basics/development.md",
+      "coverage": "虚拟环境与依赖",
+      "reference_urls": [
+        "https://docs.python.org/3/library/venv.html",
+        "https://docs.python.org/3/installing/index.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-127",
+      "title": "JSON与接口请求",
+      "path": "docs/lab-basics/development.md",
+      "coverage": "JSON与接口请求",
+      "reference_urls": [
+        "https://docs.python.org/3/library/json.html",
+        "https://www.rfc-editor.org/rfc/rfc9110.html"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-128",
+      "title": "Git与版本管理",
+      "path": "docs/lab-basics/development.md",
+      "coverage": "Git与版本管理",
+      "reference_urls": [
+        "https://git-scm.com/docs/git-status",
+        "https://git-scm.com/docs/git-add",
+        "https://git-scm.com/docs/git-commit"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-12；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-129",
+      "title": "Keepalived配置阅读与切换条件",
+      "path": "docs/lab-basics/reliability.md",
+      "coverage": "Keepalived配置阅读与切换条件",
+      "reference_urls": [
+        "https://www.keepalived.org/documentation/keepalived-conf/",
+        "https://www.keepalived.org/documentation/user-guide/programs-synopsis/",
+        "https://curl.se/docs/manpage.html#-f"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-21；无现场采集日期"
+    },
+    {
+      "id": "DOC-KB-130",
+      "title": "工具超时与重试补偿边界",
+      "path": "docs/lab-basics/reliability.md",
+      "coverage": "工具超时与重试补偿边界",
+      "reference_urls": [
+        "https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2",
+        "https://docs.stripe.com/api/idempotent_requests",
+        "https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction"
+      ],
+      "note": "通用原理；整理和参考核对日期：2026-10-21；无现场采集日期"
+    }
+  ]
+}

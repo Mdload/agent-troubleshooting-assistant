@@ -4,21 +4,20 @@ import threading
 import unittest
 import urllib.request
 import urllib.error
+from html.parser import HTMLParser
 from unittest.mock import patch
 import app
 import diagnostic_web
+from workflow_test_support import RunningApp
 
 class DiagnosticWebTests(unittest.TestCase):
     def setUp(self):
-        self.server = app.Server(('127.0.0.1', 0), app.Handler)
-        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
-        self.thread.start()
-        self.base = 'http://127.0.0.1:' + str(self.server.server_port)
+        self.client=RunningApp().__enter__();self.base=self.client.base
         # 测试目标是当前进程创建的回环服务，不经过系统HTTP代理。
         self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
     def tearDown(self):
-        self.server.shutdown(); self.server.server_close(); self.thread.join()
+        self.client.__exit__()
 
     def request(self, data, token=True, host=None):
         headers = {'Content-Type': 'application/json'}
@@ -36,21 +35,27 @@ class DiagnosticWebTests(unittest.TestCase):
         with patch('diagnostic_web.diagnose') as run:
             self.assertEqual(self.request(data, token=False)[0],403)
             self.assertEqual(self.request(data, host='evil.example')[0],403)
-            data['devices']=['203.0.113.250']
-            self.assertEqual(self.request(data)[0],400)
+            data['devices']=['1.2.3.4']
+            self.assertEqual(self.request(data)[0],410)
             run.assert_not_called()
 
-    def test_no_consent_has_no_model_or_tool_call(self):
+    def test_legacy_consent_cannot_bypass_approval(self):
         with patch('diagnostic_web.make_planner') as model, patch('diagnostic_web.remote_probe') as tool:
             code, result=self.request({'question':'检查', 'devices':['local-primary']})
-            self.assertEqual(code,200); self.assertEqual(result['status'],'consent_required')
+            self.assertEqual(code,410); self.assertEqual(result['status'],'approval_required')
             model.assert_not_called(); tool.assert_not_called()
 
-    def test_page_has_unchecked_live_consent(self):
+    def test_page_defaults_to_model_and_keeps_material_permission_separate(self):
         with self.opener.open(self.base) as response: page=response.read().decode()
-        self.assertIn('自动只读排查',page)
+        inputs=[]
+        parser=HTMLParser()
+        parser.handle_starttag=lambda tag,attrs:inputs.append(dict(attrs)) if tag=='input' else None
+        parser.feed(page)
+        self.assertFalse(any(item.get('id')=='allow-context' for item in inputs))
+        material=next(item for item in inputs if item.get('id')=='allow-materials')
+        self.assertEqual(material.get('type'),'checkbox');self.assertNotIn('checked',material)
+        self.assertIn('allow_context:true',page)
         self.assertIn(app.CSRF_TOKEN,page)
-        self.assertNotIn('type="checkbox" id="allow-context" checked',page)
 
     @unittest.skipIf(os.name=='nt','Unix worker only')
     def test_worker_rejects_arbitrary_command(self):
@@ -58,7 +63,7 @@ class DiagnosticWebTests(unittest.TestCase):
         with patch('device_worker.probe') as tool:
             for data in ({'device':'local-primary','check':'reboot'},
                          {'device':'local-primary','check':'services','command':'id'},
-                         {'device':'203.0.113.250','check':'services'}):
+                         {'device':'1.2.3.4','check':'services'}):
                 with self.assertRaises(ValueError): device_worker.dispatch(data)
             tool.assert_not_called()
 

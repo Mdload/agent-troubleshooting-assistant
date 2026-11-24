@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "kind": "development_candidates_not_real_user_acceptance",
+  "created_date": "2026-10-08",
+  "real_user_feedback": false,
+  "independent_acceptance": false,
+  "candidates": [
+    {"id": "COV-D01", "question": "远端能ping通，但业务为什么不通？", "origin": "project_requirement_example", "source": "README.md#核心演示场景", "expected": "clarify"},
+    {"id": "COV-D02", "question": "我们的新服务监听什么端口", "origin": "existing_development_fixture", "source": "test_lab_workflow.py#test_development_routing_examples", "expected": "missing"},
+    {"id": "COV-D03", "question": "局端备机为什么不运行Croc", "origin": "existing_development_fixture", "source": "test_lab_workflow.py#test_general_and_mechanism_never_read", "expected": "supported"},
+    {"id": "COV-D04", "question": "远端到局端业务怎么走，Router、Croc和tun16分别负责什么？", "origin": "existing_development_fixture", "source": "test_synthesis.py#QUESTIONS", "expected": "supported"},
+    {"id": "COV-D05", "question": "Router负责运行Croc吗？", "origin": "existing_development_fixture", "source": "test_synthesis.py#QUESTIONS", "expected": "supported"},
+    {"id": "COV-D06", "question": "局端用哪个接口做Keepalived心跳？", "origin": "existing_development_fixture", "source": "test_synthesis.py#QUESTIONS", "expected": "supported"},
+    {"id": "COV-D07", "question": "固定主机测试和正常HA有什么区别？", "origin": "existing_development_fixture", "source": "test_synthesis.py#QUESTIONS", "expected": "supported"},
+    {"id": "COV-D08", "question": "Croc的算法91具体怎么调度？", "origin": "existing_development_fixture", "source": "test_synthesis.py#QUESTIONS", "expected": "gap"},
+    {"id": "COV-D09", "question": "交换机完整接线是什么？", "origin": "existing_development_fixture", "source": "test_synthesis.py#QUESTIONS", "expected": "gap"},
+    {"id": "COV-D10", "question": "远端Croc从rc.local还是systemd启动？", "origin": "existing_development_fixture", "source": "test_synthesis.py#QUESTIONS", "expected": "supported"},
+    {"id": "COV-D11", "question": "局端Croc监听什么端口，如何重启", "origin": "new_development_variant", "source": "test_knowledge_coverage.py#test_partial_answer_keeps_supported_part_and_specific_gap", "expected": "partial"},
+    {"id": "COV-D12", "question": "维护模式下局端备机为什么不运行Croc", "origin": "new_development_variant", "source": "test_knowledge_coverage.py#test_normal_ha_rules_do_not_answer_test_or_maintenance_mode", "expected": "gap"},
+    {"id": "COV-D13", "question": "ppp5对应哪家运营商", "origin": "new_development_variant", "source": "test_knowledge_coverage.py#test_explicit_gaps_are_never_positive_facts", "expected": "gap"},
+    {"id": "COV-D14", "question": "局端主备切换实测多少秒", "origin": "new_development_variant", "source": "test_knowledge_coverage.py#test_explicit_gaps_are_never_positive_facts", "expected": "gap"},
+    {"id": "COV-D15", "question": "局端设备许可证是什么", "origin": "new_development_variant", "source": "test_knowledge_coverage.py#test_unrecognized_topic_is_not_declared_sufficient", "expected": "unassessed"},
+    {"id": "COV-D16", "question": "Router现在有没有故障", "origin": "existing_development_fixture", "source": "test_lab_workflow.py#test_development_routing_examples", "expected": "unsupported_device"}
+  ]
+}

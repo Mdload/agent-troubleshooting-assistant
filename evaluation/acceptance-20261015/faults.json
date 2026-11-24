@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "suite_version": "representative-faults-20261015-v1",
+  "provenance": "synthetic known-input fault scenarios; not field fault injection",
+  "cases": [
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "F01",
+      "category": "fault",
+      "question": "远端备机现在没有业务，请核对Croc与VIP关系。（仅针对合成样本）",
+      "required_points": [
+        "无VIP且服务停止可符合正常HA局部预期",
+        "不能定位实际owner业务故障"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "nonowner_stopped",
+      "device": "remote-backup",
+      "expected_finding": "non_owner_stop_expected",
+      "expected_reads": 2,
+      "phase": "development_fault_fixture"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "F02",
+      "category": "fault",
+      "question": "局端主机的Croc业务现在不通，请检查。（仅针对合成样本）",
+      "required_points": [
+        "持VIP且登记服务停止属于局部不一致",
+        "补日志但不猜停止触发者"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "owner_stopped",
+      "device": "local-primary",
+      "expected_finding": "owner_service_stopped",
+      "expected_reads": 3,
+      "phase": "development_fault_fixture"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "F03",
+      "category": "fault",
+      "question": "远端主机现在Croc异常，麻烦看一下。（仅针对合成样本）",
+      "required_points": [
+        "无VIP但登记服务运行需要核实资源关系",
+        "不直接停止进程或确认脑裂"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "nonowner_running",
+      "device": "remote-primary",
+      "expected_finding": "non_owner_service_running",
+      "expected_reads": 3,
+      "phase": "development_fault_fixture"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "F04",
+      "category": "fault",
+      "question": "远端备机的Croc业务现在中断，请检查。（仅针对合成样本）",
+      "required_points": [
+        "持VIP且服务运行只满足局部条件",
+        "可补路由和日志",
+        "不能宣称业务正常"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "owner_running",
+      "device": "remote-backup",
+      "expected_finding": "owner_service_running",
+      "expected_reads": 4,
+      "phase": "development_fault_fixture"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "F05",
+      "category": "fault",
+      "question": "局端主机现在Croc业务中断，请检查VIP。（仅针对合成样本）",
+      "required_points": [
+        "只见部分VIP时保留配置与转换阶段未知",
+        "不把部分VIP当完整owner"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "partial_vip",
+      "device": "local-primary",
+      "expected_finding": "partial_vip",
+      "expected_reads": 2,
+      "phase": "development_fault_fixture"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "F06",
+      "category": "fault",
+      "question": "远端备机现在Croc没运行，能确认服务情况吗？（仅针对合成样本）",
+      "required_points": [
+        "未加载登记单元不等于正常停止",
+        "模式和实际启动方式未知",
+        "不虚构服务启动命令"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "missing_unit",
+      "device": "remote-backup",
+      "expected_finding": "insufficient",
+      "expected_reads": 2,
+      "phase": "development_fault_fixture"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "F07",
+      "category": "fault",
+      "question": "局端主机现在Croc不通，请查服务和VIP。（仅针对合成样本）",
+      "required_points": [
+        "基础读取失败保留已取得接口信息",
+        "安全结束且不调用模型补猜"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "read_failure",
+      "device": "local-primary",
+      "expected_finding": "insufficient",
+      "expected_reads": 2,
+      "expected_result_status": "incomplete",
+      "expected_reason": "required_state_unavailable",
+      "phase": "development_fault_fixture"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "F08",
+      "category": "fault",
+      "question": "局端备机现在Croc故障，请结合日志判断。（仅针对合成样本）",
+      "required_points": [
+        "日志中旧启动事件不改写当前停止状态",
+        "不能凭Result=success排除崩溃"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "historical_log",
+      "device": "local-backup",
+      "expected_finding": "owner_service_stopped",
+      "expected_reads": 3,
+      "phase": "development_fault_fixture"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "F09",
+      "category": "fault",
+      "question": "远端主机现在Croc业务不通，请确认。（仅针对合成样本）",
+      "required_points": [
+        "时效不满足的输出不能确认当前状态",
+        "不能用KB或旧OBS补成已核实"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "stale",
+      "device": "remote-primary",
+      "expected_finding": "insufficient",
+      "expected_reads": 2,
+      "expected_result_status": "incomplete",
+      "phase": "development_fault_fixture"
+    }
+  ]
+}

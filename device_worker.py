@@ -5,14 +5,18 @@ import socket
 import socketserver
 import struct
 from device_tools import probe, DEVICES, CHECKS
+from device_registry import allows_check, checks_for
 
-SOCKET = '/run/ata-example/worker.sock'
+SOCKET = '/run/ata-diagnostics/worker.sock'
 
 def dispatch(data):
+    if data == {'operation':'capabilities'}:
+        return {'ok':True,'kind':'registered_checks','devices':{device:list(checks_for(device)) for device in DEVICES},
+                'device_reads':0}
     if not isinstance(data, dict) or set(data) != {'device', 'check'}:
         raise ValueError('Invalid request')
     if (not isinstance(data['device'], str) or not isinstance(data['check'], str) or
-        data['device'] not in DEVICES or data['check'] not in CHECKS):
+        not allows_check(data['device'],data['check'])):
         raise ValueError('Invalid scope')
     return probe(data['device'], data['check'])
 

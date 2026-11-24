@@ -4,28 +4,33 @@ from device_tools import DEVICES, CHECKS
 
 
 def observation_constraints(observations):
-    # 当前登记工具只读服务、接口/连接和主表路由；没有隧道数据路径验收。
+    # 日志是历史事件；当前工具没有隧道数据路径验收。
     # 不解析原文猜状态，也不把来源未知或合成观测升级成现场事实。
     good = [item for item in observations if item.get('ok') is True
             and item.get('device') in DEVICES and item.get('check') in CHECKS]
     if not good:
         return []
     return [{'id': 'snapshot_tunnel', 'refs': [item['id'] for item in good],
-             'statement': '本轮成功工具仅覆盖服务管理状态、接口标志/地址、TCP监听/连接或主表路由。'
+             'statement': '本轮成功工具仅覆盖服务管理状态、接口标志/地址、TCP监听/连接、主表路由或固定服务历史日志。'
+                          '日志事件不等于当前服务状态，空日志不能证明没有故障。'
                           'UP、ESTAB、LISTEN不能证明Croc隧道整体正常，也不能排除外层或Croc内部问题，'
                           '不能将故障位置锁定或收敛为仅内层/路由。请描述具体观测并列未核验项，'
                           '不要用泛称正常代替具体状态；未采集隧道数据路径或端到端流量。'}]
 
 
 def mechanism_constraints(sources, group='unknown'):
-    # 只从本轮已提供、正常HA、局端规则生成约束，不凭编号或旧聊天造依据。
+    # Only derive constraints from topology records actually supplied to this turn.
+    rules = []
+    if any(item.get('id')=='KB-002' and item.get('kind')=='topology'
+           and '不经 Croc 业务隧道' in item.get('historical_finding','') for item in sources):
+        rules.append({'id':'ha_heartbeat_path','refs':['KB-002'],
+                      'statement':'本拓扑 Keepalived 在同侧主备间交换 VRRP 通告，跨侧 Croc 隧道承载业务数据。'})
     if group in ('remote', 'router'):
-        return []
+        return rules
     records = {item.get('id'): item for item in sources
                if item.get('kind') == 'topology'
                and item.get('device_groups') == ['local']
                and item.get('operating_modes') == ['normal_ha']}
-    rules = []
     local = records.get('KB-013', {}).get('historical_finding', '')
     health = records.get('KB-014', {}).get('historical_finding', '')
     watchdog = records.get('KB-015', {}).get('historical_finding', '')
@@ -48,6 +53,10 @@ def mechanism_constraints(sources, group='unknown'):
 
 
 PATTERNS = {
+    'ha_heartbeat_path': [
+        r'(?:Keepalived\s*(?:的\s*)?心跳|VRRP\s*(?:心跳|通告|报文))[^。；，,\n]{0,8}(?:经由|经过|通过|走|依赖)[^。；，,\n]{0,12}(?:Croc|tun16|(?:这条|该|跨端|跨侧)\s*隧道)',
+        r'(?:Croc|tun16)(?:\s*(?:业务)?隧道)?[^。；，,\n]{0,10}(?:承载|转发|传递)[^。；，,\n]{0,14}(?:Keepalived\s*(?:的\s*)?心跳|VRRP\s*(?:通告|报文))',
+    ],
     # 只覆盖已经复现的整体正常和定位收敛说法；未命中不代表语义通过。
     'snapshot_tunnel': [
         r'(?:Croc\s*)?隧道(?:\s*(?:两端|整体|建立|运行|状态|连接|数据路径|转发|均|都|已|已经|恢复)){0,4}\s*(?:正常|健康|无故障|没有问题|没问题)',
@@ -86,6 +95,8 @@ def contradicted_constraints(answer, constraints):
         for pattern in PATTERNS.get(rule['id'], []):
             for match in re.finditer(pattern, rule_text, flags=re.I):
                 fragment = match.group()
+                if rule['id'] == 'ha_heartbeat_path' and re.search(r'不|并非|无需|无须',fragment):
+                    continue
                 # 针对某条已限定业务路径的影响，不能当作“全部业务必断”拦截。
                 if rule['id'] == 'local_business' and re.search(r'相关业务|对应业务|该业务|本次业务|这条业务|指定目标|关键路径', fragment):
                     continue
@@ -96,7 +107,7 @@ def contradicted_constraints(answer, constraints):
                     sentence_prefix = rule_text[sentence_start:match.start()]
                     if re.search(r'如果|假设|若|当.*时', sentence_prefix):
                         continue
-                    if re.search(r'无法(?:确认|证明|认定)|不能(?:确认|证明|认定|保证|据此宣布)|未(?:验证|核实|确认)|不等于|不代表|不意味着|不是|不知道|错误示例|代码示例', prefix):
+                    if re.search(r'无法(?:确认|证明|认定)|不能(?:确认|证明|认定|保证|据此宣布)|不证明|不足以证明|未(?:验证|核实|确认)|不等于|不代表|不意味着|不是|不知道|错误示例|代码示例', prefix):
                         continue
                 if re.search(r'不能说|不可说|不应说|不要说|不能写|不可写|并非|错误说法|错误示例', prefix):
                     continue

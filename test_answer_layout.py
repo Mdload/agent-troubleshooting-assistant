@@ -29,5 +29,24 @@ class AnswerLayoutTests(unittest.TestCase):
         self.assertEqual(self.planner.call_count,2)
         self.assertEqual(sum(e['action']=='correction' for e in result['events']),1)
 
+    def test_backticks_cannot_hide_escaped_prose(self):
+        bad='说明`dict`。\\n\\n第二段。\\n\\n```python\\nd = {}\\n```'
+        good='说明`dict`。\n\n第二段。\n\n```python\nd = {}\n```'
+        result=self.execute([bad,good])
+        self.assertEqual(result['answer'],good)
+        self.assertEqual(self.planner.call_count,2)
+        self.assertEqual(result['events'][0]['reason'],'escaped_answer_layout')
+
+    def test_tilde_fences_and_literal_code_remain_unchanged(self):
+        text='说明`a\\n\\nb\\nc`。\n\n~~~python\nx = "a\\n\\nb\\nc"\n~~~'
+        result=self.execute([text])
+        self.assertEqual(result['answer'],text)
+        self.assertEqual(self.planner.call_count,1)
+
+    def test_encoded_fence_newlines_need_correction_even_without_prose(self):
+        result=self.execute(['```python\\nx = 1\\nprint(x)\\n```','```python\nx = 1\nprint(x)\n```'])
+        self.assertEqual(result['status'],'answered')
+        self.assertEqual(self.planner.call_count,2)
+
 
 if __name__=='__main__':unittest.main()

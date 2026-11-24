@@ -26,7 +26,7 @@ class UnifiedTests(unittest.TestCase):
         r=self.execute([({'action':'read','device':'local-primary','check':'services'},2),answer('连接失败，当前状态未知',basis='limited')],probe=Mock(return_value={'ok':False,'error':'timeout'}))
         self.assertEqual(r['status'],'answered');self.assertFalse(r['evidence'][0]['ok'])
     def test_scope_and_fake_refs_rejected(self):
-        for action in ({'action':'read','device':'203.0.113.250','check':'services'},answer(refs=['OBS-99'],basis='evidence')[0]):
+        for action in ({'action':'read','device':'1.2.3.4','check':'services'},answer(refs=['OBS-99'],basis='evidence')[0]):
             r=self.execute([(action,0)]);self.assertEqual(r['status'],'incomplete');self.probe.assert_not_called()
     def test_history_and_consent(self):
         hist=[{'role':'user','content':'局端备机'},{'role':'assistant','content':'历史解释'}]

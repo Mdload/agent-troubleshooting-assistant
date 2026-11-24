@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "architecture": "module_handbooks_with_source_archive",
+  "record_metadata": {},
+  "libraries": [
+    {"id": "general_basics", "title": "通用基础", "directory": "docs/knowledge-libraries/general-basics", "shared": true, "planned_topics": ["Linux", "网络", "远程访问", "数据库", "测试与开发"]},
+    {"id": "device_common", "title": "设备共同知识", "directory": "docs/knowledge-libraries/device-common", "shared": true, "planned_topics": ["PPP/QMI", "Croc基本原理", "管理与业务链", "版本差异"]},
+    {"id": "six_card", "title": "六卡设备", "directory": "docs/knowledge-libraries/six-card", "shared": false, "planned_topics": ["设备概览", "接口与模组映射", "服务与配置", "故障案例"]},
+    {"id": "three_card", "title": "三卡设备", "directory": "docs/knowledge-libraries/three-card", "shared": false, "planned_topics": ["设备概览", "接口与模组映射", "服务与配置", "故障案例"]},
+    {"id": "ha_system", "title": "双机热备系统", "directory": "docs/knowledge-libraries/ha-system", "shared": false, "planned_topics": ["角色与VIP", "业务路径", "正常HA与测试模式", "故障案例"]},
+    {"id": "croc_local", "title": "Croc业务局端", "directory": "docs/knowledge-libraries/croc-local", "shared": false, "deployment_environments": ["physical", "cloud"], "planned_topics": ["业务职责", "物理机部署", "云服务器部署"]},
+    {"id": "network_support", "title": "网络与接入配套", "directory": "docs/knowledge-libraries/network-support", "shared": false, "planned_topics": ["路由器", "交换机", "业务终端", "通信卡与APN", "VPN隧道"]}
+  ]
+}

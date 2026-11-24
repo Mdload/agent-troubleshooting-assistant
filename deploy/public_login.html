@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>登录 · 带派助手</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#f6f7f6;color:#202923;font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}.card{width:100%;max-width:410px;background:#fff;border:1px solid #e5e9e6;border-radius:20px;padding:38px 34px;box-shadow:0 12px 50px #223c2910}.brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600}.mark{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#e7f0e9;color:#366047;font-size:20px}h1{font-size:25px;line-height:1.3;letter-spacing:-.5px;margin:30px 0 8px}p{margin:0 0 24px;color:#768079}label{display:block;font-size:13px;font-weight:500;margin:17px 0 7px}input{font:inherit;width:100%;padding:12px 13px;border:1px solid #dce2dd;border-radius:9px;outline:none;background:#fcfdfc;transition:border-color .15s}input:focus{border-color:#568365;box-shadow:0 0 0 3px #56836516}button{font:inherit;font-weight:600;width:100%;border:0;border-radius:9px;padding:12px;margin-top:25px;background:#365f46;color:#fff;cursor:pointer}button:hover{background:#2c523b}button:disabled{opacity:.6;cursor:wait}#status{font-size:13px;min-height:21px;color:#a54038;margin-top:14px;overflow-wrap:anywhere}@media(max-width:480px){.card{padding:30px 24px}}
+.tabs{display:flex;gap:4px;padding:4px;border-radius:10px;background:#f0f3f0;margin-bottom:22px}.tabs button{margin:0;padding:8px;background:transparent;color:#718076;font-weight:500}.tabs button[aria-selected=true]{color:#365f46;background:#fff;box-shadow:0 1px 4px #173b2210}[hidden]{display:none!important}.help{font-size:12px;color:#768079;margin:9px 0 0}
+</style></head><body><main class="card"><div class="brand"><span class="mark" aria-hidden="true">◈</span>带派助手</div><h1 id="heading">继续你的对话</h1><p id="intro">使用已有账号登录</p>
+<div class="tabs" role="tablist" aria-label="账号操作"><button id="mode-login" type="button" role="tab" aria-selected="true">登录</button><button id="mode-register" type="button" role="tab" aria-selected="false">注册账号</button></div>
+<form id="login"><label for="username">账号</label><input id="username" name="username" autocomplete="username" required autofocus><label for="password">密码</label><input id="password" name="password" type="password" autocomplete="current-password" required><div id="register-fields" hidden><label for="lab-password">实验室口令</label><input id="lab-password" name="lab-password" type="password" autocomplete="off"><p class="help">仅注册时需要；以后用自己的账号密码登录。</p></div><button id="submit" type="submit">登录</button><div id="status" role="status" aria-live="polite"></div></form></main>
+<script>
+const csrf='__CSRF__',field=id=>document.getElementById(id),form=field('login'),button=field('submit'),status=field('status');
+let mode='login',submitting=false;
+async function chooseMode(next){
+  if(submitting)return;mode=next;const register=mode==='register';status.textContent='';
+  field('mode-login').setAttribute('aria-selected',String(!register));field('mode-register').setAttribute('aria-selected',String(register));
+  field('heading').textContent=register?'创建你的账号':'继续你的对话';field('intro').textContent=register?'输入实验室口令，加入助手':'使用已有账号登录';
+  field('register-fields').hidden=!register;field('lab-password').required=register;field('password').autocomplete=register?'new-password':'current-password';button.textContent=register?'注册并进入':'登录';button.disabled=false;
+  if(register){button.disabled=true;try{const response=await fetch('/api/account/registration'),state=await response.json();if(mode!=='register')return;if(!response.ok)throw Error(state.error||'暂时无法注册');button.disabled=!state.configured;if(!state.configured)status.textContent='请先让已有账号的用户登录，在个人账号中设置实验室口令。';}catch(error){if(mode==='register')status.textContent=error.message;}}
+}
+field('mode-login').onclick=()=>chooseMode('login');field('mode-register').onclick=()=>chooseMode('register');
+form.addEventListener('submit',async event=>{
+  event.preventDefault();if(button.disabled||submitting)return;submitting=true;button.disabled=true;button.textContent=mode==='register'?'正在注册…':'正在登录…';status.textContent='';
+  const data={username:field('username').value,password:field('password').value};if(mode==='register'){data.lab_password=field('lab-password').value;data.allow_storage=true;}
+  try{const response=await fetch('/api/account/'+mode,{method:'POST',headers:{'Content-Type':'application/json','X-ATA-Token':csrf},body:JSON.stringify(data)}),result=await response.json();if(!response.ok)throw Error(result.error||'操作未完成，请重试');field('password').value='';field('lab-password').value='';location.replace('/');}
+  catch(error){status.textContent=error.message;button.disabled=false;button.textContent=mode==='register'?'注册并进入':'登录';}
+  finally{submitting=false;data.password='';data.lab_password='';}
+});
+</script></body></html>

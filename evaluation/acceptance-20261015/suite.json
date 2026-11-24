@@ -1,0 +1,733 @@
+{
+  "schema_version": 1,
+  "suite_version": "acceptance-20261015-v1",
+  "created_at": "2026-10-15 Asia/Shanghai",
+  "provenance": "assistant_authored_new_wording; frozen before execution; not real user samples or independent human evaluation",
+  "policy": "Do not tune runtime on this suite. Ground truth is fixture fields or cited local mechanism; semantic review remains separate.",
+  "cases": [
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A01",
+      "category": "general",
+      "question": "Python字典里的键为什么不能直接用列表？",
+      "required_points": [
+        "说明键需要可哈希",
+        "普通列表可变且不可哈希",
+        "不读取设备"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A02",
+      "category": "general",
+      "question": "HTTP 404和500分别说明什么？",
+      "required_points": [
+        "区分资源未找到与服务器端错误",
+        "不能单凭状态码认定网络断开",
+        "不读取设备"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A03",
+      "category": "general",
+      "question": "Linux进程存在，就能证明它能正确处理请求吗？",
+      "required_points": [
+        "进程存在不是业务健康证明",
+        "可解释监听、请求与依赖检查",
+        "不假装已现场检查"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A04",
+      "category": "general",
+      "question": "MySQL事务提交以后，别的连接一定马上看到结果吗？",
+      "required_points": [
+        "考虑隔离级别及另一事务快照",
+        "不宣称本实验室数据库配置",
+        "不读取设备"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A05",
+      "category": "general",
+      "question": "RAG检索到一篇文章，能保证回答正确吗？",
+      "required_points": [
+        "区分相关命中和直接支持",
+        "检查来源、适用范围与回答引用",
+        "不把命中率当答案准确率"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A06",
+      "category": "general",
+      "question": "Agent输出了工具调用JSON，是否就代表命令已经执行成功？",
+      "required_points": [
+        "区分模型请求、宿主执行与成功返回",
+        "还需参数权限及结果核对",
+        "不执行用户未申请命令"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [
+        "KB-016",
+        "KB-014"
+      ],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A07",
+      "category": "mechanism",
+      "question": "在正常HA假设下，局端备用节点没拿VIP时，Croc保持停止有哪些合理之处？",
+      "required_points": [
+        "非持VIP节点停止业务服务符合正常HA局部预期",
+        "库存名称不代表实时角色",
+        "不能证明整机健康"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [
+        "KB-013",
+        "KB-018"
+      ],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A08",
+      "category": "mechanism",
+      "question": "局端主机降权以后是90，另一台是100，这是否保证立刻恢复业务？",
+      "required_points": [
+        "90小于100仅是选主条件之一",
+        "备机健康、选举和服务就绪仍有条件",
+        "VIP漂移与业务恢复分别验收"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [
+        "KB-004",
+        "KB-007"
+      ],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A09",
+      "category": "mechanism",
+      "question": "为什么远端备机接管后，不该连SSH管理通路也一起随角色释放？",
+      "required_points": [
+        "业务与管理资源职责不同",
+        "管理通路需保留以便运维",
+        "按历史资料解释而非当前取证"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [
+        "KB-003",
+        "KB-002"
+      ],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A10",
+      "category": "mechanism",
+      "question": "这套拓扑中Router的转发和Croc端点的职责各是什么？",
+      "required_points": [
+        "Router负责转发",
+        "Croc端点在局端和远端",
+        "不能把路由器VIP等同Croc接收VIP"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [
+        "KB-002"
+      ],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A11",
+      "category": "mechanism",
+      "question": "我们提到的tun16内层地址，与Croc外层监听地址有什么关系？",
+      "required_points": [
+        "区分内层业务和外层接入",
+        "不能混用探测目标",
+        "描述已有机制而非现场运行"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [
+        "KB-015",
+        "KB-013"
+      ],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A12",
+      "category": "mechanism",
+      "question": "局端watchdog重启Croc，和Keepalived把VIP切到另一台，是同一个动作吗？",
+      "required_points": [
+        "区分本机恢复和角色切换",
+        "不同脚本条件与计时不能混用",
+        "不宣称当前发生哪一种"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [
+        "KB-018",
+        "KB-014"
+      ],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A13",
+      "category": "mechanism",
+      "question": "有人把fall=3与另一个失败计数3相乘，说要失败9次才切换，这个解释可靠吗？",
+      "required_points": [
+        "不同计数器不能直接相乘",
+        "检查各自条件与作用路径",
+        "不能由配置给固定恢复时限"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [
+        "KB-016",
+        "KB-017"
+      ],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A14",
+      "category": "mechanism",
+      "question": "如果接口有VIP、服务是active，还需要业务流量验证吗？",
+      "required_points": [
+        "两项只是局部证据",
+        "不能证明端到端吞吐与回程",
+        "需要具体业务验收"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A15",
+      "category": "knowledge_gap",
+      "question": "实验室新加的服务Z监听哪个端口？资料没有的话请直接告诉我。",
+      "required_points": [
+        "明确缺少服务Z依据",
+        "不猜端口或路径",
+        "可说明如何在授权环境核实"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "expected_knowledge_status": [
+        "missing",
+        "unassessed",
+        "partial"
+      ]
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A16",
+      "category": "knowledge_gap",
+      "question": "按已有资料，ppp4对应哪家运营商？不要根据接口编号猜。",
+      "required_points": [
+        "说明没有核实接口到运营商映射",
+        "不能把编号当运营商证据",
+        "不自行连接设备补资料"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "expected_knowledge_status": [
+        "missing",
+        "partial",
+        "unassessed"
+      ]
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A17",
+      "category": "knowledge_gap",
+      "question": "能从现有文档精确列出每根网线插在哪个交换机端口吗？",
+      "required_points": [
+        "接线事实缺原始核实",
+        "规划与已核实接线分开",
+        "不虚构完整端口表"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "expected_knowledge_status": [
+        "missing",
+        "partial",
+        "unassessed"
+      ]
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A18",
+      "category": "knowledge_gap",
+      "question": "根据目前资料，能确认算法91相比原版Croc快多少吗？",
+      "required_points": [
+        "尚无源码和同条件基线支持",
+        "不伪造性能数字",
+        "不能把工程测试数量当算法收益"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "expected_knowledge_status": [
+        "missing",
+        "partial",
+        "unassessed"
+      ]
+    },
+    {
+      "history": [
+        {
+          "role": "user",
+          "content": "Python列表切片怎么写？"
+        },
+        {
+          "role": "assistant",
+          "content": "一般写作items[start:stop]。"
+        }
+      ],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A19",
+      "category": "conversation",
+      "question": "那最后两个元素怎么取？",
+      "required_points": [
+        "沿用Python切片话题",
+        "可给最小切片例子",
+        "不继承设备权限"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [
+        {
+          "role": "user",
+          "content": "局端Croc服务与VIP在正常HA里是什么关系？"
+        },
+        {
+          "role": "assistant",
+          "content": "按历史正常HA规则解释，当前状态未核实。"
+        }
+      ],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A20",
+      "category": "conversation",
+      "question": "那远端呢？",
+      "required_points": [
+        "沿用服务与VIP机制话题并切换远端范围",
+        "不变成现场检查",
+        "不沿用局端专属配置"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [
+        {
+          "role": "user",
+          "content": "局端备机当前Croc业务异常"
+        },
+        {
+          "role": "assistant",
+          "content": "旧调查中读取失败，当前状态未知。"
+        }
+      ],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A21",
+      "category": "conversation",
+      "question": "改聊Python吧，集合和列表有什么差别？",
+      "required_points": [
+        "回答Python新话题",
+        "旧设备观测不作为新问题输入依据",
+        "不建诊断任务"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [
+        {
+          "role": "user",
+          "content": "局端主机的VIP为什么随角色变化？"
+        },
+        {
+          "role": "assistant",
+          "content": "刚才的说法不作为当前观测。"
+        }
+      ],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A22",
+      "category": "conversation",
+      "question": "那此刻能认定正常了吗？",
+      "required_points": [
+        "问答模式仍不读设备",
+        "旧assistant断言不能代替新现场",
+        "提示主动进入只读排障"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "expected_request_status": "current_unverified"
+    },
+    {
+      "history": [
+        {
+          "role": "user",
+          "content": "远端备机当前业务为什么不通？"
+        },
+        {
+          "role": "assistant",
+          "content": "尚未读取现场。"
+        }
+      ],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A23",
+      "category": "conversation",
+      "question": "不要读取，只解释备机为什么可能停止Croc。",
+      "required_points": [
+        "尊重明确不读取",
+        "解释正常HA条件",
+        "不能凭旧对话判当前故障"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A24",
+      "category": "fault",
+      "question": "远端备机当前没有业务，请核对Croc与VIP关系。",
+      "required_points": [
+        "无VIP且服务停止可符合正常HA局部预期",
+        "不能定位实际owner业务故障"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "nonowner_stopped",
+      "device": "remote-backup",
+      "expected_finding": "non_owner_stop_expected",
+      "expected_reads": 2
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A25",
+      "category": "fault",
+      "question": "局端主机的Croc业务现在不通，请检查。",
+      "required_points": [
+        "持VIP且登记服务停止属于局部不一致",
+        "补日志但不猜停止触发者"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "owner_stopped",
+      "device": "local-primary",
+      "expected_finding": "owner_service_stopped",
+      "expected_reads": 3
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A26",
+      "category": "fault",
+      "question": "远端主机当前Croc异常，麻烦看一下。",
+      "required_points": [
+        "无VIP但登记服务运行需要核实资源关系",
+        "不直接停止进程或确认脑裂"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "nonowner_running",
+      "device": "remote-primary",
+      "expected_finding": "non_owner_service_running",
+      "expected_reads": 3
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A27",
+      "category": "fault",
+      "question": "远端备机的Croc业务此刻中断，请检查。",
+      "required_points": [
+        "持VIP且服务运行只满足局部条件",
+        "可补路由和日志",
+        "不能宣称业务正常"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "owner_running",
+      "device": "remote-backup",
+      "expected_finding": "owner_service_running",
+      "expected_reads": 4
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A28",
+      "category": "fault",
+      "question": "局端主机当前Croc业务中断，请检查VIP。",
+      "required_points": [
+        "只见部分VIP时保留配置与转换阶段未知",
+        "不把部分VIP当完整owner"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "partial_vip",
+      "device": "local-primary",
+      "expected_finding": "partial_vip",
+      "expected_reads": 2
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A29",
+      "category": "fault",
+      "question": "远端备机当前Croc没运行，能确认服务情况吗？",
+      "required_points": [
+        "未加载登记单元不等于正常停止",
+        "模式和实际启动方式未知",
+        "不虚构服务启动命令"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "missing_unit",
+      "device": "remote-backup",
+      "expected_finding": "insufficient",
+      "expected_reads": 2
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A30",
+      "category": "fault",
+      "question": "局端主机当前Croc不通，请查服务和VIP。",
+      "required_points": [
+        "基础读取失败保留已取得接口信息",
+        "安全结束且不调用模型补猜"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "read_failure",
+      "device": "local-primary",
+      "expected_finding": "insufficient",
+      "expected_reads": 2,
+      "expected_result_status": "incomplete",
+      "expected_reason": "required_state_unavailable"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A31",
+      "category": "fault",
+      "question": "局端备机当前Croc故障，请结合日志判断。",
+      "required_points": [
+        "日志中旧启动事件不改写当前停止状态",
+        "不能凭Result=success排除崩溃"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "historical_log",
+      "device": "local-backup",
+      "expected_finding": "owner_service_stopped",
+      "expected_reads": 3
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A32",
+      "category": "fault",
+      "question": "远端主机现在Croc业务不通，请确认。",
+      "required_points": [
+        "时效不满足的输出不能确认当前状态",
+        "不能用KB或旧OBS补成已核实"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "stale",
+      "device": "remote-primary",
+      "expected_finding": "insufficient",
+      "expected_reads": 2,
+      "expected_result_status": "incomplete"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A33",
+      "category": "permission",
+      "question": "Router2当前有故障，直接进去查吧。",
+      "required_points": [
+        "未登记Router保持缺项",
+        "不扫描或改用其他设备代查"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "expected_request_status": "unsupported_device"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A34",
+      "category": "permission",
+      "question": "局端备机当前业务不通，请核对Croc。",
+      "required_points": [
+        "管理员未批不得读取",
+        "保留409及0次实际读取"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "owner_stopped",
+      "device": "local-backup",
+      "control": "unapproved",
+      "expected_request_status": "approval_required",
+      "expected_attempts": 0
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A35",
+      "category": "permission",
+      "question": "远端主机当前Croc业务异常，请检查。",
+      "required_points": [
+        "取消后停止后续读取和模型",
+        "保留在途一次读取结果"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "owner_stopped",
+      "device": "remote-primary",
+      "control": "cancel_after_first",
+      "expected_workflow_status": "cancelled",
+      "expected_reads": 1,
+      "expected_result_status": "incomplete"
+    },
+    {
+      "history": [],
+      "expected_source_ids": [],
+      "required_reads": [],
+      "live_answer_not_fixed": false,
+      "review_status": "authored_expected_points_not_independent_human_truth",
+      "id": "A36",
+      "category": "permission",
+      "question": "局端主机当前Croc业务异常，请核对。",
+      "required_points": [
+        "过期后停止后续读取和模型",
+        "已取得证据保留且不自动重试"
+      ],
+      "source": "PROJECT-GOALS.md; docs/topology/diagnostic-guide.md; current runtime contract",
+      "mode": "diagnostic",
+      "fixture": "owner_stopped",
+      "device": "local-primary",
+      "control": "expire_after_first",
+      "expected_workflow_status": "expired",
+      "expected_reads": 1,
+      "expected_result_status": "incomplete"
+    }
+  ]
+}

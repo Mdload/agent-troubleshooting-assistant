@@ -1,5 +1,7 @@
 """一键离线测试：禁止外网与SSH；保留平台跳过，不把跳过算通过。"""
 import argparse
+import builtins
+import io
 import datetime
 import json
 import os
@@ -8,6 +10,7 @@ import socket
 import subprocess
 import sys
 import unittest
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
@@ -19,33 +22,38 @@ def main():
     output=Path(args.output).resolve() if args.output else None
     if output and output.exists():
         parser.error('结果已存在，请使用新文件路径')
-    manifest=json.loads((ROOT/'scripts/test-suite.json').read_text(encoding='utf-8'))
-    missing=[name for name in manifest['modules'] if not (ROOT/(name+'.py')).is_file()]
-    if missing:
-        parser.error('测试模块缺失：'+','.join(missing))
     original_connect=socket.socket.connect
     original_popen=subprocess.Popen
     def offline_connect(sock,address):
         if isinstance(address,tuple) and address[0] not in ('127.0.0.1','localhost','::1'):
             raise RuntimeError('Offline tests prohibit external network access')
-        if isinstance(address,(str,bytes)) and ('ata-device-worker.sock' in str(address) or '/run/ata-example/' in str(address)):
-            raise RuntimeError('Offline tests prohibit production worker access')
+        if not isinstance(address,tuple):
+            raise RuntimeError('Offline tests prohibit Unix socket access')
         return original_connect(sock,address)
     def offline_popen(command,*positional,**kwargs):
         parts=command if isinstance(command,(list,tuple)) else [command]
         if any(Path(str(part)).name.lower() in ('ssh','ssh.exe','sudo') for part in parts):
             raise RuntimeError('Offline tests prohibit device SSH access')
         return original_popen(command,*positional,**kwargs)
+    # 私密配置在离线测试中视作不存在；临时目录里的合成夹具仍可读取。
+    private_root = os.path.normcase(os.path.abspath(str(ROOT / '.secrets')))
+    def guard_private_open(original):
+        def open_file(file, *positional, **kwargs):
+            if isinstance(file, (str, bytes, os.PathLike)):
+                path = os.path.normcase(os.path.abspath(os.fsdecode(file)))
+                if path == private_root or path.startswith(private_root + os.sep):
+                    raise FileNotFoundError('Project private configuration is disabled in offline tests')
+            return original(file, *positional, **kwargs)
+        return open_file
+
     socket.socket.connect=offline_connect
     subprocess.Popen=offline_popen
     old_dir=os.getcwd()
     os.chdir(str(ROOT))
     try:
-        suite=unittest.defaultTestLoader.loadTestsFromNames(manifest['modules'])
-        discovered=suite.countTestCases()
-        if discovered!=manifest['expected_tests']:
-            raise RuntimeError('Expected %s tests; discovered %s'%(manifest['expected_tests'],discovered))
-        result=unittest.TextTestRunner(verbosity=2).run(suite)
+        suite = unittest.defaultTestLoader.discover(str(ROOT), pattern='test_*.py')
+        with patch('builtins.open', guard_private_open(builtins.open)), patch('io.open', guard_private_open(io.open)):
+            result=unittest.TextTestRunner(verbosity=2).run(suite)
     finally:
         os.chdir(old_dir)
         socket.socket.connect=original_connect

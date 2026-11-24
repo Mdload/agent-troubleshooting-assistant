@@ -6,6 +6,7 @@ from unittest.mock import Mock,patch
 from diagnostic_core import AuditStore
 from unified_chat import run
 from chat_model import ModelFailure,make_model
+from workflow_test_support import RunningApp
 
 class ResponseAccountingTests(unittest.TestCase):
     def execute(self,actions):
@@ -45,19 +46,12 @@ class ResponseAccountingTests(unittest.TestCase):
             self.assertIsNone(ModelFailure('test',usage).usage)
 
     def test_http_returns_failed_call_usage(self):
-        import app
-        server=app.Server(('127.0.0.1',0),app.Handler)
-        thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
-        try:
+        with RunningApp(lookup=Mock(return_value=[])) as client:
             for code,usage in (('model_invalid_json',81),('model_timeout',None)):
-                request=urllib.request.Request('http://127.0.0.1:'+str(server.server_port)+'/api/chat',
-                    data=json.dumps({'question':'普通问题','history':[],'allow_context':True}).encode(),
-                    headers={'Content-Type':'application/json','X-ATA-Token':app.CSRF_TOKEN})
-                with patch('unified_chat.qa.model_config',return_value={}),patch('unified_chat.AuditStore'), \
+                with patch('unified_chat.qa.model_config',return_value={}), \
                      patch('unified_chat.make_model',return_value=Mock(side_effect=ModelFailure(code,usage))):
-                    with urllib.request.urlopen(request,timeout=3) as response: result=json.load(response)
+                    result=client.chat('Python列表怎么用')[1]
                 self.assertEqual(result['status'],'incomplete')
                 self.assertEqual(result['reason'],code)
                 self.assertEqual(result['total_tokens'],(usage or 0)*(2 if code=='model_invalid_json' else 1))
                 self.assertEqual(result['total_tokens_complete'],usage is not None)
-        finally:server.shutdown();server.server_close();thread.join()

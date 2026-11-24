@@ -5,6 +5,7 @@ from unittest.mock import Mock,patch
 from diagnostic_core import AuditStore
 from evidence_scope import mark_observation,build_scope
 from unified_chat import run
+from workflow_test_support import RunningApp
 
 def answer(text='服务处于active，其他状态仍未验证',refs=None):
     return {'action':'answer','answer':text,'refs':refs or ['OBS-1'],'basis':'evidence'},2
@@ -64,20 +65,12 @@ class EvidenceScopeTests(unittest.TestCase):
         self.assertEqual(result['evidence_scope']['successful_reads'],1)
 
     def test_http_keeps_scope_outside_answer_text(self):
-        import app
-        server=app.Server(('127.0.0.1',0),app.Handler)
-        thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
-        try:
-            req=urllib.request.Request('http://127.0.0.1:'+str(server.server_port)+'/api/chat',
-                data=json.dumps({'question':'检查局端备机','history':[],'allow_context':True}).encode(),
-                headers={'Content-Type':'application/json','X-ATA-Token':app.CSRF_TOKEN})
-            planner=Mock(side_effect=[({'action':'read','device':'local-backup','check':'services'},1),answer()])
-            with patch('unified_chat.make_model',return_value=planner),patch('unified_chat.qa.model_config',return_value={}), \
-                 patch('unified_chat.AuditStore'),patch('unified_chat.remote_probe',return_value={'ok':True,'collected_at':'SIMULATION','output':'active'}):
-                opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
-                with opener.open(req,timeout=3) as response:result=json.load(response)
+        planner=Mock(side_effect=[({'action':'read','device':'local-backup','check':'services'},1),answer()])
+        probe=Mock(return_value={'ok':True,'collected_at':'SIMULATION','output':'active'})
+        with RunningApp(planner,probe,lookup=Mock(return_value=[])) as client:
+            task=client.diagnostic_chat('检查局端备机')[1]['task'];client.login();client.approve(task['id'])
+            result=client.resume(task['id'])[1]['result']
             self.assertEqual(result['evidence_scope']['kind'],'synthetic')
             self.assertIn('完整HA健康',result['evidence_scope']['unverified'])
-        finally:server.shutdown();server.server_close();thread.join()
 
 if __name__=='__main__':unittest.main()

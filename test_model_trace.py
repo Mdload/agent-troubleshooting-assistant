@@ -1,6 +1,8 @@
 """测时覆盖响应/超时/解析失败；轨迹不保存正文或凭据。"""
 import json
 import socket
+import ssl
+import urllib.error
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,6 +10,7 @@ from unittest.mock import Mock,patch
 from chat_model import make_model,ModelFailure
 from diagnostic_core import AuditStore
 from unified_chat import run
+from model_trace import safe_metrics
 
 CONFIG={'LLM_BASE_URL':'https://api.inferera.com/v1','LLM_API_KEY':'PRIVATE_KEY','LLM_MODEL_ID':'test'}
 
@@ -85,6 +88,28 @@ class ModelTraceTests(unittest.TestCase):
             result=run('hello',[],planner,Mock(),Mock(),AuditStore(Path(tmp)/'a.db'))
             self.assertEqual(result['model_trace'][0]['outcome'],'evaluation_budget_reached')
             self.assertNotIn('transport',result['model_trace'][0])
+
+    def test_fixed_network_categories_keep_exception_details_private(self):
+        errors=[(socket.gaierror(-2,'PRIVATE_DNS'),'dns'),
+                (ssl.SSLError('PRIVATE_TLS'),'tls'),
+                (ConnectionRefusedError('PRIVATE_PROXY'),'refused'),
+                (ConnectionResetError('PRIVATE_PEER'),'reset')]
+        for source,kind in errors:
+            for error in (source,urllib.error.URLError(source)):
+                with self.subTest(kind=kind,wrapped=isinstance(error,urllib.error.URLError)):
+                    opener=Mock();opener.open.side_effect=error
+                    planner=make_model(CONFIG,opener)
+                    with self.assertRaises(ModelFailure) as raised:planner({})
+                    self.assertEqual(raised.exception.code,'model_connection_failed')
+                    self.assertEqual(planner.last_metrics['failure_kind'],kind)
+                    self.assertEqual(opener.open.call_count,1)
+                    self.assertNotIn('PRIVATE',json.dumps(planner.last_metrics))
+
+    def test_metric_filter_rejects_nonfinite_and_untrusted_labels(self):
+        metrics=safe_metrics({'elapsed_ms':float('nan'),'response_bytes':float('inf'),
+            'request_bytes':True,'wait_headers_ms':-1,'failure_kind':'PRIVATE',
+            'stage':'PRIVATE','prompt_kind':'general_learning','http_status':429})
+        self.assertEqual(metrics,{'prompt_kind':'general_learning','http_status':429})
 
 
 if __name__=='__main__': unittest.main()

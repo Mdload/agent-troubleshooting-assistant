@@ -16,25 +16,25 @@ from unified_chat import run
 
 class RemoteToolsTests(unittest.TestCase):
     def test_remote_uses_140_root_direct_path_and_guard(self):
-        for device, address, hostname in (('remote-primary', '198.51.100.133', 'example-ha-owner'),
-                                           ('remote-backup', '198.51.100.134', 'example-ha-backup')):
+        for device, address, hostname in (('remote-primary', '198.51.100.133', 'example-remote-primary'),
+                                           ('remote-backup', '198.51.100.134', 'example-backup')):
             command = build_command(device, 'services')
             self.assertEqual(command[:4], ['sudo', '-n', '-H', '/usr/bin/ssh'])
             self.assertEqual(command[-2], 'root@' + address)
             self.assertNotIn('-J', command)
-            self.assertNotIn('root@198.51.100.251', command)
+            self.assertNotIn('root@203.0.113.251', command)
             body = shlex.split(command[-1])[2]
             self.assertIn('hostname', body)
             self.assertIn(hostname, body)
             self.assertIn(address + '/16', body)
             self.assertIn('addr show dev tun7', body)
-            self.assertIn('example-croc-smr.service', body)
+            self.assertIn('croc2.0smr.service', body)
             self.assertNotIn('diald-ppp', body)
-            self.assertNotIn('example-croc-sar.service', body)
+            self.assertNotIn('croc-sar.service', body)
 
     def test_local_ingress_retained_and_route_failure_not_masked(self):
         command = build_command('local-primary', 'services')
-        self.assertEqual(command[-2], 'root@198.51.100.251')
+        self.assertEqual(command[-2], 'root@203.0.113.251')
         for device in ('local-primary', 'remote-primary'):
             self.assertNotIn('| head', build_command(device, 'routes')[-1])
 
@@ -134,7 +134,7 @@ class RemoteToolsTests(unittest.TestCase):
 
 @unittest.skipIf(os.name == 'nt', 'Shell execution guard requires Linux')
 class RemoteShellGuardTests(unittest.TestCase):
-    def execute(self, hostname='example-ha-owner', user='root', address='198.51.100.133/16', route_code=0):
+    def execute(self, hostname='example-remote-primary', user='root', address='198.51.100.133/16', route_code=0):
         # 在临时PATH执行实际生成的sh正文；假程序不访问设备，不使用sudo。
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

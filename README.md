@@ -1,50 +1,55 @@
 # Agent Troubleshooting Assistant
 
-一个用 Python 标准库实现的网络排障助手。它用 BM25 检索网络机制和历史案例，由宿主校验工具请求，再将服务、接口和路由观测作为回答依据。
+一个用 Python 标准库实现的网络排障助手。它用 BM25 检索网络机制和案例，由宿主校验工具请求，并将服务、接口、日志和路由观测纳入回答。
 
-此作品集基于 v0.7.0，使用匿名知识资料、虚构设备和合成观测。离线回放以确定性规划器驱动真实宿主循环，覆盖工具选择、证据引用和失败分支。
+## v0.10.3
 
-## 近期进展
+默认 `/api/chat` 使用 Agent v2。它结合近期轮次、滚动摘要和 SQLite 中的个人记忆及实验室共享经验。首次读取某台登记设备前，需要当前用户确认。配置变更和重启请求生成建议卡。任务和文本材料入口继续使用兼容流程。
 
-完整应用于 2026-11-22 更新到 v0.9.38。连续排障会保留原任务、用户更正和历史观测的来源与采集时间。用户限定只分析某台设备后，后续回看继续沿用该范围。历史探测分别呈现发包和应答。VIP 地址和接口观测保留采集时的状态，端到端业务收发仍需单独验证。
-
-本仓库仍提供 v0.7.0 的可复现离线示例。下面的复现步骤和测试数字均对应这里的代码。
+公开版使用文档专用设备地址、匿名知识资料和合成观测。内置知识包含 13 个案例和 48 节知识。
 
 ## 本地复现
 
-需要 Python 3.8 或更新版本。测试和回放无需安装依赖、配置 API Key 或连接设备。
+需要 Python 3.8 或更新版本。以下命令无需安装 Python 依赖、配置 API Key 或连接设备。
 
 ```sh
 python -B scripts/check_offline.py
+python -B scripts/eval_agent_v2.py
 python -B scripts/replay_offline.py --output artifacts/replay.json
 ```
 
-Windows 上验证了 157 项工程检查，其中 151 项通过、6 项 Linux 专属检查跳过。回放应输出 `scenarios=4`、`engineering_assertions_passed=4`、`model_api_calls=0` 和 `live_device_reads=0`。查看 `artifacts/replay.json` 中的工具顺序、观测、回答和审计记录。重复回放时换一个输出文件名。
+Agent v2 评测包含 19 个场景，覆盖设备确认、配置建议卡、连续追问、记忆、检索、工具失败和结论收尾。四场景回放使用确定性规划器，预期输出 `scenarios=4`、`engineering_assertions_passed=4`、`model_api_calls=0` 和 `live_device_reads=0`。报告记录工具顺序、合成观测、回答和审计。重复回放时使用新的输出文件名。
 
-运行 `python -B app.py` 可以在浏览器访问 [本地 Web 界面](http://127.0.0.1:17865/)。页面用于预览交互，真实模型对话需要另行配置。合成诊断请运行上面的离线回放。
+运行 `python -B app.py`，在浏览器打开本地页面。模型对话需要配置受支持的模型。 [本地 Web 界面](http://127.0.0.1:17865/)
 
 ## 处理流程
 
 ```mermaid
 flowchart LR
-    Q[用户问题] --> H[宿主编排]
-    K[BM25 知识和案例] <--> H
-    H <--> P[规划器]
-    H --> V[工具枚举和范围校验]
-    V --> F[合成设备观测]
+    Q[用户问题] --> H[Agent v2 宿主]
+    K[BM25 知识与案例] <--> H
+    M[SQLite 摘要与记忆] <--> H
+    H <--> P[模型或离线替身]
+    H --> V[设备与检查项校验]
+    V --> C[首次读取确认]
+    C --> F[只读观测或离线夹具]
     F --> H
-    H --> A[回答引用与 SQLite 审计]
+    H --> A[回答与配置建议卡]
 ```
 
 | 模块 | 职责 |
 | --- | --- |
-| [qa.py](qa.py) · [knowledge.py](knowledge.py) | 词法检索、案例匹配与来源索引 |
-| [unified_chat.py](unified_chat.py) | 处理结构化工具请求，限制检索和读取次数，编排诊断与回答 |
-| [device_tools.py](device_tools.py) | 检查设备和操作是否在登记范围内。回放复用校验，观测由夹具提供 |
-| [diagnostic_core.py](diagnostic_core.py) · [evidence_scope.py](evidence_scope.py) | 保存 SQLite 审计，区分历史材料、合成观测和读取失败 |
-| [evaluation/remote_replay.py](evaluation/remote_replay.py) | 四个可复现的合成诊断场景 |
+| [app.py](app.py) · [web/](web/) | HTTP 入口、账号和会话，以及聊天界面 |
+| [agent_v2.py](agent_v2.py) | 工具调用循环、设备确认及配置建议卡 |
+| [agent_memory.py](agent_memory.py) | SQLite 会话记忆、滚动摘要和共享经验 |
+| [qa.py](qa.py) · [knowledge_modules.py](knowledge_modules.py) | BM25 检索、模块知识手册与来源索引 |
+| [device_registry.py](device_registry.py) · [device_tools.py](device_tools.py) | 登记设备及检查项，校验只读工具范围 |
+| [unified_chat.py](unified_chat.py) · [lab_workflow.py](lab_workflow.py) | 兼容任务和文本材料的诊断编排 |
+| [evaluation/remote_replay.py](evaluation/remote_replay.py) | 四个确定性合成诊断场景 |
 
-## 回放场景
+## 核心演示场景
+
+从“远端能 ping 通，但业务为什么不通？”出发，结合角色、VIP、Croc 服务和路由逐层分析。设备的管理可达性、隧道探测和端到端业务收发分别需要证据。
 
 | 场景 | 验证点 |
 | --- | --- |
@@ -53,4 +58,4 @@ flowchart LR
 | R03 · 备机无 VIP，服务停止 | 结合主备分工解释现象，保留接管能力待验收 |
 | R04 · 读取超时 | 停止后续读取，报告状态未知 |
 
-这些结果验证的是宿主和工具流程。模型准确率、真实故障定位与端到端业务状态需要独立验收。
+离线结果验证宿主控制流、权限和证据处理。模型答复准确率与真实链路效果需要独立验收。

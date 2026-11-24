@@ -1,0 +1,12 @@
+{
+  "suite_version": "ha-intake-blind-v1",
+  "provenance": "independent synthetic dialogues, no real conversation or live evidence",
+  "cases": [
+    {"id":"H01","chat_space":"ha","question":"现在轮到后面那一台了吗？","followups":["我说的是远端，主要看谁拿着虚拟地址。"],"expected_request_status":"approval_required","expected_goal":"vip_ownership","allowed_targets":["remote-primary","remote-backup"],"required_points":["确定远端主备资源归属","两台接口都是有效候选"]},
+    {"id":"H02","chat_space":"ha","question":"这股流量到底绕哪里去了？","followups":["从局端出来的那一股。查策略规则和主路由。"],"expected_request_status":"approval_required","expected_goal":"routing","allowed_targets":["local-primary","local-backup"],"required_points":["核对局端路由与策略","说明完整转发仍需命中规则和下一跳"]},
+    {"id":"H03","chat_space":"ha","question":"先帮我看一下另外那台的状态。","followups":["指远端备机。只查业务进程在不在。"],"expected_request_status":"approval_required","expected_goal":"device_state","allowed_targets":["remote-backup"],"required_points":["只核对明确登记的远端备机","无需检查无关节点"]},
+    {"id":"H04","chat_space":"ha","question":"先确认一下它能不能碰到对面。","followups":["说的是从局端主机的管理地址向远端主机发 ICMP。"],"expected_request_status":"approval_required","expected_goal":"icmp_reachability","allowed_targets":["local-primary"],"expected_scope":{"local-primary":["ping_remote_primary"]},"required_points":["申请中保留 ICMP 和方向","明确只验证所列管理地址"]},
+    {"id":"H05","chat_space":"ha","question":"这边是不是已经换了设置？","followups":["要看局端备机此刻加载的 Keepalived 配置文件。"],"expected_request_status":"current_unverified","expected_goal":"live_configuration","required_points":["识别实时配置读取需求","服务状态无法证实文件内容"]},
+    {"id":"H06","chat_space":"ha","question":"是不是接收那头出了问题？","followups":["先不查设备。我改问一下主备热切换的一般原理。"],"expected_request_status":"answered","required_points":["识别明确换题与禁止设备读取","解释一般原理"]}
+  ]
+}

@@ -15,7 +15,7 @@ QUESTIONS = [
     ('现在ppp5是不是还坏着？', ['HA-007', 'KB-011']),
     ('Croc的算法91具体怎么调度？', ['KB-012']),
     ('能直接运行健康检查脚本作为只读检查吗？', ['KB-007']),
-    ('SSH能连示例跳板是不是业务就通了？', ['KB-001']),
+    ('SSH能连140是不是业务就通了？', ['KB-001']),
     ('当前主机是哪台？', ['KB-008']),
     ('远端Croc从rc.local还是systemd启动？', ['KB-009']),
     ('为什么不能直接对齐各台设备日志时间？', ['KB-011']),
@@ -84,7 +84,11 @@ class SynthesisTests(unittest.TestCase):
     def test_sources_and_snapshot_dates(self):
         self.assertEqual(len({c['id'] for c in qa.RECORDS}), len(qa.RECORDS))
         for c in qa.KNOWLEDGE:
-            self.assertIn(c['evidence_date'], ('2026-10-02',))
+            if c['kind'] == 'lab_basics':
+                self.assertIsNone(c['evidence_date'])
+                self.assertTrue(c['reference_urls'])
+            else:
+                self.assertIn(c['evidence_date'], ('2026-09-28','2026-09-30'))
             self.assertTrue(set(c['sources']) <= set(qa.SOURCE_MAP))
 
     def test_fenced_json_and_truncated_json(self):

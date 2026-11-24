@@ -213,6 +213,136 @@
       ],
       "repair_direction_for_review": "本候选仅展示只读流程，修复需另行授权。",
       "verification_limits": "匿名示例资料；不是历史修复成果或当前现场状态。"
+    },
+    {
+      "id": "HA-009",
+      "title": "单向有线路径可达，回程路由缺失",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote",
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "局端无法应答",
+      "historical_finding": "合成路由表显示回程缺少到示例源网段的路由。",
+      "historical_outcome": "结合选路与回程判断影响范围。",
+      "sources": [
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "查看接口与选路",
+        "分别核对去程和回程"
+      ],
+      "repair_direction_for_review": "核对证据和未知项。",
+      "verification_limits": "合成演示案例。"
+    },
+    {
+      "id": "HA-010",
+      "title": "PPP 有地址，业务回程仍缺失",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote",
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "用户网段流量无应答",
+      "historical_finding": "模拟环境中局端与 Router 均缺用户网段回程。",
+      "historical_outcome": "结合选路与回程判断影响范围。",
+      "sources": [
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "查看接口与选路",
+        "分别核对去程和回程"
+      ],
+      "repair_direction_for_review": "核对证据和未知项。",
+      "verification_limits": "合成演示案例。"
+    },
+    {
+      "id": "HA-011",
+      "title": "运行 NAT 与启动配置不一致",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote",
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "应用重启后业务异常",
+      "historical_finding": "示例启动配置仍引用旧出口的固定 SNAT。",
+      "historical_outcome": "结合选路与回程判断影响范围。",
+      "sources": [
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "查看接口与选路",
+        "分别核对去程和回程"
+      ],
+      "repair_direction_for_review": "核对证据和未知项。",
+      "verification_limits": "合成演示案例。"
+    },
+    {
+      "id": "HA-012",
+      "title": "管理入口不可达，业务探测仍有回包",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote",
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "多台节点状态未知，内层探测有应答",
+      "historical_finding": "合成示例的共享管理入口不可达，当次内层探测仍收到应答。",
+      "historical_outcome": "结合选路与回程判断影响范围。",
+      "sources": [
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "查看接口与选路",
+        "分别核对去程和回程"
+      ],
+      "repair_direction_for_review": "核对证据和未知项。",
+      "verification_limits": "合成演示案例。"
+    },
+    {
+      "id": "HA-013",
+      "title": "普通 ping 失败，指定有线源后成功",
+      "curation_status": "anonymous_example",
+      "live_verified": false,
+      "repair_enabled": false,
+      "device_groups": [
+        "remote",
+        "local"
+      ],
+      "operating_modes": [
+        "normal_ha"
+      ],
+      "symptom": "两种探测结果不同",
+      "historical_finding": "普通 ping 使用管理 PPP，指定有线源后匹配另一条策略路由。",
+      "historical_outcome": "结合选路与回程判断影响范围。",
+      "sources": [
+        "S04"
+      ],
+      "proposed_read_only_checks": [
+        "查看接口与选路",
+        "分别核对去程和回程"
+      ],
+      "repair_direction_for_review": "核对证据和未知项。",
+      "verification_limits": "合成演示案例。"
     }
   ]
 }
