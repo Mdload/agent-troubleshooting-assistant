@@ -22,3 +22,6 @@ candidates/
 releases/
 evaluation/human-review/
 evaluation/live-chain-*/
+
+agent_skills/*
+!agent_skills/INDEX.md

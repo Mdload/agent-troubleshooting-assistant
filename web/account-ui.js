@@ -7,7 +7,9 @@ function historySnapshot(chat){return {title:chat.title,messages:chat.messages.f
 function resetIdentityView(){
   accountEpoch++;
   for(const id of [...taskPollers.keys()])stopWatchingTask(id);
-  chats=[];activeId=null;requestBusy=false;busy=false;modeLoading=false;
+  for(const run of chatRuns.values())run.finish?.();
+  chatRuns.clear();answerReveal=null;
+  chats=[];activeId=null;modeLoading=false;
   resetChatSpaces();
   el('question').value='';el('admin-password').value='';
   el('repair-admin-password').value='';
@@ -15,8 +17,7 @@ function resetIdentityView(){
   for(const id of ['account-lab-password','lab-password','lab-password-confirm'])el(id).value='';
   labRevision=0;el('lab-password-note').textContent='';
   el('admin-login').hidden=false;el('admin-panel').hidden=true;
-  for(const id of ['admin-list','experience-own-list','admin-experiences','comparison-body'])el(id).replaceChildren();
-  experienceEditor=null;
+  for(const id of ['admin-list','skills-list','admin-experiences','comparison-body'])el(id).replaceChildren();
   for(const dialog of document.querySelectorAll('dialog'))if(dialog.open&&dialog.id!=='account-dialog')dialog.close();
   historyQueue=Promise.resolve();el('storage-note').textContent='';
   if(typeof resetMaterialsUI==='function')resetMaterialsUI();
@@ -51,10 +52,10 @@ async function loadAccount(){
   finally{accountLoading=false;render();}
 }
 function queueHistorySaves(){
-  if(!account||accountLoading||accountExpired||requestBusy)return;
+  if(!account||accountLoading||accountExpired)return;
   const epoch=accountEpoch;
   for(const chat of chats){
-    if(chat.loaded===false||!chat.messages.length||chat.syncBlocked)continue;
+    if(chatRuns.has(chat.id)||chat.loaded===false||!chat.messages.length||chat.syncBlocked)continue;
     const snapshot=historySnapshot(chat),signature=JSON.stringify(snapshot);
     if(chat.lastQueued===signature)continue;
     chat.lastQueued=signature;el('storage-note').textContent='正在保存个人文字历史…';

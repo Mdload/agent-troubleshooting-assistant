@@ -265,10 +265,10 @@ vrrp_instance DEVICE_PRIVATE_NAME {
     def test_policy_tool_reads_both_rules_and_non_main_tables(self):
         self.assertEqual(commands_for('local-backup','policy_routes'),
                          ('LC_ALL=C ip -4 rule show','LC_ALL=C ip -4 route show table all'))
-        self.assertEqual(len(PING_TARGETS),4)
+        self.assertEqual(len(PING_TARGETS),6)
         checks=list(checks_for('local-backup'))
         limits=requested_limits({'local-backup':checks},staged=True)
-        self.assertEqual(limits['max_reads'],len(checks))
+        self.assertEqual(limits['max_reads'],min(12,len(checks)))
         self.assertEqual(limits['reads_per_stage'],4)
 
 

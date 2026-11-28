@@ -4,15 +4,21 @@ import os
 import socket
 import socketserver
 import struct
-from device_tools import probe, DEVICES, CHECKS
-from device_registry import allows_check, checks_for
+import threading
+from device_tools import probe, probe_device, DEVICES
+from device_registry import PROBE_KINDS, MAX_PARALLEL_READS, allows_check, allows_probe, checks_for
 
 SOCKET = '/run/ata-diagnostics/worker.sock'
+SLOT = threading.BoundedSemaphore(MAX_PARALLEL_READS)
 
 def dispatch(data):
     if data == {'operation':'capabilities'}:
         return {'ok':True,'kind':'registered_checks','devices':{device:list(checks_for(device)) for device in DEVICES},
-                'device_reads':0}
+                'probe_kinds':list(PROBE_KINDS),'device_reads':0}
+    if isinstance(data, dict) and set(data) == {'device', 'kind', 'target'}:
+        if not allows_probe(**data):
+            raise ValueError('Invalid probe scope')
+        return probe_device(**data)
     if not isinstance(data, dict) or set(data) != {'device', 'check'}:
         raise ValueError('Invalid request')
     if (not isinstance(data['device'], str) or not isinstance(data['check'], str) or
@@ -30,7 +36,14 @@ class Handler(socketserver.StreamRequestHandler):
             line = self.rfile.readline(1025)
             if len(line) > 1024 or not line.endswith(b'\n'):
                 return
-            result = dispatch(json.loads(line.decode('utf-8')))
+            request = json.loads(line.decode('utf-8'))
+            if SLOT.acquire(False):
+                try:
+                    result = dispatch(request)
+                finally:
+                    SLOT.release()
+            else:
+                result = {'ok': False, 'output': '', 'error': 'worker_busy'}
         except Exception:
             result = {'ok': False, 'output': '', 'error': 'worker_request_failed'}
         try:
@@ -39,8 +52,11 @@ class Handler(socketserver.StreamRequestHandler):
             pass
 
 if __name__ == '__main__':
+    class Server(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
+        daemon_threads = True
+
     os.umask(0o077)
     if os.path.exists(SOCKET):
         os.unlink(SOCKET)
-    with socketserver.UnixStreamServer(SOCKET, Handler) as server:
+    with Server(SOCKET, Handler) as server:
         server.serve_forever()

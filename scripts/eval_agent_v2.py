@@ -275,8 +275,10 @@ def context_continuity(memory):
     followup = run.messages[-1][0]
     expect(any(msg['role'] == 'assistant'
                and '上一轮结论：备机持有业务 VIP' in msg['content']
-               and 'eth0: business VIP present' in msg['content'] for msg in followup),
-           '后续模型上下文丢失上一轮回答或工具证据')
+               and 'eth0: business VIP present' not in msg['content'] for msg in followup),
+           '助手历史应保留上一轮回答且剥离工具证据')
+    expect(followup[0]['role'] == 'system' and 'eth0: business VIP present' in followup[0]['content'],
+           '后续模型上下文丢失历史工具证据')
     expect(any(msg['role'] == 'assistant' and '仍需核对隧道' in msg['content'] for msg in followup),
            '最近一次结论未带入追问')
 
@@ -425,7 +427,9 @@ def unknown_tool(memory):
 
 def step_limit(memory):
     def conclude(messages):
-        expect(any('devices' in item for item in tool_results(messages))
+        evidence = json.loads(messages[-1]['content'].split('\n', 1)[1])
+        expect(any('"devices"' in item for item in evidence['本轮证据摘录'])
+               and all(message['role'] != 'tool' for message in messages)
                and '还待核实' in messages[-1]['content'],
                '收尾总结没有带上当前证据或待核实项')
         return model_reply('已查到设备目录；服务和链路状态待核实。')
@@ -441,8 +445,9 @@ def step_limit(memory):
 def empty_summary(memory):
     run = Replay(memory, [model_reply(calls=[tool('list_devices')]), model_reply(), model_reply()],
                  max_steps=2)
-    result = run.answer('继续核对所有可检查设备')
-    expect('未能生成完整总结' in result['answer'] and len(result['agent_steps']) == 1,
+    result = run.chat('继续核对所有可检查设备')
+    expect(result['status'] == 'incomplete' and result['reason'] == 'model_empty_answer'
+           and '未能生成完整总结' in result['answer'] and len(result['agent_steps']) == 1,
            '收尾为空时缺少可读说明或丢失已执行步骤')
 
 

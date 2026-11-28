@@ -3,6 +3,7 @@ import argparse
 import http.client
 import ipaddress
 import json
+import logging
 import re
 import threading
 import time
@@ -86,9 +87,15 @@ class Handler(BaseHTTPRequestHandler):
         connection=http.client.HTTPConnection(*self.server.upstream,timeout=300 if method=='POST' else 8)
         headers={'Host':'127.0.0.1:'+str(self.server.upstream[1]),'Cookie':cookies(self.headers.get('Cookie')),'Connection':'close'}
         if method=='POST':headers.update({'Content-Type':'application/json','Origin':'http://'+headers['Host'],'X-ATA-Token':self.headers.get('X-ATA-Token','')})
+        if path=='/api/chat' and self.headers.get('Accept')=='text/event-stream':
+            headers['Accept']='text/event-stream'
         if extra:headers.update(extra)
-        connection.request(method,path,body=body,headers=headers)
-        return connection,connection.getresponse()
+        try:
+            connection.request(method,path,body=body,headers=headers)
+            return connection,connection.getresponse()
+        except Exception:
+            connection.close()
+            raise
     def authenticated(self):
         jar=SimpleCookie();jar.load(cookies(self.headers.get('Cookie')))
         if 'ata_account' not in jar or not ACCOUNT.fullmatch(jar['ata_account'].value):return False
@@ -99,6 +106,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):self.dispatch(False)
     def do_POST(self):self.dispatch(True)
     def dispatch(self,post):
+        started=time.monotonic()
         try:
             hosts=self.headers.get_all('Host',[])
             if hosts!=[self.server.authority]:return self.reply(403,{'error':'入口地址无效'})
@@ -129,7 +137,10 @@ class Handler(BaseHTTPRequestHandler):
                 body=self.rfile.read(length)
                 if len(body)!=length:return self.reply(400,{'error':'请求内容不完整'})
             self.forward(path,'POST' if post else 'GET',body)
-        except (OSError,ValueError,http.client.HTTPException):
+        except (OSError,ValueError,http.client.HTTPException) as error:
+            if post and self.path.split('?',1)[0]=='/api/chat':
+                logging.warning('chat forwarding failed after %.3fs: %s (headers_sent=%s)',
+                                time.monotonic()-started,type(error).__name__,self.headers_sent)
             if not self.headers_sent:
                 try:self.reply(503,{'error':'助手暂时不可用，请稍后重试'})
                 except OSError:pass

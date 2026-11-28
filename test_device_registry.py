@@ -14,7 +14,7 @@ from workflow_test_support import RunningApp
 
 class RegistryTests(unittest.TestCase):
     def test_all_runtime_consumers_share_registered_targets_and_checks(self):
-        self.assertEqual(len(DEVICES),4)
+        self.assertEqual(len(DEVICES),6)
         self.assertEqual(device_tools.DEVICES,{key:(d['address'],d['hostname']) for key,d in DEVICES.items()})
         self.assertEqual(device_tools.DEVICE_LABELS,{key:d['label'] for key,d in DEVICES.items()})
         self.assertEqual(set(SCENES['ha_topology']['devices']),set(DEVICES))
@@ -28,7 +28,7 @@ class RegistryTests(unittest.TestCase):
     def test_target_routing_is_derived_from_inventory_roles_not_live_roles(self):
         self.assertEqual(target_devices('远端主机'),['remote-primary'])
         self.assertEqual(set(target_devices('局端主备')),{'local-primary','local-backup'})
-        self.assertFalse(allows_check('1.2.3.4','services'))
+        self.assertFalse(allows_check('198.51.100.46','services'))
         self.assertFalse(allows_check('local-primary','restart'))
         self.assertTrue(all(d['current_role']=='unknown' for d in public_catalog()['devices']))
 

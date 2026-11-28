@@ -1,7 +1,7 @@
 """从固定登记生成桥接白名单；构造文本不会启动SSH或Unix服务。"""
-from device_registry import DEVICES, HOPS, checks_for
+from device_registry import DEVICES, HOPS, PROBE_KINDS, PROBE_PORT_PATTERN, PROBE_TARGET_PATTERN, checks_for
 
-REMOTE_CODE = '''import json,os,pwd,socket,sys
+REMOTE_CODE = '''import json,os,pwd,re,socket,sys
 assert socket.gethostname() == __HOSTNAME__
 assert os.getuid() == __UID__ and pwd.getpwuid(os.getuid()).pw_name == __USER__
 SCOPES = __SCOPES__
@@ -12,6 +12,15 @@ health = request == {'operation':'health'}
 if health:
     payload = {'device':'__migration_health__','check':'services'}
 elif request == {'operation':'capabilities'}:
+    payload = request
+elif isinstance(request,dict) and set(request) == {'device','kind','target'}:
+    device, kind, target = request['device'], request['kind'], request['target']
+    assert isinstance(device,str) and device in SCOPES
+    assert kind in __PROBE_KINDS__ and isinstance(target,str)
+    if kind == 'port':
+        assert re.fullmatch(__PROBE_PORT_PATTERN__,target) and 1 <= int(target) <= 65535
+    else:
+        assert re.fullmatch(__PROBE_TARGET_PATTERN__,target)
     payload = request
 else:
     assert isinstance(request,dict) and set(request) == {'device','check'}
@@ -38,4 +47,7 @@ sys.stdout.buffer.write(encoded)
 REMOTE_CODE = (REMOTE_CODE.replace('__HOSTNAME__',repr(HOPS['jump_host']['hostname']))
                .replace('__UID__',repr(HOPS['jump_host']['uid']))
                .replace('__USER__',repr(HOPS['jump_host']['user']))
+               .replace('__PROBE_KINDS__',repr(PROBE_KINDS))
+               .replace('__PROBE_PORT_PATTERN__',repr(PROBE_PORT_PATTERN))
+               .replace('__PROBE_TARGET_PATTERN__',repr(PROBE_TARGET_PATTERN))
                .replace('__SCOPES__',repr({key:checks_for(key) for key in DEVICES})))

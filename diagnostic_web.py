@@ -5,15 +5,27 @@ import threading
 from pathlib import Path
 from diagnostic_core import AuditStore, run_diagnosis
 from diagnostic_model import make_planner
+from device_registry import MAX_PARALLEL_READS, allows_probe
 
 ROOT = Path(__file__).resolve().parent
 SLOT = threading.BoundedSemaphore(1)
+_CLIENT_SLOT = threading.BoundedSemaphore(MAX_PARALLEL_READS)
 
 def remote_probe(device, check):
-    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as conn:
+    return _request_worker({'device': device, 'check': check})
+
+
+def remote_probe_device(device, kind, target):
+    if not allows_probe(device, kind, target):
+        raise ValueError('Invalid probe scope')
+    return _request_worker({'device': device, 'kind': kind, 'target': target})
+
+
+def _request_worker(request):
+    with _CLIENT_SLOT, socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as conn:
         conn.settimeout(25)
         conn.connect('/run/ata-diagnostics/worker.sock')
-        conn.sendall(json.dumps({'device': device, 'check': check}).encode() + b'\n')
+        conn.sendall(json.dumps(request).encode() + b'\n')
         with conn.makefile('rb') as stream:
             line = stream.readline(65537)
         if len(line) > 65536 or not line.endswith(b'\n'):

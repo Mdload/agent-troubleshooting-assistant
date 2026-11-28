@@ -66,7 +66,7 @@ class ProtocolRecoveryTests(unittest.TestCase):
         self.assertEqual(result['events'][-1]['reason'],'invalid_action_format')
 
     def test_unknown_target_fails_without_retry(self):
-        result=self.execute([({'action':'read','device':'router-1','check':'services'},2),answer()])
+        result=self.execute([({'action':'read','device':'unregistered-device','check':'services'},2),answer()])
         self.assertEqual(result['reason'],'invalid_action_or_citation')
         self.assertEqual(self.planner.call_count,1)
         self.probe.assert_not_called()

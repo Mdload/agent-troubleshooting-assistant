@@ -9,13 +9,13 @@ function bytesBase64(bytes){
 function updateInputMeter(){
   const count=inputLength(el('question').value),long=count>1000;
   el('input-meter').textContent=count>800?(long?'已输入'+count+'字符；原输入完整保留，请转为材料后用短问题分析。':count+' / 1000字符'):'';
-  el('convert-long').hidden=!long;el('convert-long').disabled=busy||modeLoading||accountLoading||accountExpired;
+  el('convert-long').hidden=!long;el('convert-long').disabled=chatBusy()||modeLoading||accountLoading||accountExpired;
 }
 function renderMaterials(){
   const chat=current(),material=chat?.material,scope=accountEpoch+'/'+(chat?.id||'')+'/'+(material?.id||'');
   if(scope!==materialScope){materialScope=scope;el('allow-materials').checked=false;}
-  el('material-open').disabled=busy||modeLoading||accountLoading||accountExpired;
-  el('material-clear').hidden=!material;el('material-clear').disabled=busy||modeLoading;
+  el('material-open').disabled=chatBusy()||modeLoading||accountLoading||accountExpired;
+  el('material-clear').hidden=!material;el('material-clear').disabled=chatBusy()||modeLoading;
   el('material-selected').hidden=!material;el('material-consent').hidden=!material;
   el('material-selected').textContent=material?'已选：'+material.name+' · '+material.lines+'行 · '+material.bytes+'字节；本次只分析所选片段，设备当前状态未核验。':'';
   updateInputMeter();
@@ -25,7 +25,7 @@ function resetMaterialsUI(){
   el('material-original-body').textContent='';el('material-original-note').textContent='';el('material-existing').replaceChildren();
 }
 async function openMaterialEditor(fromLong=false){
-  if(busy||modeLoading||accountLoading||accountExpired)return;
+  if(chatBusy()||modeLoading||accountLoading||accountExpired)return;
   if(!current())newChat();const chat=current(),epoch=accountEpoch;
   el('material-editor').dataset.long=fromLong?'yes':'';el('material-question-row').hidden=!fromLong;
   el('material-file').value='';el('material-name').value='粘贴文本.txt';

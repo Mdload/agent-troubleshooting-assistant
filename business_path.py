@@ -16,7 +16,9 @@ def selected(question,policy):
 
 def assess_path(observations,scope,synthetic_replay=False):
     segments=[]
-    for group,label in (('remote','远端Croc入口'),('local','局端Croc接收')):
+    for group,label in (('remote','远端Croc入口'),('router','中间Router转发'),('local','局端Croc接收')):
+        if group == 'router' and synthetic_replay:
+            continue
         nodes=[]
         for device in scope:
             if device not in DEVICES or profile(device)['group']!=group:continue
@@ -26,7 +28,7 @@ def assess_path(observations,scope,synthetic_replay=False):
                 item=(replay_observation(observations,scope,device,check) if synthetic_replay
                       else current_observation(observations,device,check))
                 if item is None or collection_time(item.get('collected_at')) is None:continue
-                if check=='services':value=croc_state(item['output'],p['croc_unit'])
+                if check=='services':value=croc_state(item['output'],p['croc_unit'] or 'keepalived.service')
                 elif check=='interfaces':value=vip_state(item['output'],p['ha_vips'])
                 else:value='route_output_collected' if item['output'].strip() else 'unknown'
                 if value!='unknown':fields[check]={'value':value,'refs':[item['id']]}
@@ -34,16 +36,16 @@ def assess_path(observations,scope,synthetic_replay=False):
         segments.append({'id':group,'label':label,'nodes':nodes,
             'status':'partial_evidence' if any(node['fields'] for node in nodes) else 'unverified',
             'end_to_end_verified':False})
-    routers=assess_replay(observations,scope)['nodes'] if synthetic_replay else []
-    segments.insert(1,{'id':'router','label':'中间Router转发','nodes':routers,
-        'status':'synthetic_partial_evidence' if any(node['fields'] for node in routers) else 'not_connected',
-        'end_to_end_verified':False,'execution_enabled':False})
+    if synthetic_replay:
+        routers=assess_replay(observations,scope)['nodes']
+        segments.insert(1,{'id':'router','label':'中间Router转发','nodes':routers,
+            'status':'synthetic_partial_evidence' if any(node['fields'] for node in routers) else 'unverified',
+            'end_to_end_verified':False,'execution_enabled':False})
     gaps=['交换与接入网络、两端业务终端的回程路由及实际流量未核验',
           '当前HA模式、角色转换与资源唯一性未完整核验；顺序读取不是同时快照',
           '管理SSH或ping成功不证明业务路径畅通']
-    if not synthetic_replay:
-        gaps.insert(0,'Router工具未开放，本轮未读取Router；待核对转发开关、业务VIP和路由')
-    elif not any(node['fields'] for node in routers):gaps.insert(0,'未取得可用的Router合成回放依据')
+    if synthetic_replay and not any(node['fields'] for node in routers):
+        gaps.insert(0,'未取得可用的Router合成回放依据')
     for segment in segments:
         if segment['status']=='unverified':gaps.append(segment['label']+'未取得本轮有效状态依据')
     return {'kind':'synthetic_business_path_replay' if synthetic_replay else 'business_path_evidence_coverage',

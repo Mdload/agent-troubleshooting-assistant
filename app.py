@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """正式聊天入口：知识问答、逐任务审批和受控只读诊断；仅监听回环。"""
 import argparse
+from concurrent.futures import ThreadPoolExecutor, wait
 import hashlib
 import json
 import re
@@ -17,6 +18,7 @@ from admin_auth import AdminAuth
 from approval_store import ApprovalStore, TaskError, SINGLE_APPROVAL
 from lab_workflow import WorkflowService
 from diagnostic_core import audit_text, request_trace
+import diagnostic_web
 from diagnostic_logs import filter_log_output
 from question_routing import classify
 from conversation_topic import validate_conversation_id
@@ -24,6 +26,7 @@ from interaction_mode import scene_catalog
 from device_registry import public_catalog
 from version import VERSION
 from experience_store import ExperienceStore, ExperienceError
+import agent_skills
 from user_accounts import AccountStore,AccountError,SESSION_SECONDS
 from chat_history import HistoryStore,HistoryError
 from text_materials import MaterialStore,MaterialError
@@ -212,6 +215,9 @@ class Handler(BaseHTTPRequestHandler):
                 page=page.replace('__REPAIR_SCRIPT__',(ROOT/'web/repair-ui.js').read_text(encoding='utf-8'))
                 page=page.replace('__SELECTION_SCRIPT__',(ROOT/'web/selection-ui.js').read_text(encoding='utf-8'))
                 self.send(200, page.encode('utf-8'), 'text/html; charset=utf-8')
+            elif path == '/api/skills':
+                self.account_owner()
+                self.send(200, self.skill_library())
             elif path == '/api/health':
                 self.send(200, {'project':'Agent-Troubleshooting-Assistant', 'version':VERSION,
                     'status':'ok', 'case_count':len(qa.CASES), 'knowledge_count':len(qa.KNOWLEDGE),
@@ -341,6 +347,36 @@ class Handler(BaseHTTPRequestHandler):
         except (TaskError,ExperienceError,AccountError,HistoryError,MaterialError,MemoryError,RollingError) as error: self.task_error(error)
         except Exception: self.send(503, {'error':'服务暂不可用，请稍后重试'})
 
+    def skill_library(self):
+        return {'skills': agent_skills.list_skills(), 'summary': agent_skills.render_index_summary()}
+
+    def delete_skill(self, slug):
+        if not agent_skills.delete_skill(slug):
+            raise TaskError('not_found')
+        return {'status': 'ok'}
+
+    def do_DELETE(self):
+        if not self.local_host():
+            self.send(403, {'error': '请通过本机SSH隧道访问'})
+            return
+        match = re.fullmatch(r'/api/skills/([^/]+)', self.path)
+        if not match:
+            self.send(404, {'error': '接口不存在'})
+            return
+        if (not secrets.compare_digest(self.headers.get('X-ATA-Token', '').encode('utf-8'), CSRF_TOKEN.encode('ascii'))
+                or self.headers.get_all('Origin') != ['http://' + self.headers.get('Host', '')]):
+            self.send(403, {'error': '页面凭据失效或请求来自其他站点'})
+            return
+        try:
+            self.account_owner()
+            self.send(200, self.delete_skill(match.group(1)))
+        except (AccountError, TaskError) as error:
+            self.task_error(error)
+        except ValueError:
+            self.send(400, {'error': 'Skill 标识无效'})
+        except OSError:
+            self.send(503, {'error': 'Skill 库暂不可用'})
+
     def do_POST(self):
         if not self.local_host(): self.send(403, {'error':'请通过本机SSH隧道访问'}); return
         match = TASK_PATH.fullmatch(self.path)
@@ -429,6 +465,12 @@ class Handler(BaseHTTPRequestHandler):
                 return
             if memory_match:
                 conversation,action=memory_match.groups()
+                # The public gateway already forwards authenticated conversation-memory requests.
+                if not action and data.get('action') in ('list_skills', 'delete_skill'):
+                    self.account_owner()
+                    result = self.skill_library() if data['action'] == 'list_skills' else self.delete_skill(data.get('slug'))
+                    self.send(200, result)
+                    return
                 if not action and isinstance(data.get('action'),str):
                     owner=self.owner()
                     mem_store=self.server.get_agent_memory()
@@ -619,13 +661,16 @@ class Handler(BaseHTTPRequestHandler):
                             grant_devices = data.get('grant_devices')
                             if grant_devices is not None and not isinstance(grant_devices, list):
                                 raise ValueError()
-                            result = self.server.get_agent_v2().chat(
-                                owner, conversation, question.strip() if isinstance(question, str) else '',
+                            self.send_agent_chat(service.audit, dict(
+                                owner=owner, conversation_id=conversation,
+                                question=question.strip() if isinstance(question, str) else '',
                                 client_history=history,
                                 grant_devices=grant_devices,
                                 pending_id=data.get('pending_id'),
                                 deny_pending=bool(data.get('deny_pending', False)),
-                            )
+                                skills_enabled=bool(self.cookie('ata_account')),
+                            ))
+                            return
                         self.send(200, result)
                         return
                     if data.get('material_id') is not None:
@@ -734,17 +779,72 @@ class Handler(BaseHTTPRequestHandler):
         name, sep, port = self.headers.get('Host','').partition(':')
         return name in ('127.0.0.1','localhost') and (not sep or (port.isdigit() and 0 < int(port) < 65536))
 
-    def send_selection_stream(self,text,guard,service):
+    def begin_event_stream(self):
         self.send_response(200)
         self.send_header('Content-Type','text/event-stream; charset=utf-8')
         self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff')
         self.send_header('Connection','close');self.send_header('X-Accel-Buffering','no')
         for cookie in self.response_cookies:self.send_header('Set-Cookie',cookie)
         self.response_cookies=[];self.end_headers();self.close_connection=True
+
+    def emit_event(self, kind, value):
+        self.wfile.write(('event: '+kind+'\ndata: '+json.dumps(value,ensure_ascii=False)+'\n\n').encode('utf-8'))
+        self.wfile.flush()
+
+    def send_agent_chat(self, audit, params):
+        trace_id = secrets.token_hex(16)
+        started = time.monotonic()
+        agent = self.server.get_agent_v2()
+        audit.record(trace_id, 0, 'agent_chat_request', {'conversation': audit_text(params['conversation_id'])})
+
+        def run():
+            calls = []
+            try:
+                result = agent.chat(**params, on_model=calls.append)
+            except Exception as error:
+                audit.record(trace_id, 0, 'agent_chat_error', {'error': type(error).__name__})
+                raise
+            finally:
+                for index, metrics in enumerate(calls, 1):
+                    audit.record(trace_id, index, 'agent_model', metrics)
+            steps = result.get('agent_steps', [])
+            audit.record(trace_id, 0, 'agent_chat_result', {
+                'status': result['status'], 'reason': result.get('reason'),
+                'duration_ms': round((time.monotonic() - started) * 1000),
+                'answer_chars': len(result.get('answer') or ''),
+                'steps': [{key: step.get(key) for key in ('tool', 'ok', 'duration_ms')} for step in steps],
+            })
+            return dict(result, trace_id=trace_id)
+
+        if self.headers.get('Accept') != 'text/event-stream':
+            self.send(200, run())
+            return
+
+        try:
+            self.begin_event_stream()
+            self.emit_event('start', {})
+        except OSError:
+            audit.record(trace_id, 0, 'agent_chat_disconnect', {'phase': 'start'})
+            return
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            chat = pool.submit(run)
+            try:
+                while not wait((chat,), timeout=5).done:
+                    self.emit_event('heartbeat', {})
+                error = chat.exception()
+                if error is None:
+                    self.emit_event('result', chat.result())
+                else:
+                    self.emit_event('error', {'error': '服务暂不可用，请稍后重试。'})
+            except OSError:
+                audit.record(trace_id, 0, 'agent_chat_disconnect', {'phase': 'stream'})
+
+    def send_selection_stream(self,text,guard,service):
+        self.begin_event_stream()
         metrics={'kind':'selection_explain','successful':False};task=secrets.token_hex(16)
         def emit(kind,value):
             guard()
-            self.wfile.write(('event: '+kind+'\ndata: '+json.dumps(value,ensure_ascii=False)+'\n\n').encode('utf-8'));self.wfile.flush()
+            self.emit_event(kind, value)
         try:
             emit('start',{})
             value=stream_explanation(qa.model_config(),text,emit,guard,metrics,availability=service.model_availability)
@@ -764,7 +864,7 @@ class Server(ThreadingMixIn, HTTPServer):
 
     def __init__(self,address,handler=Handler,workflow=None,admin_auth=None,experiences=None):
         self.request_limiter=RequestLimiter()
-        self.model_slots=threading.BoundedSemaphore(2)
+        self.model_slots=threading.BoundedSemaphore(6)
         self.workflow = workflow; self.workflow_lock = threading.Lock()
         self.admin_auth = admin_auth or AdminAuth()
         self.experience_store=experiences
@@ -844,6 +944,7 @@ class Server(ThreadingMixIn, HTTPServer):
                 self.agent_v2=AutonomousAgent(
                     memory,
                     probe_fn=lambda device,check: workflow.get_probe()(device,check),
+                    probe_device_fn=diagnostic_web.remote_probe_device,
                     config_fn=qa.model_config,
                     experiences_fn=self.get_experiences,
                     availability=workflow.model_availability,

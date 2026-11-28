@@ -178,7 +178,7 @@ def assess_case(observations,scope,remaining_reads,include_routine_logs=True):
     nodes=[];core_checks=[];fault_logs=[];extra_checks=[];required_refs=[]
     seen={(o.get('device'),o.get('check')) for o in observations}
     for device,checks in scope.items():
-        if device not in DEVICES: continue
+        if device not in DEVICES or not profile(device)['croc_unit']: continue
         p=profile(device)
         service=current_observation(observations,device,'services')
         interface=current_observation(observations,device,'interfaces')

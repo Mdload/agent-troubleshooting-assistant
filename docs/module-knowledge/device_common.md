@@ -33,6 +33,7 @@ Keepalived 心跳使用同侧主备之间的 VRRP 通告，不经 Croc 业务隧
 适用模式：按正文说明；设备组：按正文说明；证据日期：2026-09-28。
 
 <!-- record:KB-009:historical_finding -->
+- Router 示例的 route-envset 对应 route-envset.service，负责初始化路由环境。可只读核对服务记录与实际路由表。
 以下名称用于示例职责索引。
 
 - 测试节点示例 agent.py 配合控制器记录测试模式。

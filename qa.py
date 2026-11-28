@@ -3,6 +3,7 @@ import topology_entities as entities
 import collections
 import json
 import math
+import os
 import re
 import urllib.request
 from pathlib import Path
@@ -10,6 +11,7 @@ from knowledge_modules import load_corpus
 from knowledge_coverage import assess, notice, record_coverage, requirements, is_comparison
 from lab_basics import is_basics_query, topic_ids
 from knowledge_catalog import annotate, catalog, query_scope, allows, METADATA_FIELDS
+from hybrid_retrieval import (VectorCache, exact_query, reciprocal_rank_fusion, semantic_query, vector_rank)
 from learning_intent import documented_path_question, croc_concept_question
 
 ROOT = Path(__file__).resolve().parent
@@ -155,8 +157,13 @@ DOCS = [index_document(record) for record in RECORDS]
 TOPOLOGY_INDEX = [(c, d) for c, d in zip(RECORDS, DOCS) if c.get('kind') != 'lab_basics']
 BASIC_INDEX = [(c, d) for c, d in zip(RECORDS, DOCS) if c.get('kind') == 'lab_basics']
 
-def retrieve(question, mode="unknown", group="unknown", library=None, extra_records=None):
-    """BM25排序中文双字片段与英文标识；分数不是可信度。"""
+VECTOR_CACHE = VectorCache(os.environ.get('ATA_RAG_CACHE_PATH') or ROOT / 'data' / 'retrieval_vectors.sqlite3')
+CORPUS_IDS = {record['id'] for record in RECORDS}
+
+
+def retrieve(question, mode="unknown", group="unknown", library=None, extra_records=None,
+             *, ranking="hybrid", rank_only=False, retrieval_info=None, lightweight=False):
+    """在原有资料范围内融合词面与语义结果；rank_only 返回补充引用前的排序。"""
     question=normalize_query(question)
     scope = query_scope(question, library)
     # 拓扑和通用入门分开检索；基础“数据库/连接”不构成连接池故障知识。
@@ -196,16 +203,19 @@ def retrieve(question, mode="unknown", group="unknown", library=None, extra_reco
     exact_compounds = {term for term in compounds if any(term in doc for _, doc in index)}
     if (not scope['active'] and not basics and not entity_refs and not conceptual_overview
             and not any(term in q for term in DOMAIN_TERMS)
-            and not (specific or health_terms or listener_terms or exact_compounds)):
+            and not (specific or health_terms or listener_terms or exact_compounds)
+            and not (ranking != 'bm25' and semantic_query(q))):
         return []
     df = collections.Counter(t for _, doc in index for t in doc)
     avg = sum(sum(doc.values()) for _, doc in index) / len(index)
     hits = []
+    eligible_records = {}
     for case, doc in index:
         if mode != "unknown" and case["operating_modes"] and mode not in case["operating_modes"]:
             continue
         if group != "unknown" and case["device_groups"] and group not in case["device_groups"]:
             continue
+        eligible_records[case['id']] = case
         matched = query_terms.intersection(doc)
         # 单个高区分度标识或至少两个片段，避免普通词触发模型。
         strong = bool(matched & (technical | exact_compounds | {"ppp5", "tun16", "owner-fault", "execcondition"}))
@@ -223,6 +233,19 @@ def retrieve(question, mode="unknown", group="unknown", library=None, extra_reco
             score *= 1.10 if group in case['device_groups'] and group != 'unknown' else 1
             hits.append({"case": case, "score": round(score, 3)})
     ranked = sorted(hits, key=lambda h: h["score"], reverse=True)
+    if ranking != 'bm25' and eligible_records:
+        stable_ids = CORPUS_IDS.difference(record['id'] for record in (extra_records or ()))
+        semantic, backend = vector_rank(question, eligible_records.values(), stable_ids, FIELDS, VECTOR_CACHE, lightweight=lightweight)
+        if retrieval_info is not None:
+            retrieval_info['vector_backend'] = backend
+        if ranking == 'hybrid':
+            lexical = list(dict.fromkeys(hit['case']['id'] for hit in ranked))
+            semantic_ids = [ident for ident, _ in semantic]
+            semantic = reciprocal_rank_fusion(lexical, semantic_ids, 4 if exact_query(q) else 2)
+        ranked = [{'case': eligible_records[ident], 'score': round(score, 6)}
+                  for ident, score in semantic]
+    if rank_only:
+        return ranked
     # 相关章节同时作为检索结果与模型输入，用户能展开看原文。
     eligible = {c['id'] for c in KNOWLEDGE
                 if allows(c, scope) and (mode == 'unknown' or not c['operating_modes'] or mode in c['operating_modes'])
@@ -248,7 +271,7 @@ def retrieve(question, mode="unknown", group="unknown", library=None, extra_reco
     # 历史故障涉及旧配置或已恢复状态时，一并提供冲突说明，避免把旧案当现状。
     if any(h['case']['id'] in ('HA-001', 'HA-002', 'HA-007') for h in selected):
         context = next(c for c in KNOWLEDGE if c['id'] == 'KB-011')
-        if not any(h['case']['id'] == context['id'] for h in selected):
+        if context['id'] in eligible and not any(h['case']['id'] == context['id'] for h in selected):
             selected = selected[:5] + [{'case': context, 'score': 0, 'reason': '历史冲突说明'}]
     return selected
 
@@ -380,7 +403,7 @@ def ask_model(question, hits, mode, group):
 def answer(question, mode="unknown", group="unknown", allow_new_topology=False):
     hits = retrieve(question, mode, group)
     result = {"hits": hits, "mode": mode, "group": group, "device_executed": False,
-              "retrieval": "BM25 中文双字片段与英文关键词", "total_tokens": None}
+              "retrieval": "BM25 与本地语义向量 RRF", "total_tokens": None}
     coverage = assess(question, [h['case'] for h in hits], mode, group, basics=is_basics_query(question))
     result['knowledge_sufficiency'] = coverage
     if not hits:

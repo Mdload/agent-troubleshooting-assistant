@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -70,7 +70,7 @@ dialog{padding:0;border:1px solid #e2e8dd;border-radius:18px;max-width:calc(100v
       <button id="account-open" class="sidebar-link" type="button">登录 / 个人历史</button>
       <button id="repair-permissions-open" class="sidebar-link" type="button">修复权限</button>
       <button id="knowledge-open" class="sidebar-link" type="button">知识库</button>
-      <button id="experience-open" class="sidebar-link" type="button">我的纠正与经验</button>
+      <button id="skills-open" class="sidebar-link" type="button">排障 Skill 库</button>
       <button id="privacy-open" class="sidebar-link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg>使用说明</button>
       <button id="about-open" class="sidebar-link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg><span data-app-about>关于带派助手</span></button>
       <small id="storage-note" role="status"></small>
@@ -86,7 +86,7 @@ dialog{padding:0;border:1px solid #e2e8dd;border-radius:18px;max-width:calc(100v
         <div class="welcome-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg></div>
         <div class="welcome-eyebrow">DAIPAI ASSISTANT</div><h2>有什么想弄明白的？</h2><p class="welcome-description">解释一个概念，读一段代码，或一起排查问题。</p>
         <div class="suggestions">
-          <button class="suggestion" type="button" data-question="我不熟悉这套系统，局端和远端分别做什么？请用新手能理解的语言解释。"><span class="suggestion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="2" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M5 16v-4h14v4"/></svg></span><strong>理解实验室拓扑<small>从设备职责与业务路径开始</small></strong></button>
+          <button class="suggestion" type="button" data-question="请介绍局端和远端分别承担什么职责，以及核心业务数据路径。"><span class="suggestion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="2" y="16" width="6" height="5" rx="1"/><rect x="16" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M5 16v-4h14v4"/></svg></span><strong>理解实验室拓扑<small>从设备职责与业务路径开始</small></strong></button>
           <button class="suggestion" type="button" data-question="主备切换是怎么工作的？VIP、Keepalived和Croc如何配合？请结合已有资料说明。"><span class="suggestion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 8h16m-4-4 4 4-4 4M20 16H4m4-4-4 4 4 4"/></svg></span><strong>弄懂主备切换<small>串起 VIP、Keepalived 与 Croc</small></strong></button>
           <button class="suggestion" type="button" data-question="根据已有资料，备机的Croc没有运行正常吗？哪些判断条件需要另外核实？"><span class="suggestion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M7 10h6m-3-3v6"/></svg></span><strong>判断故障线索<small>先看判断条件，再决定查什么</small></strong></button>
         </div>
@@ -102,7 +102,7 @@ dialog{padding:0;border:1px solid #e2e8dd;border-radius:18px;max-width:calc(100v
         <small id="input-meter" role="status"></small><p id="material-selected" class="experience-note" hidden></p>
         <label id="memory-consent" class="consent-label" hidden><input id="use-task-memory" type="checkbox">本次将已确认的历史原话摘录发送给Inferera辅助问答；不恢复设备权限。</label>
         <label id="material-consent" class="consent-label" hidden><input id="allow-materials" type="checkbox">我同意将所选材料的相关片段发送给Inferera分析；本次只分析材料，不读取设备。</label>
-        <div class="composer-tools"><div class="task-actions"><button id="material-open" class="secondary-button" type="button">＋ 文本 / 日志</button><button id="convert-long" class="secondary-button" type="button" hidden>将长内容作为材料</button><button id="material-clear" class="secondary-button" type="button" hidden>移除材料选择</button></div><div class="composer-row"><span class="composer-hint">Enter 发送 · Shift + Enter 换行</span><button id="send" class="send-button" type="submit" title="发送" aria-label="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button></div></div>
+        <div class="composer-tools"><div class="task-actions"><button id="material-open" class="secondary-button" type="button">＋ 文本 / 日志</button><button id="convert-long" class="secondary-button" type="button" hidden>将长内容作为材料</button><button id="material-clear" class="secondary-button" type="button" hidden>移除材料选择</button></div><div class="composer-row"><span class="composer-hint">Enter 发送 · Shift + Enter 换行</span><button id="stop-generation" type="button" class="secondary-button" hidden>停止生成</button><button id="send" class="send-button" type="submit" title="发送" aria-label="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button></div></div>
         <div id="status" role="status" aria-live="polite"></div>
       </form><p class="composer-footnote"></p>
     </div>
@@ -118,11 +118,11 @@ dialog{padding:0;border:1px solid #e2e8dd;border-radius:18px;max-width:calc(100v
 </dialog>
 <dialog id="privacy-dialog" aria-labelledby="privacy-title">
   <div class="dialog-header"><h2 id="privacy-title">使用说明</h2><button class="icon-button" type="button" data-close-dialog="privacy-dialog" aria-label="关闭使用说明"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
-  <div class="dialog-body"><p>助手默认使用在线模型回答。</p><details class="privacy-details"><summary>高级说明</summary><p>为回答问题，本次会话会将问题、最近对话与检索资料发送给 Inferera 外部模型。明确要求联网、官方资料或最新版本时，仅按当前问题中的固定公开技术主题访问PyPI、GitHub及该项目官网，不外发完整问题、历史、地址或配置；尚未接入的主题会说明未知。现场读取会先列出本次设备、检查与数据用途，由提问者在聊天中确认后自动开始，无需管理员登录。</p><p>发送目的地：https://api.inferera.com/v1。</p><p>知识问答不读取设备。本次范围批准同时涵盖所列现场结果用于Inferera诊断。诊断只读取批准的设备和检查项：服务状态、接口/VIP、链路与连接、主路由表和策略规则，次数与阶段上限随申请展示；单设备最多四项，多设备最多三阶段、总计十二项，不执行修复。不要输入密码或密钥。</p><p>上传的TXT/LOG原文保存在本项目服务器，最多256KiB，24小时后不可访问，下次上传时清理过期记录；单独确认后仅发送所选片段。删除原文不清除既有摘录、回答、审计或备份。材料不等于现场读取，也不会自动入知识库。访客文字历史只在本浏览器；登录个人账号后，新文字对话保存在服务器并可跨浏览器恢复，旧访客历史不会自动上传。恢复文字不恢复设备OBS或批准；本对话的已结束调查可通过右上角“调查记录”单独查看服务器原始证据，均标记历史，不自动发给模型。共用电脑建议使用隐私窗口并退出账号。诊断申请、问题、短历史和工具记录另保存在服务器；浏览器申请会话有效期为24小时。主动提交的纠正另存为待审经验，原回答仅保留校验摘要；经人工审核入库后可用于共享回答。</p></details><div class="dialog-actions"><button id="privacy-done" class="primary-button" type="button">完成</button></div></div>
+  <div class="dialog-body"><p>用于双机热备环境的辅助排障与机制答疑。支持机制问答、受控现场只读诊断与文字材料分析；涉及现场读取时均需提问者在界面明确确认后方可执行。</p><div class="dialog-actions"><button id="privacy-done" class="primary-button" type="button">完成</button></div></div>
 </dialog>
 <dialog id="about-dialog" aria-labelledby="about-title">
   <div class="dialog-header"><h2 id="about-title" data-app-about>关于带派助手</h2><button class="icon-button" type="button" data-close-dialog="about-dialog" aria-label="关闭关于"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
-  <div class="dialog-body"><p>直接提问即可。通用问题直接回答；实验室机制问题结合资料解释，支持连续追问。需要核对当前设备状态时，助手会准备只读检查申请，无需先切换模式或选择场景。</p><h3>受控只读排障</h3><p>说明设备与现象后，助手准备检查范围；目标不清楚时先询问。你在聊天中确认本次设备、检查及结果用于Inferera分析的范围后，页面自动开始多轮诊断，无需管理员登录。等待确认时仍可继续询问机制。取消申请或变更检查范围会停止后续调用；已开始的单次请求可能完成，结果保留。支持登记局端和远端主备；按需查证已接入的固定官方主题。Router现场读取和自动修复尚未开放。</p><h3>文字材料</h3><p>支持UTF-8 TXT/LOG及长文本粘贴，原文保留行号，最多选三段相关片段分析。未覆盖区域不能据此排除异常；材料分析不读取设备。暂不支持PDF、扫描件、图片或OCR。</p><h3>会话历史</h3><p>访客历史只在当前浏览器；个人账号可保存和恢复服务器文字历史，打开原排障对话可找回仍有效的调查和待确认检查。已结束的调查可从调查记录查看。默认使用近期约四轮对话；为本对话开启自动接续后，也会整理较早的相关用户原话作为背景；切换到通用问题时不携带更早的设备话题。共用电脑请删除个人会话或使用隐私窗口。</p><div class="about-version">v__APP_VERSION__ · 工作版本</div></div>
+  <div class="dialog-body"><p>面向双机热备环境的受控排障与运维助手。支持设备状态核对、链路/VIP故障排查与历史调查快照溯源。</p><div class="about-version">v__APP_VERSION__ · 工作版本</div></div>
 </dialog>
 <dialog id="material-editor" aria-labelledby="material-title" style="width:680px">
   <div class="dialog-header"><h2 id="material-title">添加文字材料</h2><button type="button" class="icon-button" data-close-dialog="material-editor" aria-label="关闭材料编辑">×</button></div>
@@ -185,26 +185,9 @@ dialog{padding:0;border:1px solid #e2e8dd;border-radius:18px;max-width:calc(100v
   <div class="dialog-header"><h2 id="delete-heading">删除对话</h2><button class="icon-button" type="button" data-close-dialog="delete-dialog" aria-label="关闭删除确认"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
   <div class="dialog-body"><p id="delete-title"></p><div class="dialog-actions"><button class="secondary-button" type="button" data-close-dialog="delete-dialog">取消</button><button id="delete-confirm" class="primary-button delete-button" type="button">确认删除</button></div></div>
 </dialog>
-<dialog id="experience-dialog" aria-labelledby="experience-title">
-  <div class="dialog-header"><h2 id="experience-title">提交纠正与经验</h2><button type="button" class="icon-button" data-close-dialog="experience-dialog" aria-label="关闭经验编辑">×</button></div>
-  <form id="experience-form" class="dialog-body experience-fields">
-    <label for="experience-question">所选问题</label><textarea id="experience-question" class="text-input" readonly></textarea>
-    <label for="experience-answer">纠正后的答案或已解决经验</label><textarea id="experience-answer" class="text-input" maxlength="3000" required></textarea>
-    <label for="experience-reason">纠正原因</label><textarea id="experience-reason" class="text-input" maxlength="1000" required></textarea>
-    <label for="experience-reference">核对来源</label><select id="experience-reference" required></select>
-    <details><summary>查看来源原文</summary><pre id="experience-source-text" class="experience-note"></pre></details>
-    <label for="experience-quote">支持这条经验的来源原文（最多500字）</label><textarea id="experience-quote" class="text-input" maxlength="500" required></textarea>
-    <div class="experience-grid"><div class="experience-fields"><label for="experience-mode">适用模式</label><select id="experience-mode"><option value="">不限模式</option><option value="normal_ha">正常HA</option><option value="fixed_primary_test">固定主机测试</option><option value="maintenance">维护模式</option></select></div><div class="experience-fields"><label for="experience-group">设备范围</label><select id="experience-group"><option value="">通用</option><option value="local">局端</option><option value="remote">远端</option><option value="router">Router</option></select></div></div>
-    <label for="experience-version">适用软件版本（可留空）</label><input id="experience-version" class="text-input" maxlength="40" placeholder="例如 1.2.3">
-    <label for="experience-kind">经验性质</label><select id="experience-kind"><option value="principle">原理与判断规则</option><option value="historical_case">历史案例</option></select>
-    <label for="experience-date">历史证据日期（历史案例填写）</label><input id="experience-date" class="text-input" type="date">
-    <label class="consent-label"><input id="experience-consent" type="checkbox" required><span>同意保存这条所选问题、原回答校验摘要、纠正与来源供管理员审核；入库后可作为共享知识，并随后续问答发送到 Inferera。本次提交不调用模型，也不提交整段聊天。</span></label>
-    <p id="experience-form-note" class="experience-note" role="status"></p><div class="dialog-actions"><button type="button" class="secondary-button" data-close-dialog="experience-dialog">取消</button><button id="experience-save" class="primary-button" type="submit">保存待审草稿</button></div>
-  </form>
-</dialog>
-<dialog id="experience-list-dialog" aria-labelledby="experience-list-title">
-  <div class="dialog-header"><h2 id="experience-list-title">我的纠正与经验</h2><button type="button" class="icon-button" data-close-dialog="experience-list-dialog" aria-label="关闭我的经验">×</button></div>
-  <div class="dialog-body"><p class="experience-note">从回答下方选择“纠正 / 留作经验”提交。这里只显示本浏览器提交的内容；修改已审核或已发布内容后，需要重新审核。</p><div class="task-actions"><button id="experience-refresh" class="secondary-button" type="button">刷新</button><button id="experience-admin-open" class="secondary-button" type="button">管理员审核</button></div><p id="experience-list-note" class="experience-note" role="status"></p><div id="experience-own-list"></div></div>
+<dialog id="skills-dialog" aria-labelledby="skills-title">
+  <div class="dialog-header"><h2 id="skills-title">排障 Skill 库</h2><button type="button" class="icon-button" data-close-dialog="skills-dialog" aria-label="关闭排障 Skill 库">×</button></div>
+  <div class="dialog-body"><p id="skills-note" role="status"></p><div id="skills-list"></div></div>
 </dialog>
 <dialog id="memory-dialog" aria-labelledby="memory-title">
   <div class="dialog-header"><h2 id="memory-title">记忆、自学习与设备授权</h2><button class="icon-button" type="button" data-close-dialog="memory-dialog" aria-label="关闭记忆与学习"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
@@ -257,7 +240,34 @@ document.title = APP_NAME;
 for(const node of document.querySelectorAll('[data-app-name]'))node.textContent=APP_NAME;
 for(const node of document.querySelectorAll('[data-app-about]'))node.textContent='关于'+APP_NAME;
 const csrf='__CSRF_TOKEN__', el=id=>document.getElementById(id), storageKey='ata.chats.v1';
-let chats=[],activeId=null,busy=false,requestBusy=false,storageFailed=false,modeLoading=false;
+let chats=[],activeId=null,storageFailed=false,modeLoading=false;
+const chatRuns=new Map();
+const chatBusy=(chat=current())=>!!chat&&(chatRuns.has(chat.id)||chat.messages.some(m=>taskOf(m)?.status==='running'));
+let answerReveal=null;
+function revealReply(chat,message){
+  if(current()===chat&&message.content&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    answerReveal={chatId:chat.id,message,started:performance.now(),duration:Math.min(2200,500+message.content.length)};
+  }
+}
+function progressivelyShow(body,reveal){
+  const button=add(body.parentElement,'button','显示全文','secondary-button reveal-all');
+  button.type='button';
+  const height=body.scrollHeight;
+  body.style.overflow='hidden';
+  const finish=()=>{
+    body.style.removeProperty('max-height');body.style.removeProperty('overflow');button.remove();
+    if(answerReveal===reveal)answerReveal=null;
+  };
+  button.onclick=finish;
+  const frame=now=>{
+    if(!body.isConnected)return;
+    const progress=Math.max(0,Math.min(1,(now-reveal.started)/reveal.duration));
+    if(answerReveal!==reveal||progress>=1){finish();return;}
+    body.style.maxHeight=Math.ceil(1+(height-1)*progress)+'px';
+    requestAnimationFrame(frame);
+  };
+  frame(performance.now());
+}
 let activeSpace='general';
 const lastChatInSpace={general:null,ha:null},chatDrafts=new Map();
 let account=null,accountLoading=true,accountExpired=false,accountEpoch=0;
@@ -313,6 +323,27 @@ function tableAlignments(line){
   if(cells.length<2||cells.some(c=>!/^:?-{2,}:?$/.test(c)))return null;
   return cells.map(c=>c.startsWith(':')&&c.endsWith(':')?'center':c.endsWith(':')?'right':'left');
 }
+function enableCopy(button,readText){
+  let timer;
+  button.type='button';
+  button.onclick=async()=>{
+    const text=readText();
+    try{
+      if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);
+      else{
+        const field=add(document.body,'textarea','');
+        field.value=text;field.readOnly=true;field.style.cssText='position:fixed;opacity:0';
+        try{
+          field.select();
+          if(!document.execCommand('copy'))throw Error('Copy failed');
+        }finally{field.remove();button.focus();}
+      }
+      button.textContent='已复制';
+    }catch{button.textContent='复制失败';}
+    clearTimeout(timer);
+    timer=setTimeout(()=>{button.textContent='复制';},1600);
+  };
+}
 function markdown(parent,text){
   const lines=text.split('\n');
   let code=null,list=null,paragraph=null,quote=null;
@@ -321,7 +352,15 @@ function markdown(parent,text){
     const line=lines[i];
     if(/^\s*(?:```|~~~)/.test(line)){
       if(code){code=null;}
-      else{closeBlocks();const pre=add(parent,'pre','');code=add(pre,'code','');}
+      else{
+        closeBlocks();
+        const block=add(parent,'div','','md-code-block'),pre=add(block,'pre','');
+        const literal=add(pre,'code','');
+        code=literal;
+        const button=add(block,'button','复制','code-copy-button');
+        button.setAttribute('aria-label','复制代码');
+        enableCopy(button,()=>literal.textContent);
+      }
       continue;
     }
     if(code){code.append(document.createTextNode(line+'\n'));continue;}
@@ -357,6 +396,7 @@ function markdown(parent,text){
     const bq=line.match(/^\s*>\s?(.*)$/);
     if(bq){
       list=null;paragraph=null;
+      if(!bq[1].trim())continue;
       if(!quote)quote=add(parent,'blockquote','');
       const p=add(quote,'p','');
       inline(p,bq[1]);
@@ -394,6 +434,7 @@ function preferredChat(space){
   return candidates.find(chat=>chat.id===lastChatInSpace[space])||candidates.sort((a,b)=>b.updated-a.updated)[0];
 }
 function selectChat(chat,space=spaceOf(chat)){
+  if(chat?.id!==activeId)answerReveal=null;
   chatDrafts.set(activeId||'@'+activeSpace,el('question').value);
   if(activeSpace!==space)el('history-search').value='';
   activeSpace=space;activeId=chat?.id||null;lastChatInSpace[space]=activeId;
@@ -417,7 +458,7 @@ function sidebar(){
   el('threads').replaceChildren();
   for(const space of ['general','ha']){
     const button=el('space-'+space);button.setAttribute('aria-pressed',String(activeSpace===space));
-    button.disabled=requestBusy||modeLoading||accountLoading||accountExpired;
+    button.disabled=modeLoading||accountLoading||accountExpired;
   }
   const group=spaceChats();
   if(!group.length)add(el('threads'),'p','这个空间暂无对话','history-empty');
@@ -427,8 +468,8 @@ function sidebar(){
   if(group.length&&!visible.length)add(el('threads'),'p','没有匹配的对话','history-empty');
   for(const c of [...visible].sort((a,b)=>b.updated-a.updated)){
     const button=add(el('threads'),'button','','thread'+(c.id===activeId?' selected':''));
-    add(button,'span','','thread-dot');add(button,'span',c.title,'thread-text');
-    button.title=c.title;button.disabled=requestBusy||modeLoading;button.setAttribute('aria-current',c.id===activeId?'true':'false');
+    add(button,'span','',chatBusy(c)?'thread-dot running':'thread-dot');add(button,'span',c.title,'thread-text');
+    button.title=c.title+(chatBusy(c)?' · 运行中':'');button.disabled=modeLoading;button.setAttribute('aria-current',c.id===activeId?'true':'false');
     button.onclick=()=>openChat(c);
   }
 }
@@ -528,6 +569,9 @@ function formatAnswerTypography(parent){
   visit(parent);
 }
 function renderAnswer(parent,text,data,targets=new Map()){
+  if(typeof text==='string'&&text.includes('>')&&/^[>\s]+$/.test(text)){
+    text='这条回答没有可显示的正文，请重新提问。';
+  }
   markdown(parent,answerCopyText(text,data));
   formatAnswerTypography(parent);
 }
@@ -576,6 +620,12 @@ function executionWords(check){
     interfaces:['看看这台设备有没有接管业务地址','查看 VIP（主备共用的业务地址）是否在这台设备上。'],
     routes:['查看业务数据往哪里走','检查发往业务网段的数据会走哪个接口。'],
     logs:['查看最近的启动、停止和报错记录','翻看主备和业务程序最近的日志，找异常发生的线索。']}[check]||['查看设备情况','按你同意的范围检查设备。'];
+}
+function wrapAnswerDetail(panel){
+  const summary=panel.firstElementChild;
+  if(summary.nextElementSibling?.className==='answer-detail-content')return;
+  const content=add(panel,'div','','answer-detail-content');
+  while(summary.nextElementSibling!==content)content.append(summary.nextElementSibling);
 }
 function refreshExecutionFlow(panel,data){
   const steps=Array.isArray(data.execution_steps)?data.execution_steps:[];
@@ -633,6 +683,7 @@ function refreshExecutionFlow(panel,data){
     add(tail,'strong',completed?'回答已整理好':'这次检查已停止');
     add(tail,'p',completed?(steps.length?'查到的情况和下一步建议见回答正文。':'这次没有操作设备，直接回答了你的问题。'):'上面已经查到的结果会保留，没做完的部分还不能确定。');
   }
+  if(panel.parentElement?.className==='answer-details')wrapAnswerDetail(panel);
 }
 function renderExecutionFlow(parent,data){
   if(!data||['approval_required','pending','approved','current_unverified','clarify'].includes(data.status))return;
@@ -642,12 +693,14 @@ function renderExecutionFlow(parent,data){
 }
 
 // 参考资料面向阅读，运行详情保留可追溯信息。
-function evidence(box,data,targets=new Map()){
+function evidence(box,data,targets=new Map(),message=null){
   if(!data)return;
   if(data.history_info)add(box,'p',data.history_info.note,'scope-note');
   if(data.memory_info)add(box,'p','本次选择任务记忆 v'+data.memory_info.revision+'：历史用户原话，仅作背景，不是现场证据。','scope-note');
-  if(data.status==='approval_required')return;
-  if(data.status==='current_unverified')return;
+  if(['approval_required','current_unverified'].includes(data.status)){
+    if(message)renderAgentDetails(box,message);
+    return;
+  }
   if(data.evidence_scope?.kind==='historical')add(box,'p','这是以前的检查结果，不代表设备现在的情况。','scope-note');
   if(data.topology_observation){
     const fact=data.topology_observation;
@@ -659,9 +712,11 @@ function evidence(box,data,targets=new Map()){
   const refs=data.refs||[],events=data.events||[];
   const sources=(data.sources||[]).filter(source=>refs.includes(source.id));
   const foot=add(box,'div','','answer-details');
+  if(message)renderAgentDetails(box,message,foot);
+  if(data.route!=='agent_v2')renderExecutionFlow(foot,data);
   if(sources.length||refs.length){
     const panel=add(foot,'details','','source-panel');
-    add(panel,'summary','查看来源 · '+(sources.length||refs.length));
+    add(panel,'summary','参考来源 · '+(sources.length||refs.length));
     panel.open=data.source_display==='expanded';
     if(sources.length){
       for(const source of sources){
@@ -701,8 +756,7 @@ function evidence(box,data,targets=new Map()){
       else add(panel,'p','这条回答没有附带可打开的原始记录。');
     }
   }
-  renderExecutionFlow(foot,data);
-  const run=add(foot,'details','','run-panel');add(run,'summary','更多技术详情（可选）');
+  const run=add(foot,'details','','run-panel');add(run,'summary','技术详情');
   if(data.evidence_scope?.note)add(run,'p',data.evidence_scope.note,'scope-note');
   if(data.knowledge_scope&&Array.isArray(data.knowledge_scope.selected_titles))add(run,'p','资料范围：'+data.knowledge_scope.selected_titles.join('、'));
   if(data.rolling_info)add(run,'p','自动接续使用了 '+data.rolling_info.entries_used+' 条较早的相关用户原话；可在任务记忆查看或关闭。');
@@ -737,10 +791,15 @@ function evidence(box,data,targets=new Map()){
   }
   renderDiagnosticReport(foot,data.diagnostic_report,data.evidence||[],targets);
   if(data.reason)add(run,'p','未完成原因：'+data.reason);
+  for(const panel of foot.children)wrapAnswerDetail(panel);
 }
 function messageHeader(box,content,copy){
   const head=add(box,'div','','message-header');add(head,'span',APP_NAME.slice(0,1),'avatar');add(head,'span',APP_NAME,'label');
-  if(copy){const button=add(head,'button','复制','copy-button');button.type='button';button.setAttribute('aria-label','复制回答');button.onclick=async()=>{try{await navigator.clipboard.writeText(content);button.textContent='已复制';}catch(e){button.textContent='请选中文本复制';}};}
+  if(copy){
+    const button=add(head,'button','复制','copy-button');
+    button.setAttribute('aria-label','复制回答');
+    enableCopy(button,()=>content);
+  }
 }
 const taskStates={pending:'等待你确认',approved:'范围已批准',running:'诊断中',completed:'诊断已完成',incomplete:'诊断未完成',rejected:'申请已拒绝',cancelled:'申请已取消',expired:'申请已过期',unavailable:'原申请不可访问'};
 async function api(path,data){
@@ -795,17 +854,18 @@ function updateTask(message,task){
 const automaticStarts=new Set(),automaticStartRetry=new Map();
 async function startApprovedTask(message,task){
   if(task.server_owned||task.approval_flow!=='single_scope_v1'||task.status!=='approved'||task.data_use_approved!==true)return;
-  if(automaticStarts.has(task.id)||message.autoStartBlocked||busy||modeLoading||accountLoading||accountExpired||!registryReady)return;
+  const chat=chats.find(c=>c.messages.includes(message));
+  if(!chat||automaticStarts.has(task.id)||message.autoStartBlocked||chatBusy(chat)||modeLoading||accountLoading||accountExpired||!registryReady)return;
   if(Date.now()<(automaticStartRetry.get(task.id)||0))return;
   automaticStarts.add(task.id);const identity=accountEpoch;
-  requestBusy=true;busy=true;task.status='running';message.workflowTask=task;save();render();
+  const run={};chatRuns.set(chat.id,run);task.status='running';message.workflowTask=task;save();render();
   try{
     const result=await api('/api/tasks/'+task.id+'/start',{});
     if(identity!==accountEpoch)return;
     automaticStartRetry.delete(task.id);updateTask(message,result);
   }catch(error){
     if(identity!==accountEpoch)return;
-    el('status').textContent=error.status===429?'正在等待空闲处理位置，范围批准仍受有效期限制。':error.message;
+    if(current()===chat)el('status').textContent=error.status===429?'正在等待空闲处理位置，范围批准仍受有效期限制。':error.message;
     try{
       const latest=await api('/api/tasks/'+task.id);
       if(identity!==accountEpoch)return;
@@ -817,7 +877,8 @@ async function startApprovedTask(message,task){
     }catch(ignored){}
   }finally{
     automaticStarts.delete(task.id);
-    if(identity===accountEpoch){requestBusy=false;busy=false;save();render();}
+    if(chatRuns.get(chat.id)===run)chatRuns.delete(chat.id);
+    if(identity===accountEpoch){save();render();}
   }
 }
 function progressText(task){
@@ -970,7 +1031,7 @@ function taskCard(box,message){
   refresh.onclick=async()=>{refresh.disabled=true;try{updateTask(message,await api('/api/tasks/'+task.id));}catch(error){el('status').textContent=error.message;refresh.disabled=false;}};
   const previous=previousSnapshotTask(message);
   if(previous&&task.result&&['completed','incomplete','cancelled','expired'].includes(task.status)){
-    const compare=add(actions,'button','与上次调查对比','secondary-button');compare.type='button';compare.disabled=busy;
+    const compare=add(actions,'button','与上次调查对比','secondary-button');compare.type='button';compare.disabled=chatBusy();
     compare.onclick=()=>showSnapshotComparison(previous.id,task.id);
   }
   if(['pending','approved','running'].includes(task.status)){
@@ -985,7 +1046,7 @@ function taskCard(box,message){
 }
 async function refreshAdmin(){
   const state=await api('/api/admin/status');el('admin-login').hidden=state.authenticated;el('admin-panel').hidden=!state.authenticated;
-  el('admin-note').textContent=state.configured?'':'管理员尚未设置。请由项目作者在部署服务器的项目目录执行 python3 -B admin_auth.py。按终端提示设置后刷新页面。';
+  el('admin-note').textContent=state.configured?'':'管理员尚未设置。请由项目作者在部署服务器的项目目录执行 python3 -B admin_auth.py。按终端提示设置后刷新页面；无需重启服务。';
   el('admin-password').disabled=!state.configured;
   el('admin-login').querySelector('button').disabled=!state.configured;
   if(!state.authenticated)return;
@@ -1010,85 +1071,9 @@ el('admin-logout').onclick=async()=>{try{await api('/api/admin/logout',{});await
 const experienceStates={needs_review:'待审核',approved:'已审核，待入库',rejected:'已拒绝',published:'已入库',review_invalid:'来源已变化，需要重新整理'};
 const experienceModeLabels={normal_ha:'正常HA',fixed_primary_test:'固定主机测试',maintenance:'维护模式'};
 const experienceGroupLabels={local:'局端',remote:'远端',router:'Router'};
-let experienceReferences=[],experienceEditor=null;
-async function loadExperienceReferences(){
-  experienceReferences=(await api('/api/experience-references')).references;
-}
-function experienceChanges(){
-  return {corrected_answer:el('experience-answer').value.trim(),reason:el('experience-reason').value.trim(),
-    reference_id:el('experience-reference').value,quote:el('experience-quote').value.trim(),
-    conditions:{lesson_type:el('experience-kind').value,operating_modes:el('experience-mode').value?[el('experience-mode').value]:[],
-      device_groups:el('experience-group').value?[el('experience-group').value]:[],
-      software_versions:el('experience-version').value.trim()?el('experience-version').value.trim().split(/[,，\s]+/):[],
-      evidence_date:el('experience-kind').value==='historical_case'?el('experience-date').value:null}};
-}
-function showExperienceReference(fill){
-  const reference=experienceReferences.find(r=>r.id===el('experience-reference').value);if(!reference)return;
-  el('experience-source-text').textContent=reference.text;
-  if(fill){
-    el('experience-quote').value=reference.text.slice(0,200);
-    el('experience-mode').value=reference.operating_modes[0]||'';
-    el('experience-group').value=reference.device_groups[0]||'';
-    el('experience-date').value=reference.evidence_date||'';
-  }
-}
-el('experience-reference').onchange=()=>showExperienceReference(true);
-async function openExperienceEditor(editor){
-  experienceEditor=editor;el('experience-form').reset();el('experience-save').disabled=true;
-  el('experience-form-note').textContent='正在读取可核对来源…';
-  el('experience-title').textContent=editor.item?'修改经验（重新审核）':'提交纠正与经验';
-  el('experience-question').value=editor.item?.question||editor.question;
-  el('experience-dialog').showModal();
-  try{
-    await loadExperienceReferences();if(experienceEditor!==editor)return;
-    const select=el('experience-reference');select.replaceChildren();
-    for(const reference of experienceReferences){const option=add(select,'option',reference.id+' · '+reference.title);option.value=reference.id;}
-    const item=editor.item,preferred=item?.reference_id||editor.preferred;
-    if(preferred&&experienceReferences.some(r=>r.id===preferred))select.value=preferred;
-    showExperienceReference(true);
-    if(item){
-      el('experience-answer').value=item.candidate_answer;el('experience-reason').value=item.correction_reason;
-      el('experience-quote').value=item.verification_sources[0].quote;
-      el('experience-mode').value=item.conditions.operating_modes[0]||'';
-      el('experience-group').value=item.conditions.device_groups[0]||'';
-      el('experience-version').value=item.conditions.software_versions.join(', ');
-      el('experience-kind').value=item.conditions.lesson_type;el('experience-date').value=item.conditions.evidence_date||'';
-    }
-    el('experience-form-note').textContent='仅选取原理或历史经验；临时在线状态不作为长期知识。原回答仅保存校验摘要，事实需对照来源核实。';
-    el('experience-save').disabled=false;
-  }catch(error){el('experience-form-note').textContent=error.message;}
-}
-function feedbackFor(chat,message,index){
-  const previous=chat.messages.slice(0,index).map((m,i)=>({m,i})).reverse().find(x=>x.m.role==='user');
-  if(!previous)return;
-  const source=(message.result?.sources||[]).find(s=>s.id?.startsWith('KB-')||s.reference_id);
-  return openExperienceEditor({question:previous.m.content,original_answer:message.content,
-    conversation_id:chat.id,question_id:'q-'+previous.i,answer_id:'a-'+index,
-    preferred:source?.reference_id||source?.id,message});
-}
-el('experience-form').onsubmit=async event=>{
-  event.preventDefault();const editor=experienceEditor;if(!editor||!el('experience-consent').checked)return;
-  const button=el('experience-save');button.disabled=true;
-  try{
-    const changes=experienceChanges();let item;
-    if(editor.item){
-      item=await api('/api/'+(editor.admin?'admin/':'')+'experiences/'+editor.item.id+'/edit',
-        {expected_hash:editor.item.candidate_hash,changes});
-    }else{
-      item=await api('/api/experiences',{...changes,conversation_id:editor.conversation_id,
-        question_id:editor.question_id,answer_id:editor.answer_id,question:editor.question,
-        original_answer:editor.original_answer,consent:true});
-      if(editor.message){editor.message.experienceId=item.id;save();render();}
-    }
-    el('experience-dialog').close();el('status').textContent='纠正已保存为待审经验，审核入库后才用于回答。';
-    if(el('experience-list-dialog').open)await refreshExperienceList(false);
-    if(editor.admin)await refreshExperienceList(true);
-  }catch(error){el('experience-form-note').textContent=error.message;}
-  finally{button.disabled=false;}
-};
-async function refreshExperienceList(admin){
-  const target=el(admin?'admin-experiences':'experience-own-list');target.replaceChildren();
-  const data=await api('/api/'+(admin?'admin/':'')+'experiences');
+async function refreshExperienceList(){
+  const target=el('admin-experiences');target.replaceChildren();
+  const data=await api('/api/admin/experiences');
   if(!data.experiences.length)add(target,'p','暂无提交的经验。');
   for(const item of data.experiences){
     const card=add(target,'section','','experience-card');add(card,'strong',item.question);
@@ -1101,9 +1086,6 @@ async function refreshExperienceList(admin){
     if(item.review)add(detail,'p','审核说明：'+item.review.note);
     if(item.publication)add(detail,'p','已通过来源、范围与检索兼容性检查；未用模型自动判定事实。');
     const actions=add(card,'div','','task-actions');
-    const edit=add(actions,'button','修改并重新审核','secondary-button');edit.type='button';
-    edit.onclick=()=>openExperienceEditor({item,admin});
-    if(!admin)continue;
     const action=async(name,data)=>{
       for(const button of card.querySelectorAll('button'))button.disabled=true;
       try{await api('/api/admin/experiences/'+item.id+'/'+name,data);await refreshExperienceList(true);}
@@ -1133,24 +1115,41 @@ async function refreshExperienceList(admin){
     }
   }
 }
-el('experience-open').onclick=async()=>{
-  closeSidebar();el('experience-list-dialog').showModal();el('experience-list-note').textContent='';
-  try{await refreshExperienceList(false);}catch(error){el('experience-list-note').textContent=error.message;}
+const skillsEndpoint='/api/conversations/default/memory';
+async function refreshSkills(){
+  const note=el('skills-note'),list=el('skills-list'),identity=accountEpoch;
+  note.textContent='正在读取 Skill…';list.replaceChildren();
+  try{
+    const {skills}=await api(skillsEndpoint,{action:'list_skills'});
+    note.textContent=skills.length?'':'助手尚未沉淀 Skill，可在排障后让它自主总结';
+    for(const item of skills){
+      const detail=add(list,'details','','experience-card');
+      add(detail,'summary',item.title);
+      add(detail,'p','触发条件：'+item.trigger);
+      add(detail,'pre',item.content,'skill-content');
+      const remove=add(detail,'button','删除','secondary-button');remove.type='button';
+      remove.onclick=async()=>{
+        if(!confirm('删除共享 Skill「'+item.title+'」？'))return;
+        remove.disabled=true;
+        try{await api(skillsEndpoint,{action:'delete_skill',slug:item.slug});await refreshSkills();}
+        catch(error){if(identity===accountEpoch){note.textContent=error.message;remove.disabled=false;}}
+      };
+    }
+  }catch(error){if(identity===accountEpoch)note.textContent=error.message;}
+}
+el('skills-open').onclick=()=>{
+  closeSidebar();
+  if(!account){showAccount();return;}
+  el('skills-dialog').showModal();
+  void refreshSkills();
 };
-el('experience-refresh').onclick=async()=>{try{await refreshExperienceList(false);}catch(error){el('experience-list-note').textContent=error.message;}};
-el('experience-admin-open').onclick=async()=>{
-  el('experience-list-dialog').close();el('admin-dialog').showModal();
-  try{await refreshAdmin();}catch(error){el('admin-note').textContent=error.message;}
-};
-let liveProgressState=null;
 function renderLiveProgressCard(){
   const host=el('chat');
   if(!host)return;
   const old=host.querySelector('.live-progress-card');
   if(old)old.remove();
+  const liveProgressState=chatRuns.get(activeId)?.progress;
   if(!liveProgressState)return;
-  const c=current();
-  if(!c||c.id!==liveProgressState.convId)return;
   const card=add(host,'section','','card assistant live-progress-card');
   const head=add(card,'div','','live-progress-head');
   add(head,'span','','live-progress-dot');
@@ -1170,65 +1169,106 @@ function renderLiveProgressCard(){
   }
   host.scrollTop=host.scrollHeight;
 }
-function startLiveProgress(convId,initialText,identity){
-  liveProgressState={convId,text:initialText||'正在思考并规划排查步骤…',steps:[],startedAt:Date.now()};
-  renderLiveProgressCard();
-  let stopped=false,inFlight=false;
-  const tickTimer=setInterval(()=>{if(!stopped&&identity===accountEpoch)renderLiveProgressCard();},1000);
-  const poll=async()=>{
-    if(stopped||inFlight||identity!==accountEpoch)return;
-    inFlight=true;
-    try{
-      const r=await fetch('/api/conversations/'+encodeURIComponent(convId)+'/memory');
-      if(!r.ok||stopped||identity!==accountEpoch)return;
-      const d=await r.json();
-      const lp=d&&d.live_progress;
-      if(lp&&lp.active&&liveProgressState&&liveProgressState.convId===convId){
-        if(lp.text)liveProgressState.text=lp.text;
-        if(Array.isArray(lp.steps))liveProgressState.steps=lp.steps;
-        renderLiveProgressCard();
+async function requestChat(payload,signal){
+  const response=await fetch('/api/chat',{method:'POST',headers:{
+    'Content-Type':'application/json','X-ATA-Token':csrf,'Accept':'text/event-stream',
+  },body:JSON.stringify(payload),signal});
+  const type=response.headers.get('Content-Type')||'';
+  if(!type.includes('text/event-stream')){
+    if(!type.includes('application/json'))throw Error('助手连接中断，请稍后重试。');
+    return {response,data:await response.json()};
+  }
+  const reader=response.body.getReader(),decoder=new TextDecoder();
+  let buffer='';
+  try{
+    while(true){
+      const {value,done}=await reader.read();
+      if(done)break;
+      buffer+=decoder.decode(value,{stream:true});
+      let boundary;
+      while((boundary=buffer.indexOf('\n\n'))!==-1){
+        const block=buffer.slice(0,boundary);buffer=buffer.slice(boundary+2);
+        const kind=/^event: (.+)$/m.exec(block)?.[1];
+        if(kind!=='result'&&kind!=='error')continue;
+        const raw=/^data: (.+)$/m.exec(block)?.[1];
+        if(!raw)throw Error('助手返回数据不完整，请稍后重试。');
+        const data=JSON.parse(raw);
+        if(kind==='error')throw Error(data.error);
+        return {response,data};
       }
-    }catch(_){}
-    finally{inFlight=false;}
-  };
-  const pollTimer=setInterval(poll,1200);
-  setTimeout(poll,450);
-  return ()=>{
-    stopped=true;
-    clearInterval(tickTimer);
-    clearInterval(pollTimer);
-    if(liveProgressState&&liveProgressState.convId===convId)liveProgressState=null;
-    renderLiveProgressCard();
-  };
+    }
+    throw Error('助手连接中断，请稍后重试。');
+  }finally{await reader.cancel().catch(()=>{});}
 }
-function renderAgentDetails(box,message){
+
+function startChatRun(chat,initialText,identity){
+  const controller=new AbortController(),signal=controller.signal;
+  const progress={text:initialText,steps:[],startedAt:Date.now()};
+  const run={controller,progress};
+  chatRuns.set(chat.id,run);
+  const isActive=()=>!signal.aborted&&identity===accountEpoch&&chatRuns.get(chat.id)===run;
+  const tickTimer=setInterval(()=>{if(isActive()&&activeId===chat.id)renderLiveProgressCard();},1000);
+  let timer;
+  const poll=async()=>{
+    if(!isActive())return;
+    try{
+      const r=await fetch('/api/conversations/'+encodeURIComponent(chat.id)+'/memory',{signal});
+      if(r.ok){
+        const {live_progress:live}=await r.json();
+        if(isActive()&&live?.active){
+          if(live.text)progress.text=live.text;
+          if(Array.isArray(live.steps))progress.steps=live.steps;
+          if(activeId===chat.id)renderLiveProgressCard();
+        }
+      }
+    }catch(error){/* The chat request owns user-visible errors. */}
+    finally{if(isActive())timer=setTimeout(poll,Math.max(1500,chatRuns.size*650));}
+  };
+  timer=setTimeout(poll,450);
+  run.finish=()=>{
+    clearInterval(tickTimer);clearTimeout(timer);controller.abort();
+    if(chatRuns.get(chat.id)===run)chatRuns.delete(chat.id);
+  };
+  return run;
+}
+el('stop-generation').onclick=()=>chatRuns.get(activeId)?.controller?.abort();
+function renderAgentDetails(box,message,foot=box){
   const data=message.result;
   if(!data||data.route!=='agent_v2')return;
   const steps=Array.isArray(data.agent_steps)?data.agent_steps:[];
   if(steps.length){
-    const panel=add(box,'details','','execution-flow');
-    const devSteps=steps.filter(s=>s.tool==='inspect_device');
-    const summaryLabel=devSteps.length
-      ?'已自主执行 '+steps.length+' 步（含 '+devSteps.length+' 项只读设备检查）'
-      :'已自主思考并调用 '+steps.length+' 次工具';
-    add(panel,'summary',summaryLabel);
-    const list=add(panel,'ol','','execution-list');
-    for(const step of steps){
+    const panel=add(foot,'details','','execution-flow');
+    add(panel,'summary','执行过程 · '+steps.length+' 步');
+    const list=add(panel,'ol','','answer-detail-content execution-list agent-step-list');
+    for(const [index,step] of steps.entries()){
       const row=add(list,'li');
-      const title=step.tool==='inspect_device'
-        ?((step.device_label||step.device)+' · '+(step.check_label||step.check))
-        :step.tool==='search_knowledge'?'检索知识库与历史经验'
-        :step.tool==='list_devices'?'查看可查设备目录'
-        :step.tool==='recall_memory'?'回忆长期记忆'
-        :step.tool==='save_learning'?'沉淀新记忆/经验'
-        :step.tool==='propose_config_change'?'生成配置变更建议（未执行）'
-        :step.tool;
-      add(row,'strong',title);
-      if(step.duration_ms>=0)add(row,'small',(step.ok===false?'未成功':'成功')+' · '+(step.duration_ms/1000).toFixed(2)+'秒');
-      if(step.summary)add(row,'p',step.summary);
-      if(step.output){
+      const title=step.human_action||[step.device_label,step.check_label].filter(Boolean).join(' · ')||
+        ({search_knowledge:'检索实验室知识库',list_devices:'查看可查设备目录',
+          recall_memory:'检索历史记忆',read_skill:'读取排障手册',write_skill:'保存排障手册',
+          save_learning:'保存本次经验',propose_config_change:'生成配置变更建议'})[step.tool]||'执行工具';
+      add(row,'strong','第 '+(index+1)+' 步 · '+title);
+      add(row,'p',step.human_result||(step.ok===false?'本次操作未成功':'已完成，详情见原始返回'));
+      const meta=[];
+      if(typeof step.duration_ms==='number'&&step.duration_ms>=0)meta.push('耗时 '+(step.duration_ms/1000).toFixed(2)+' 秒');
+      if(step.display_time)meta.push('北京时间 '+step.display_time);
+      if(meta.length)add(row,'small',meta.join(' · '));
+      if(Array.isArray(step.manual_commands)&&step.manual_commands.length){
+        const commands=add(row,'div','','agent-manual-commands');
+        add(commands,'small','登录设备后可手动执行');
+        for(const {cmd,desc} of step.manual_commands){
+          const item=add(commands,'div','','agent-manual-command');
+          add(item,'code',cmd);
+          const copy=add(item,'button','复制');
+          copy.setAttribute('aria-label','复制命令 '+cmd);
+          enableCopy(copy,()=>cmd);
+          add(item,'span',desc);
+        }
+      }
+      if(step.arguments||step.raw_command||step.output){
         const raw=add(row,'details');add(raw,'summary','查看原始返回');
-        add(raw,'pre',step.output);
+        if(step.arguments)add(raw,'pre',JSON.stringify(step.arguments,null,2));
+        if(step.raw_command)add(raw,'pre',step.raw_command);
+        if(step.output)add(raw,'pre',step.output);
       }
     }
   }
@@ -1242,14 +1282,14 @@ function renderAgentDetails(box,message){
       add(ul,'li',dev.label+'（'+dev.address+'）'+checks);
     }
     const actions=add(card,'div','','task-actions');
-    const allowBtn=add(actions,'button','同意只读进入（后续直通）','primary-button');allowBtn.type='button';allowBtn.disabled=busy;
-    const denyBtn=add(actions,'button','暂不进入','secondary-button');denyBtn.type='button';denyBtn.disabled=busy;
+    const allowBtn=add(actions,'button','同意只读进入（后续直通）','primary-button');allowBtn.type='button';allowBtn.disabled=chatBusy();
+    const denyBtn=add(actions,'button','暂不进入','secondary-button');denyBtn.type='button';denyBtn.disabled=chatBusy();
     const decide=async approved=>{
-      if(busy)return;
+      if(chatBusy())return;
       const c=current();if(!c)return;
       const state=interaction(c),identity=accountEpoch;
-      message.permissionHandled=true;requestBusy=true;busy=true;render();
-      const stopProgress=startLiveProgress(c.id,approved?'已授权只读直通，正在自主排查…':'正在取消本次设备访问…',identity);
+      message.permissionHandled=true;
+      const run=startChatRun(c,approved?'已授权只读直通，正在自主排查…':'正在取消本次设备访问…',identity);render();
       el('status').textContent=approved?'已授权只读直通，正在自主排查…':'正在取消本次设备访问…';
       try{
         const payload={
@@ -1263,16 +1303,18 @@ function renderAgentDetails(box,message){
           pending_id:data.pending_id,
           ...(approved?{grant_devices:devices.map(d=>d.id)}:{deny_pending:true}),
         };
-        const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','X-ATA-Token':csrf},body:JSON.stringify(payload)});
-        const next=await response.json();if(identity!==accountEpoch)return;
+        const {response,data:next}=await requestChat(payload,run.controller.signal);
+        if(identity!==accountEpoch||run.controller.signal.aborted)return;
+        if(response.status===401&&account){expireAccount();return;}
         if(!response.ok)throw Error(next.error||'请求失败');
         message.content=next.answer;message.result=next;message.context=true;
-        el('status').textContent='';
+        revealReply(c,message);
+        if(current()===c)el('status').textContent='';
       }catch(error){
-        if(identity===accountEpoch){message.permissionHandled=false;el('status').textContent='继续执行失败：'+error.message;}
+        if(identity===accountEpoch){message.permissionHandled=false;if(current()===c)el('status').textContent=run.controller.signal.aborted?'已停止生成':'继续执行失败：'+error.message;}
       }finally{
-        stopProgress();
-        if(identity===accountEpoch){c.updated=Date.now();requestBusy=false;busy=false;save();render();}
+        run.finish();
+        if(identity===accountEpoch){c.updated=Date.now();save();render();}
       }
     };
     allowBtn.onclick=()=>decide(true);
@@ -1290,81 +1332,11 @@ function renderAgentDetails(box,message){
     const titles=data.saved_learnings.map(item=>item.title).join('、');
     add(box,'p','已自动记住：'+titles+'（可在顶部“记忆与学习”中查看或删除）','scope-note');
   }
-  if(data.status==='answered'&&message.content){
-    const bar=add(box,'div','','feedback-bar');
-    if(message.feedbackSaved){
-      const fb=message.feedbackSaved;
-      add(bar,'span',(fb.verdict==='incorrect'?'已吸取纠错：':'已沉淀经验：')+fb.title,'feedback-result');
-      if(fb.id&&!fb.shared&&fb.kind!=='preference'){
-        const shareBtn=add(bar,'button','共享给全实验室','secondary-button feedback-btn');
-        shareBtn.type='button';
-        shareBtn.onclick=async()=>{
-          shareBtn.disabled=true;
-          const c=current(),conv=c?c.id:'default';
-          try{
-            await api('/api/conversations/'+encodeURIComponent(conv)+'/memory',{action:'promote_shared',id:fb.id});
-            fb.shared=true;save();render();
-          }catch(err){shareBtn.disabled=false;el('status').textContent=err.message;}
-        };
-      }else if(fb.shared){
-        add(bar,'span','已共享给全实验室','memory-badge-shared');
-      }
-    }else{
-      const c=current();
-      const idx=c?c.messages.indexOf(message):-1;
-      const prevUser=idx>0?c.messages.slice(0,idx).reverse().find(x=>x.role==='user'):null;
-      const toolSum=steps.map(s=>s.summary).filter(Boolean).join('\n');
-      const okBtn=add(bar,'button','✓ 定位准确 · 记为经验','secondary-button feedback-btn');
-      okBtn.type='button';okBtn.disabled=busy;
-      const fixBtn=add(bar,'button','✎ 有误 · 纠正学习','secondary-button feedback-btn');
-      fixBtn.type='button';fixBtn.disabled=busy;
-      okBtn.onclick=async()=>{
-        okBtn.disabled=true;fixBtn.disabled=true;
-        const conv=c?c.id:'default';
-        try{
-          const res=await api('/api/conversations/'+encodeURIComponent(conv)+'/memory',{
-            action:'feedback_accurate',
-            question:prevUser?prevUser.content:'',
-            answer:message.content,
-            tool_summary:toolSum,
-          });
-          if(res.saved){message.feedbackSaved={...res.saved,verdict:'accurate'};save();render();}
-        }catch(err){okBtn.disabled=false;fixBtn.disabled=false;el('status').textContent=err.message;}
-      };
-      fixBtn.onclick=()=>{
-        if(bar.querySelector('.feedback-inline-form'))return;
-        const form=add(bar,'form','','feedback-inline-form');
-        const input=add(form,'input','','');
-        input.type='text';input.maxLength=500;
-        input.placeholder='直接说真实原因或哪里判断有误（例如：不是 VIP 问题，是回程路由没配）';
-        const submit=add(form,'button','提交纠正','primary-button feedback-btn');
-        submit.type='submit';
-        const cancel=add(form,'button','取消','secondary-button feedback-btn');
-        cancel.type='button';cancel.onclick=()=>form.remove();
-        form.onsubmit=async ev=>{
-          ev.preventDefault();
-          const note=input.value.trim();if(!note)return;
-          submit.disabled=true;
-          const conv=c?c.id:'default';
-          try{
-            const res=await api('/api/conversations/'+encodeURIComponent(conv)+'/memory',{
-              action:'feedback_correct',
-              question:prevUser?prevUser.content:'',
-              answer:message.content,
-              note,
-              tool_summary:toolSum,
-            });
-            if(res.saved){message.feedbackSaved={...res.saved,verdict:'incorrect'};save();render();}
-          }catch(err){submit.disabled=false;el('status').textContent=err.message;}
-        };
-        input.focus();
-      };
-    }
-  }
+
 }
 function render(){
   const c=current();
-  busy=requestBusy||!!c?.messages.some(message=>taskOf(message)?.status==='running');
+  const busy=chatBusy(c);
   for(const chat of chats)for(const message of chat.messages){const task=taskOf(message);if(task?.status==='running'||task?.approval_flow==='single_scope_v1'&&['pending','approved'].includes(task.status))watchTask(message,task.id);}
   sidebar();el('chat').replaceChildren();
   el('chat-title').textContent=c?c.title:'新对话';el('welcome').hidden=!!(c&&c.messages.length);
@@ -1374,9 +1346,11 @@ function render(){
     const targets=new Map();
     if(m.role==='assistant')messageHeader(box,answerCopyText(m.content,m.result),true);
     const body=add(box,'div','','message');
-    if(m.role==='assistant')renderAnswer(body,m.content,m.result,targets);else body.textContent=m.content;
-    renderAgentDetails(box,m);
-    evidence(box,m.result,targets);
+    if(m.role==='assistant'){
+      renderAnswer(body,m.content,m.result,targets);
+      if(answerReveal?.message===m)progressivelyShow(body,answerReveal);
+    }else body.textContent=m.content;
+    evidence(box,m.result,targets,m);
     if(typeof renderMaterialEvidence==='function')renderMaterialEvidence(box,m.result);
     taskCard(box,m);
     const overview=taskOf(m);
@@ -1392,18 +1366,16 @@ function render(){
       };
     }
     if(typeof renderRepair==='function')renderRepair(box,m);
-    if(m.role==='assistant'&&m.content&&m.result?.status!=='approval_required'&&c.messages.slice(0,index).some(p=>p.role==='user')){
-      const feedback=add(box,'button',m.experienceId?'再次整理纠正':'纠正 / 留作经验','secondary-button experience-feedback');
-      feedback.type='button';feedback.disabled=busy;feedback.onclick=()=>feedbackFor(c,m,index);
-    }
     if(m.result?.diagnostic_suggested&&activeSpace==='general'&&c.messages[index-1]?.role==='user'){
       const button=add(box,'button','带着问题进入双机热备','secondary-button diagnostic-entry');button.type='button';
-      button.disabled=requestBusy||modeLoading;button.onclick=()=>newChat('ha',c.messages[index-1].content);
+      button.disabled=modeLoading;button.onclick=()=>newChat('ha',c.messages[index-1].content);
     }
   }
-  if(liveProgressState&&c&&liveProgressState.convId===c.id){renderLiveProgressCard();}
+  const generating=!!chatRuns.get(activeId)?.controller;
+  if(generating){renderLiveProgressCard();}
   else if(busy&&!c?.messages.some(m=>taskOf(m)?.status==='running')){const box=add(el('chat'),'section','','card assistant pending');messageHeader(box,'',false);const body=add(box,'div','','message'),dots=add(body,'span','','thinking');for(let i=0;i<3;i++)add(dots,'i','');add(body,'span','正在生成…');}
-  el('rename').disabled=busy||modeLoading||!c;el('delete').disabled=busy||modeLoading||!c;el('clear').disabled=requestBusy||modeLoading;el('question').disabled=busy||modeLoading;
+  el('rename').disabled=busy||modeLoading||!c;el('delete').disabled=busy||modeLoading||!c;el('clear').disabled=modeLoading;el('question').disabled=busy||modeLoading;
+  el('send').hidden=generating;el('stop-generation').hidden=!generating;
   el('send').disabled=busy||modeLoading;
   el('account-open').textContent=account?'账号：'+account.name:accountExpired?'重新登录个人账号':'登录 / 个人历史';
   el('account-open').disabled=busy||modeLoading||accountLoading;
@@ -1418,7 +1390,7 @@ function render(){
 }
 function resizeQuestion(){const q=el('question');q.style.height='auto';q.style.height=Math.min(mobileSidebar.matches?90:110,Math.max(42,q.scrollHeight))+'px';if(typeof updateInputMeter==='function')updateInputMeter();}
 function newChat(space=activeSpace,question=''){
-  if(accountLoading||accountExpired||requestBusy||modeLoading)return;
+  if(accountLoading||accountExpired||modeLoading)return;
   const c={id:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2),title:'新对话',updated:Date.now(),messages:[],interaction:{mode:'qa',scene:null,revision:0}};
   c.space=space;chats.push(c);selectChat(c,space);
   el('question').value=question;el('status').textContent='';save();render();resizeQuestion();closeSidebar();el('question').focus();
@@ -1458,9 +1430,9 @@ async function loadRegistry(){
   registryReady=true;render();
 }
 async function openChat(chat,space=spaceOf(chat)){
-  if(accountLoading||accountExpired||requestBusy||modeLoading)return;
+  if(accountLoading||accountExpired||modeLoading)return;
   selectChat(chat,space);el('status').textContent='';save();
-  try{await loadMode();closeSidebar();resizeQuestion();}
+  try{if(chatRuns.has(chat?.id))render();else await loadMode();closeSidebar();resizeQuestion();}
   catch(error){/* loadMode 已展示错误 */}
 }
 for(const space of ['general','ha'])el('space-'+space).onclick=()=>openChat(preferredChat(space),space);
@@ -1499,7 +1471,7 @@ el('sidebar-close').onclick=closeSidebar;el('sidebar-backdrop').onclick=closeSid
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSidebar();});
 for(const button of document.querySelectorAll('.suggestion'))button.onclick=()=>{el('question').value=button.dataset.question;resizeQuestion();el('question').focus();};
 el('question').addEventListener('input',resizeQuestion);
-el('question').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing&&event.keyCode!==229){event.preventDefault();if(!busy)el('form').requestSubmit();}});
+el('question').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing&&event.keyCode!==229){event.preventDefault();if(!chatBusy())el('form').requestSubmit();}});
 function modelHistoryView(chat,state){
   const selected=chat.messages.filter(m=>m.context===true&&(m.contextRevision===state.revision||m.contextRevision===undefined&&state.revision===0)).slice(-8);
   let excerpted=0;
@@ -1511,7 +1483,7 @@ function modelHistoryView(chat,state){
   return {history,excerpted};
 }
 el('form').onsubmit=async event=>{
-  event.preventDefault();if(busy||modeLoading||accountLoading||accountExpired)return;
+  event.preventDefault();if(chatBusy()||modeLoading||accountLoading||accountExpired)return;
   if(inputLength(el('question').value.trim())>1000){openMaterialEditor(true);return;}
   const question=el('question').value.trim();if(!question)return;if(!current())newChat();
   const selected=current();
@@ -1525,21 +1497,38 @@ el('form').onsubmit=async event=>{
   const memoryPayload=typeof selectedTaskMemory==='function'?selectedTaskMemory():{};
   el('use-task-memory').checked=false;
   const userMessage={role:'user',content:question+(material?'\n[用户材料：'+material.name+'；非现场读取]':''),context:false,contextRevision:state.revision};c.messages.push(userMessage);
-  if(c.title==='新对话')c.title=question.slice(0,30);c.updated=Date.now();requestBusy=true;busy=true;el('send').disabled=true;el('question').value='';
-  save();render();resizeQuestion();el('status').textContent='';
+  if(c.title==='新对话')c.title=question.slice(0,30);c.updated=Date.now();el('question').value='';
   const started=Date.now(),identity=accountEpoch;
-  const stopProgress=startLiveProgress(c.id,'正在理解问题并规划排查步骤…',identity);
+  const run=startChatRun(c,'正在理解问题并规划排查步骤…',identity);
+  save();render();resizeQuestion();el('status').textContent='';
   try{
-    const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','X-ATA-Token':csrf},body:JSON.stringify({question,history,conversation_id:c.id,chat_space:spaceOf(c),interaction_mode:state.mode,interaction_revision:state.revision,allow_context:true,approval_flow:'single_scope_v1',...memoryPayload,...(material?{material_id:material.id,allow_materials:el('allow-materials').checked}:{})})});
-    const data=await response.json();if(identity!==accountEpoch)return;if(response.status===401&&account){expireAccount();return;}if(!response.ok)throw Error(data.error||'请求失败');data.ui_elapsed_seconds=(Date.now()-started)/1000;
+    const {response,data}=await requestChat({question,history,conversation_id:c.id,chat_space:spaceOf(c),interaction_mode:state.mode,interaction_revision:state.revision,allow_context:true,approval_flow:'single_scope_v1',...memoryPayload,...(material?{material_id:material.id,allow_materials:el('allow-materials').checked}:{})},run.controller.signal);
+    if(identity!==accountEpoch||run.controller.signal.aborted)return;if(response.status===401&&account){expireAccount();return;}if(!response.ok)throw Error(data.error||'请求失败');data.ui_elapsed_seconds=(Date.now()-started)/1000;
     if(data.status==='consent_required')throw Error('服务尚未应用默认模型设置，请刷新后重试。');
     if(historyView.excerpted)data.history_info={excerpted_messages:historyView.excerpted,note:'本次仅使用部分历史内容；完整原文仍保留在对话中。'};
     userMessage.context=data.route==='agent_v2'||(!data.topology_observation&&data.evidence_scope?.kind!=='historical'&&(data.status==='answered'||(data.status==='clarify'&&
       (spaceOf(c)==='ha'||data.model_trace?.some(step=>step.action==='clarify')))));
-    c.messages.push({role:'assistant',content:data.answer,context:userMessage.context,contextRevision:state.revision,result:data});
-    el('status').textContent=data.status==='device_permission_required'?'首次进入设备需要你确认一次只读权限。':data.status==='investigation_started'?'正在执行只读检查。':data.status==='approval_required'?'请确认是否同意本次检查。':data.status==='incomplete'?'本次回答未完成，详情见回答下方。':'';
-  }catch(error){if(identity===accountEpoch){c.messages.push({role:'assistant',content:'请求未完成：'+error.message,context:false});el('status').textContent='请检查连接后重试';el('question').value=question;}}
-  finally{stopProgress();if(identity===accountEpoch){c.updated=Date.now();requestBusy=false;busy=false;save();render();resizeQuestion();el('question').focus();}}
+    const reply={role:'assistant',content:data.answer,context:userMessage.context,contextRevision:state.revision,result:data};
+    c.messages.push(reply);revealReply(c,reply);
+    if(current()===c)el('status').textContent=data.status==='device_permission_required'?'首次进入设备需要你确认一次只读权限。':data.status==='investigation_started'?'正在执行只读检查。':data.status==='approval_required'?'请确认是否同意本次检查。':data.status==='incomplete'?'本次回答未完成，详情见回答下方。':'';
+  }catch(error){
+    if(identity===accountEpoch){
+      if(run.controller.signal.aborted){
+        if(current()===c)el('status').textContent='已停止生成';
+      }else{
+        c.messages.push({role:'assistant',content:'请求未完成：'+error.message,context:false});
+        if(current()===c){el('status').textContent='请检查连接后重试';el('question').value=question;}
+        else if(!chatDrafts.get(c.id))chatDrafts.set(c.id,question);
+      }
+    }
+  }finally{
+    run.finish();
+    if(identity===accountEpoch){
+      c.updated=Date.now();save();
+      if(current()===c){render();resizeQuestion();el('question').focus();}
+      else sidebar();
+    }
+  }
 };
 
 // 说明由用户主动查看；普通提问直接使用模型。

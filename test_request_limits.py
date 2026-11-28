@@ -3,7 +3,10 @@ import unittest
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import Mock
+from agent_memory import AgentMemoryStore
+from agent_v2 import AutonomousAgent
 from request_limits import RequestLimiter
+from test_agent_v2 import FAKE_CONFIG
 from workflow_test_support import RunningApp
 
 
@@ -42,27 +45,33 @@ class RequestLimitTests(unittest.TestCase):
                 now[0] = window
                 self.assertTrue(limiter.allow('owner', use))
 
-    def test_workflow_requests_overlap_but_http_model_limit_still_applies(self):
-        entered = threading.Barrier(3)
+    def test_same_account_conversations_overlap_until_http_model_limit(self):
+        entered = threading.Barrier(7)
         release = threading.Event()
 
-        def planner(context):
+        def llm(config, messages, **kwargs):
             entered.wait(5)
             if not release.wait(5):
-                raise AssertionError('相互独立的请求没有同时进入规划器')
-            return general(context)
+                raise AssertionError('相互独立的请求没有同时进入模型')
+            return {'content': '模型回答', 'usage': 1, 'tool_calls': []}
 
-        with RunningApp(planner, Mock(), lookup=lambda _: []) as client:
-            browsers = [client.new_browser() for _ in range(3)]
-            for browser in browsers:
-                client.call('/api/session', browser=browser)
+        with RunningApp() as client:
+            client.server.agent_v2 = AutonomousAgent(
+                AgentMemoryStore(client.root / 'test-agent.db'), config_fn=lambda: FAKE_CONFIG,
+                llm_client=llm, background_learning=False,
+            )
+            code, _ = client.call('/api/account/register', {
+                'username': 'parallel-user', 'password': 'test-only-password', 'allow_storage': True,
+            })
+            self.assertEqual(code, 200)
             payload = {'question': 'Python列表是什么', 'history': [], 'allow_context': True}
-            with ThreadPoolExecutor(max_workers=2) as pool:
-                pending = [pool.submit(client.call, '/api/chat', payload, browser, timeout=10)
-                           for browser in browsers[:2]]
+            with ThreadPoolExecutor(max_workers=6) as pool:
+                pending = [pool.submit(client.call, '/api/chat',
+                                       dict(payload, conversation_id='chat-{}'.format(index)), timeout=10)
+                           for index in range(6)]
                 try:
                     entered.wait(5)
-                    self.assertEqual(client.call('/api/chat', payload, browsers[2])[0], 429)
+                    self.assertEqual(client.call('/api/chat', dict(payload, conversation_id='chat-extra'))[0], 429)
                 finally:
                     release.set()
                 for request in pending:
@@ -112,8 +121,8 @@ class RequestLimitTests(unittest.TestCase):
     def test_exhausted_model_slots_still_allow_cancel_and_logout(self):
         with RunningApp(Mock(side_effect=general),Mock(),lookup=lambda q:[]) as client:
             task=client.diagnostic_chat('局端备机当前Croc状态')[1]['task']
-            self.assertTrue(client.server.model_slots.acquire(False))
-            self.assertTrue(client.server.model_slots.acquire(False))
+            for _ in range(6):
+                self.assertTrue(client.server.model_slots.acquire(timeout=2))
             try:
                 self.assertEqual(client.chat('Python列表是什么')[0],429)
                 code,result=client.call('/api/tasks/'+task['id']+'/cancel',{})
@@ -121,7 +130,8 @@ class RequestLimitTests(unittest.TestCase):
                 self.assertEqual(result['status'],'cancelled')
                 self.assertEqual(client.call('/api/account/logout',{})[0],200)
             finally:
-                client.server.model_slots.release();client.server.model_slots.release()
+                for _ in range(6):
+                    client.server.model_slots.release()
 
 
 if __name__=='__main__':unittest.main()

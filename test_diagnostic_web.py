@@ -35,7 +35,7 @@ class DiagnosticWebTests(unittest.TestCase):
         with patch('diagnostic_web.diagnose') as run:
             self.assertEqual(self.request(data, token=False)[0],403)
             self.assertEqual(self.request(data, host='evil.example')[0],403)
-            data['devices']=['1.2.3.4']
+            data['devices']=['198.51.100.46']
             self.assertEqual(self.request(data)[0],410)
             run.assert_not_called()
 
@@ -63,7 +63,7 @@ class DiagnosticWebTests(unittest.TestCase):
         with patch('device_worker.probe') as tool:
             for data in ({'device':'local-primary','check':'reboot'},
                          {'device':'local-primary','check':'services','command':'id'},
-                         {'device':'1.2.3.4','check':'services'}):
+                         {'device':'198.51.100.46','check':'services'}):
                 with self.assertRaises(ValueError): device_worker.dispatch(data)
             tool.assert_not_called()
 

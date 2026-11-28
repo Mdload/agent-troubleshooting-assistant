@@ -1,22 +1,14 @@
-"""Router离线只读契约；未开放SSH/worker调用，旧资料不产生执行权限。"""
+"""Router 的合成证据回放。"""
 import re
-from device_registry import ROUTER_CONTRACT, PENDING_DEVICES
-from device_tools import interface_command
-from diagnostic_logs import log_command
+from device_registry import DEVICES, ROUTER_CONTRACT
+from device_tools import ROUTER_CHECKS
 from ha_croc_case import croc_state, vip_state
 from evidence_scope import collection_time
 
 
 def read_commands(check):
-    commands={
-        'services':('systemctl show '+' '.join(ROUTER_CONTRACT['units'])+
-                    ' -p Id -p LoadState -p ActiveState -p SubState -p MainPID -p Result',),
-        'interfaces':tuple(interface_command(name) for name in ROUTER_CONTRACT['interfaces']),
-        'routes':('ip -4 route show table main','ip -4 rule show',
-                  "printf 'IP_FORWARD=' && cat /proc/sys/net/ipv4/ip_forward"),
-        'logs':(log_command(group='router'),)}
-    if not isinstance(check,str) or check not in commands:raise ValueError('Unsupported Router check')
-    return commands[check]
+    if not isinstance(check,str) or check not in ROUTER_CHECKS:raise ValueError('Unsupported Router check')
+    return ROUTER_CHECKS[check]
 
 
 def replay_observation(observations,scope,device,check):
@@ -34,7 +26,8 @@ def replay_observation(observations,scope,device,check):
 def assess_replay(observations,scope):
     """离线解析单台采集字段，保留模式/时序/实际流量未知，不判断选举角色。"""
     nodes=[]
-    for device in PENDING_DEVICES:
+    for device in DEVICES:
+        if DEVICES[device]['profile'] != 'router_ha':continue
         fields={}
         for check in ('services','interfaces','routes'):
             item=replay_observation(observations,scope,device,check)
@@ -46,7 +39,7 @@ def assess_replay(observations,scope):
                 value=values[0] if len(values)==1 else 'unknown'
             if value=='unknown':continue
             fields[check]={'value':value,'refs':[item['id']],'collected_at':item['collected_at']}
-        nodes.append({'device':device,'label':PENDING_DEVICES[device]['label'],'fields':fields,
+        nodes.append({'device':device,'label':DEVICES[device]['label'],'fields':fields,
             'root_cause_confirmed':False,'current_role':'unknown','execution_enabled':False})
     return {'kind':'synthetic_router_contract_replay','nodes':nodes,
             'configuration_verified_current':False,'grants_device_access':False,

@@ -2,7 +2,7 @@
 import json
 import re
 import shlex
-from device_registry import PROFILES, ROUTER_CONTRACT
+from device_registry import PROFILES
 
 LOG_LIMIT = 40
 RAW_LIMIT = 262144
@@ -10,7 +10,7 @@ SAFE_LIMIT = 12000
 UNITS = {
     'local': PROFILES['local_ha']['units'],
     'remote': PROFILES['remote_ha']['units'],
-    'router': ROUTER_CONTRACT['units'],
+    'router': PROFILES['router_ha']['units'],
 }
 SENSITIVE = re.compile(r'password|passwd|\bpwd\b|secret|token|api[_ -]?key|authorization|credential|'
                        r'密码|口令|密钥|令牌|\bBearer\s+|\bsk-[A-Za-z0-9_-]+|'

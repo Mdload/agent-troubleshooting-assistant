@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 from business_path import assess_path, selected
 from router_contract import read_commands, assess_replay
-from device_registry import DEVICES, ROUTER_CONTRACT, PENDING_DEVICES, public_catalog
+from device_registry import DEVICES, ROUTER_CONTRACT, checks_for, public_catalog
 from device_tools import build_command
 from diagnostic_logs import project_logs
 from device_worker import dispatch
@@ -22,7 +22,7 @@ def path_rows(forward='1'):
     now=datetime.datetime.utcnow().isoformat()+'Z';rows=[]
     for device,checks in REPLAY_SCOPE.items():
         for check in checks:
-            if device in DEVICES:output=case_probe('owner_running')(device,check)['output']
+            if not device.startswith('router-'):output=case_probe('owner_running')(device,check)['output']
             elif check=='services':
                 output='Id=keepalived.service\nLoadState=loaded\nActiveState=active\nSubState=running\nMainPID=123\n'
             elif check=='interfaces':
@@ -35,15 +35,28 @@ def path_rows(forward='1'):
 
 
 class RouterContractTests(unittest.TestCase):
-    def test_candidates_are_visible_but_cannot_be_approved_or_executed_as_runtime_devices(self):
-        self.assertTrue(set(PENDING_DEVICES).isdisjoint(DEVICES))
-        catalog=public_catalog()
-        self.assertTrue(all(not row['execution_enabled'] and row['management_interface'] is None for row in catalog['pending_devices']))
-        with patch('device_worker.probe') as probe:
-            for device in PENDING_DEVICES:
-                with self.assertRaises(ValueError):dispatch({'device':device,'check':'routes'})
-                with self.assertRaises(ValueError):build_command(device,'routes')
-            probe.assert_not_called()
+    def test_routers_share_the_schema_and_worker_allowlist(self):
+        from agent_v2 import TOOL_SCHEMAS
+
+        schema = next(tool['function']['parameters']['properties'] for tool in TOOL_SCHEMAS
+                      if tool['function']['name'] == 'inspect_device')
+        self.assertFalse(public_catalog()['pending_devices'])
+        for device, peer in (('router-1', 'router-2'), ('router-2', 'router-1')):
+            self.assertIn(device, schema['device']['enum'])
+            required = {'services', 'interfaces', 'routes', 'policy_routes', 'logs', 'ha_config',
+                        'ping_' + peer.replace('-', '_')}
+            self.assertTrue(required.issubset(checks_for(device)))
+            self.assertTrue(required.issubset(schema['check']['enum']))
+            with patch('device_worker.probe') as probe:
+                for check in required:
+                    request = {'device':device, 'check':check}
+                    dispatch(request)
+                    probe.assert_called_with(device, check)
+                    self.assertEqual(build_command(device,check)[-2], 'root@203.0.113.251')
+                for check in ('ping_tunnel_peer', 'ping_tunnel_remote_backup', 'restart'):
+                    request = {'device':device, 'check':check}
+                    with self.assertRaises(ValueError):
+                        dispatch(request)
 
     def test_fixed_commands_read_router_state_without_croc_or_side_effect_scripts(self):
         for check in ('services','interfaces','routes','logs'):
@@ -116,12 +129,12 @@ class BusinessPathTests(unittest.TestCase):
         self.assertEqual(code, 200)
         result = done['result']
         self.assertEqual(result['status'], 'answered', result.get('reason'))
-        self.assertCountEqual(reads[:8], [(device, check) for device in DEVICES for check in ('services', 'interfaces')])
+        self.assertCountEqual(reads[:8], [(device, check) for device in DEVICES if not device.startswith('router-') for check in ('services', 'interfaces')])
         self.assertEqual(reads[8:], [('remote-primary', 'logs'), ('local-primary', 'routes')])
         for device, check in reads[8:]:
             self.assertCountEqual(guidance[device, check], [item['id'] for item in result['evidence']
                 if item['device'] == device and item['check'] in ('services', 'interfaces')])
-        self.assertTrue(any('未读取Router' in gap for gap in result['diagnostic_report']['unknowns']))
+        self.assertTrue(any('中间Router转发未取得' in gap for gap in result['diagnostic_report']['unknowns']))
         self.assertFalse(result['business_path']['end_to_end_verified'])
 
     def test_path_context_only_applies_to_relevant_diagnostic_fault(self):
@@ -142,8 +155,7 @@ class BusinessPathTests(unittest.TestCase):
 
     def test_runtime_path_never_accepts_router_candidates_or_synthetic_endpoint_state(self):
         report=assess_path(path_rows(),REPLAY_SCOPE)
-        self.assertEqual(report['segments'][1]['nodes'],[])
-        self.assertTrue(any('未开放' in gap for gap in report['gaps']))
+        self.assertEqual(report['segments'][1]['status'],'unverified')
         self.assertTrue(all(not node['fields'] for segment in report['segments'] for node in segment['nodes']))
 
     def test_http_scope_and_model_context_preserve_router_gap_without_any_router_read(self):
@@ -157,7 +169,7 @@ class BusinessPathTests(unittest.TestCase):
         self.assertEqual(done['status'],'completed',done)
         self.assertTrue(all(device in DEVICES for device,check in reads))
         self.assertTrue(all(context['business_path']['grants_device_access'] is False for context in contexts))
-        self.assertTrue(any('未读取Router' in gap for gap in done['result']['diagnostic_report']['unknowns']))
+        self.assertTrue(any('中间Router转发未取得' in gap for gap in done['result']['diagnostic_report']['unknowns']))
         self.assertFalse(done['result']['business_path']['end_to_end_verified'])
 
 

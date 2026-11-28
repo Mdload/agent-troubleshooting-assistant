@@ -22,6 +22,32 @@ class SelectionExplainTests(unittest.TestCase):
         self.assertTrue(payload['stream']);self.assertEqual(payload['max_tokens'],768);self.assertEqual(payload['thinking'],{'type':'disabled'})
         self.assertEqual(payload['messages'][1]['content'],'示例');self.assertNotIn('tools',payload);self.assertNotIn('response_format',payload)
         self.assertLess(metrics['prompt_bytes'],1000);opener.open.assert_called_once()
+    def test_lab_selection_injects_projected_reference_but_omits_snapshot(self):
+        for text, term in (('accept-watchdog', '接收队列'), ('route-envset', 'route-envset.service')):
+            with self.subTest(text=text):
+                opener = Mock()
+                opener.open.return_value = response()
+                stream_explanation(CONFIG, text, lambda *v: None, lambda: None, {}, opener=opener)
+                payload = json.loads(opener.open.call_args.args[0].data)
+                prompt = payload['messages'][0]['content']
+                self.assertIn('实验室参考（历史机制与排查经验）', prompt)
+                self.assertIn(term, prompt)
+                self.assertNotIn('本轮发现', prompt)
+                self.assertNotIn('安装但未运行', prompt)
+                self.assertNotIn('未运行 |', prompt)
+                self.assertLessEqual(prompt.count('\n- '), 2)
+                self.assertNotIn('tools', payload)
+
+    def test_generic_selection_keeps_general_prompt(self):
+        for text in ('Keepalived', 'TCP 三次握手', 'Recv-Q', 'Python 装饰器'):
+            with self.subTest(text=text):
+                opener = Mock()
+                opener.open.return_value = response()
+                stream_explanation(CONFIG, text, lambda *v: None, lambda: None, {}, opener=opener)
+                payload = json.loads(opener.open.call_args.args[0].data)
+                self.assertEqual(payload['messages'][0]['content'], PROMPT)
+                self.assertEqual(payload['messages'][1]['content'], text)
+
     def test_truncated_stream_keeps_partials_but_never_returns_complete_or_retries(self):
         opener=Mock();opener.open.return_value=response('length');pieces=[]
         with self.assertRaises(ModelFailure) as error:stream_explanation(CONFIG,'示例',lambda *v:pieces.append(v),lambda:None,{},opener=opener)

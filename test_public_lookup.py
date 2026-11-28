@@ -73,11 +73,14 @@ class PublicPolicyTests(unittest.TestCase):
             public.source(item,'<h1>Keepalived</h1>unrelated navigation','text/html',1,'now')
 
     def test_dns_rejects_private_mixed_and_special_addresses(self):
+        is_global = public.ipaddress.IPv4Address.is_global.fget
+        public_fixture = property(lambda ip: str(ip) == '198.51.100.45' or is_global(ip))
         for value in ('127.0.0.1', '10.1.2.3', '169.254.169.254', '100.64.0.1', '::1', '::ffff:127.0.0.1',
                       '224.0.0.1','64:ff9b::a00:1','2002:0a00:0001::1'):
-            entries = [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('1.1.1.1', 443)),
+            entries = [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('198.51.100.45', 443)),
                        (socket.AF_INET, socket.SOCK_STREAM, 6, '', (value, 443))]
-            with patch('public_lookup.socket.getaddrinfo', return_value=entries):
+            with patch('public_lookup.socket.getaddrinfo', return_value=entries), \
+                    patch.object(public.ipaddress.IPv4Address, 'is_global', public_fixture):
                 with self.assertRaisesRegex(public.PublicLookupError, 'non_public_address'):
                     public.public_addresses('pypi.org', 1)
         with patch('public_lookup.socket.getaddrinfo') as resolver:
@@ -100,7 +103,7 @@ class PublicPolicyTests(unittest.TestCase):
         released = threading.Event()
         def resolver(*args, **kwargs):
             released.wait(1)
-            return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('1.1.1.1', 443))]
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('198.51.100.45', 443))]
         with patch('public_lookup.socket.getaddrinfo', side_effect=resolver), patch('public_lookup.PinnedHTTPS') as transport:
             began = time.monotonic()
             with self.assertRaisesRegex(public.PublicLookupError, 'dns_timeout'):
@@ -128,10 +131,10 @@ class PublicPolicyTests(unittest.TestCase):
 
     def test_tls_uses_pinned_address_and_original_hostname(self):
         raw=Mock();tls=Mock();context=Mock();context.wrap_socket.return_value=tls
-        address=(socket.AF_INET,socket.SOCK_STREAM,6,('1.1.1.1',443))
+        address=(socket.AF_INET,socket.SOCK_STREAM,6,('198.51.100.45',443))
         with patch('public_lookup.ssl.create_default_context',return_value=context),patch('public_lookup.socket.socket',return_value=raw):
             conn=public.PinnedHTTPS('pypi.org',address,1,lambda:None);conn.connect()
-        raw.connect.assert_called_once_with(('1.1.1.1',443))
+        raw.connect.assert_called_once_with(('198.51.100.45',443))
         context.wrap_socket.assert_called_once_with(raw,server_hostname='pypi.org')
 
     def test_absolute_deadline_breaks_slow_headers(self):

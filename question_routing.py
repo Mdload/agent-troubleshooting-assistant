@@ -32,7 +32,12 @@ STATUS = (r'情况(怎么样|怎样|如何|呢)|怎么样了[？?]?$|怎么样[�
 
 def target_devices(text):
     """只有明确节点或明确两台时才给目标，不把一个端猜成主机。"""
-    result=[]
+    result = [
+        device for device in REGISTRY
+        if device.startswith('router-') and re.search(
+            r'(?<![a-z0-9])(?:router|路由器)[\s-]*' + device[-1] + r'(?!\d)',
+            text, re.I)
+    ]
     text=text.replace('备用机','备机').replace('主节点','主机').replace('备用节点','备机')
     groups={profile(device)['side_label'] for device in REGISTRY}
     for label in sorted(groups):
@@ -105,9 +110,6 @@ def classify(question,history=None,target_hint=None,inherited_live=False):
                 'answer':'还没有检查设备，当前状态未核实。需要确认时，我会先请你同意，再查看相关设备。'}
     if diagnostic:
         device_text=target_hint if target_hint is not None else text
-        if 'router' in device_text.lower() or '路由器' in device_text:
-            return {'route':'unsupported_device','domain':'topology','intent':'live',
-                    'answer':'当前版本未提供Router读取工具，可以解释已有规则；现场状态仍未核实。'}
         devices=target_devices(device_text)
         if not devices:
             return {'route':'clarify','domain':'topology','intent':'live',

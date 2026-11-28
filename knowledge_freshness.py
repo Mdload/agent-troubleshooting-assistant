@@ -35,7 +35,7 @@ def source_for_model(source, question):
     if historical_request(question):
         return result
     ident = result.get('id')
-    if ident not in ('KB-002', 'KB-005', 'KB-008', 'KB-009'):
+    if ident not in ('KB-002', 'KB-005', 'KB-008', 'KB-009', 'KB-010', 'KB-011', 'KB-012'):
         return result
     text = result.get('historical_finding', '')
     if not isinstance(text, str):
@@ -61,7 +61,13 @@ def source_for_model(source, question):
         text = re.sub(r'(?m)^- 两局端的health/role/watchdog脚本哈希在本轮一致；两远端health/check_croc_links哈希一致。未比较所有文件。\n?', '', text)
         text = text.replace('局端备机仍保留部分linkdown内层路由', '待机设备也可能保留部分linkdown内层路由')
     elif ident == 'KB-009':
-        text = text.replace('MySQL/nginx/node进程已看到', '登记过MySQL/nginx/node，当前是否运行需要检查')
+        text = re.sub(r'(?m)^- MySQL/nginx/node进程已看到[^\n]*\n?', '', text)
+    elif ident == 'KB-010':
+        text = re.sub(r'(?m)^- Router路由：[^\n]*\n?', '', text)
+    elif ident == 'KB-011':
+        text = re.sub(r'(?m)^- ppp5历史故障案例[^\n]*\n?', '', text)
+    elif ident == 'KB-012':
+        text = re.sub(r'(?m)^- 本轮发现140 nginx\.service[^\n]*\n?', '', text)
     if text != original:
         result['historical_finding'] = text
         result['runtime_snapshot_excluded'] = True

@@ -29,7 +29,7 @@ class DiagnosticTests(unittest.TestCase):
         self.assertEqual(len([r for r in self.audit.read(result['task']) if r[1]=='observation']),2)
 
     def test_unregistered_target_and_commands_rejected(self):
-        for device,check in [('1.2.3.4','services'),('local-primary','reboot'),('local-primary; id','services')]:
+        for device,check in [('198.51.100.46','services'),('local-primary','reboot'),('local-primary; id','services')]:
             with self.assertRaises(ValueError): build_command(device,check)
         tool=Mock()
         result=run_diagnosis('检查',lambda c:{'action':'check','device':'local-backup','check':'services'},tool,self.audit,['local-primary'])

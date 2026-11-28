@@ -9,7 +9,9 @@ import unittest
 from unittest.mock import Mock
 
 from agent_memory import AgentMemoryStore
-from agent_v2 import AutonomousAgent, ToolsUnsupportedError
+from agent_v2 import AutonomousAgent, ToolsUnsupportedError, _display_time, _human_step, _polish_answer
+from agent_v2 import _manual_commands
+from device_registry import DEVICES, checks_for
 import app
 
 
@@ -111,11 +113,106 @@ class AgentV2CoreTests(unittest.TestCase):
             llm_client=fake_llm, background_learning=False
         )
         agent.chat('u1', 'c1', '局端主机现在是什么角色？')
+        self.memory.append_turn('u1', 'c1', '检查记录',
+                                '[本轮已执行工具与结果]\n旧工具日志\n\n已检查。',
+                                '历史接口证据')
         agent.chat('u1', 'c1', '那它什么时候会接管？')
 
         second_msgs = captured_messages[1]
         assistant_texts = [m['content'] for m in second_msgs if m['role'] == 'assistant']
         self.assertTrue(any('第一轮已经确认局端主机当前是备机角色' in t for t in assistant_texts))
+        self.assertIn('历史接口证据', second_msgs[0]['content'])
+        self.assertIn('已检查。', assistant_texts)
+        self.assertFalse(any('旧工具日志' in text for text in assistant_texts))
+
+    def test_polish_removes_leaked_tool_block(self):
+        marker = '[本轮已执行工具与结果]'
+        self.assertEqual(_polish_answer(marker + '\nRouter1 / 服务：MACHINE\n\n> **结论**：正常。', []),
+                         '> **结论**：正常。')
+        fence = chr(96) * 3
+        self.assertEqual(_polish_answer('### **' + marker + '**\n\n' + fence +
+                                       'json\n{"ok": true}\n' + fence + '\n\n### 排查结果\n已确认。', []),
+                         '### 排查结果\n已确认。')
+        self.assertEqual(_polish_answer(marker + '\nMACHINE', []), '')
+
+    def test_model_quote_only_answer_retries_then_reports_missing_summary(self):
+        marker = '[本轮已执行工具与结果]'
+        for content in ('>', '>\n\n> ' + marker + '\n工具结果'):
+            with self.subTest(content=content):
+                llm = Mock(return_value={'content': content, 'usage': 10, 'tool_calls': []})
+                agent = AutonomousAgent(self.memory, config_fn=lambda: FAKE_CONFIG,
+                                        llm_client=llm, background_learning=False)
+                result = agent.chat('u1', 'c1', '路由器此前无法 SSH，可能是什么原因？')
+                self.assertEqual(llm.call_count, 2)
+                self.assertEqual(result['status'], 'incomplete')
+                self.assertEqual(result['reason'], 'model_empty_answer')
+                self.assertIn('未能生成完整总结', result['answer'])
+                self.assertEqual(self.memory.recent_turns('u1', 'c1')[-1]['assistant_text'], '')
+
+    def test_length_truncated_after_tool_uses_fresh_final_answer_prompt(self):
+        replies = [
+            {'content': '', 'tool_calls': [{'id': 'c1', 'name': 'list_devices', 'arguments': {}}]},
+            {'content': '>', 'finish_reason': 'length', 'reasoning_chars': 14000},
+            {'content': '设备目录已查到，运行状态仍需核实。', 'finish_reason': 'stop'},
+        ]
+        llm = Mock(side_effect=replies)
+        agent = AutonomousAgent(self.memory, config_fn=lambda: FAKE_CONFIG,
+                                llm_client=llm, background_learning=False)
+        calls = []
+        result = agent.chat('u1', 'c1', '查询可检查的设备', on_model=calls.append)
+        self.assertEqual(result['status'], 'answered')
+        self.assertEqual(result['answer'], replies[-1]['content'])
+        self.assertEqual(len(result['agent_steps']), 1)
+        config, messages = llm.call_args.args
+        self.assertIs(config['LLM_DISABLE_THINKING'], True)
+        self.assertIsNone(llm.call_args.kwargs['tools'])
+        self.assertNotIn('tool', [message['role'] for message in messages])
+        self.assertIn('查看实验室设备与只读检查目录', messages[-1]['content'])
+        self.assertEqual([(call['phase'], call['finish_reason']) for call in calls],
+                         [('agent', None), ('agent', 'length'), ('summary', 'stop')])
+        self.assertEqual(calls[1]['reasoning_chars'], 14000)
+        self.assertEqual(self.memory.recent_turns('u1', 'c1')[-1]['assistant_text'], result['answer'])
+
+    def test_tool_marker_mentioned_in_prose_preserves_answer(self):
+        answer = '[本轮已执行工具与结果]这一节只记录历史线索。\n请结合当时的 SSH 错误判断。'
+        self.assertEqual(_polish_answer(answer, []), answer)
+
+    def test_manual_commands_cover_registered_inspections_and_probes(self):
+        for device in DEVICES:
+            for check in checks_for(device):
+                with self.subTest(device=device, check=check):
+                    commands = _manual_commands('inspect_device', {'device': device, 'check': check})
+                    self.assertTrue(1 <= len(commands) <= 3)
+                    for item in commands:
+                        self.assertTrue(item['desc'])
+                        self.assertNotRegex(item['cmd'], r'ssh|hostname|exit|;|\n')
+        args = {'device': 'local-primary', 'check': 'ping_tunnel_remote_backup'}
+        self.assertEqual(_manual_commands('inspect_device', args)[-1]['cmd'],
+                         'ping -4 -n -c 3 -W 1 203.0.113.134')
+        for kind, target, prefix in (
+            ('service', 'mysql', 'systemctl status'), ('package', 'mysql', 'dpkg -l'),
+            ('process', 'mysqld', 'ps -e'), ('port', '03306', "ss -tulnp 'sport = :3306'"),
+            ('binary', 'mysql', 'command -v'),
+        ):
+            with self.subTest(kind=kind):
+                commands = _manual_commands('probe_device', {'device': 'router-1', 'kind': kind, 'target': target})
+                self.assertTrue(commands[0]['cmd'].startswith(prefix))
+                for item in commands:
+                    self.assertTrue(item['desc'])
+                    self.assertNotRegex(item['cmd'], r'ssh|hostname|exit|;|\n')
+        self.assertEqual(_manual_commands('probe_device',
+                         {'device': 'router-1', 'kind': 'binary', 'target': 'ls; id'}), [])
+
+    def test_human_trace_uses_port_evidence_and_beijing_time(self):
+        args = {'device': 'router-1', 'kind': 'port', 'target': '3306'}
+        output = 'tcp LISTEN 0 80 127.0.0.1:3306 0.0.0.0:* users:(("mysqld",pid=863,fd=7))'
+        self.assertEqual(_human_step('probe_device', args, {'ok': True, 'output': output}),
+                         ('在Router1探查 3306 端口', '发现 mysqld（PID 863）监听 127.0.0.1:3306'))
+        self.assertEqual(_human_step('probe_device', args, {'output': 'NOT_FOUND\n'})[1],
+                         '本次查询未匹配到目标')
+        self.assertEqual(_human_step('search_knowledge', {'query': 'VRRP'}, {'hits': [{}, {}]}),
+                         ('检索实验室知识库「VRRP」', '命中 2 条参考资料'))
+        self.assertEqual(_display_time('2026-11-27T22:30:07.123Z', None), '06:30:07')
 
     def test_self_learning_memory_recall_and_write_proposal_guard(self):
         # 1) Agent 主动保存纠错/排障经验 + 提出配置修改建议（绝不执行写操作）

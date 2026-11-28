@@ -8,7 +8,7 @@ function jumpLatest(){
   followLatest=true;const pane=el('conversation-scroll');pane.scrollTop=pane.scrollHeight;syncScrollButton();
 }
 function syncWorkspace(){
-  const c=current(),key=accountEpoch+'/'+(c?.id||''),signature=(c?.messages||[]).map(m=>m.content.length).join(',')+'/'+busy;
+  const c=current(),key=accountEpoch+'/'+(c?.id||''),signature=(c?.messages||[]).map(m=>m.content.length).join(',')+'/'+chatBusy();
   el('investigation-open').disabled=!c||accountLoading||accountExpired;
   if(key!==workspaceChat){workspaceChat=key;followLatest=true;recordRevision++;
     el('investigation-list').replaceChildren();el('investigation-detail').replaceChildren();

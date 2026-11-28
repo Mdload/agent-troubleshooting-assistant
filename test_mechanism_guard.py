@@ -147,7 +147,7 @@ class MechanismGuardTests(unittest.TestCase):
         self.lookup.assert_not_called()
 
     def test_fake_device_still_rejected_without_correction(self):
-        result = self.execute([({'action': 'read', 'device': 'router-1', 'check': 'services'}, 3), final('unused')])
+        result = self.execute([({'action': 'read', 'device': 'unregistered-device', 'check': 'services'}, 3), final('unused')])
         self.assertEqual(self.planner.call_count, 1)
         self.assertEqual(result['status'], 'incomplete')
         self.probe.assert_not_called()

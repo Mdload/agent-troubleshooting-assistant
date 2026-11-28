@@ -1,7 +1,8 @@
 """公网网关的真实HTTP认证/来源/流式转发；不连外网、模型或设备。"""
 import http.client,importlib.util,json,socket,threading,unittest
+from concurrent.futures import wait
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from workflow_test_support import RunningApp,TEST_LAB_PASSWORD
 
 spec=importlib.util.spec_from_file_location('public_http',Path(__file__).parent/'deploy/public_http.py')
@@ -100,12 +101,44 @@ class PublicHTTPTests(unittest.TestCase):
  def test_proxy_protocol_is_parsed_before_http_and_cannot_be_client_header_spoofed(self):
   self.server.require_proxy=True
   with socket.create_connection(('127.0.0.1',self.server.server_port),timeout=3) as connection:
-   connection.sendall(('PROXY TCP4 203.0.113.1 203.0.113.83 12345 18890\r\nGET /api/health HTTP/1.0\r\nHost: '+AUTHORITY+'\r\nX-Forwarded-For: 1.2.3.4\r\n\r\n').encode())
+   connection.sendall(('PROXY TCP4 203.0.113.1 203.0.113.83 12345 18890\r\nGET /api/health HTTP/1.0\r\nHost: '+AUTHORITY+'\r\nX-Forwarded-For: 198.51.100.46\r\n\r\n').encode())
    response=http.client.HTTPResponse(connection);response.begin();self.assertEqual(response.status,200);response.read()
   self.assertIn(('203.0.113.1',False),self.server.limiter.entries)
-  self.assertNotIn(('1.2.3.4',False),self.server.limiter.entries)
-  for invalid in [b'GET / HTTP/1.1\r\n',b'PROXY TCP4 999.1.1.1 127.0.0.1 80 90\r\n',b'PROXY TCP4 1.1.1.1 2.2.2.2 0 90\r\n']:
+  self.assertNotIn(('198.51.100.46',False),self.server.limiter.entries)
+  for invalid in [b'GET / HTTP/1.1\r\n',b'PROXY TCP4 999.1.1.1 127.0.0.1 80 90\r\n',b'PROXY TCP4 198.51.100.45 198.51.100.47 0 90\r\n']:
    with self.assertRaises(ValueError):gateway.proxy_address(invalid)
+ def test_chat_forwards_start_and_heartbeats_before_result(self):
+  cookie=self.register_local('gateway-chat-stream')
+  released=threading.Event()
+  answer={'answer':'这是真实传输测试正文。','status':'answered','route':'agent_v2','agent_steps':[]}
+  def chat(**kwargs):
+   if not released.wait(3):raise RuntimeError('test_chat_timeout')
+   kwargs['on_model']({'phase':'agent','finish_reason':'stop','content_chars':len(answer['answer'])})
+   return answer
+  self.backend.server.agent_v2=Mock()
+  self.backend.server.agent_v2.chat.side_effect=chat
+  connection=http.client.HTTPConnection('127.0.0.1',self.server.server_port,timeout=3)
+  try:
+   with patch('app.wait',side_effect=lambda futures,timeout:wait(futures,timeout=0.05)):
+    connection.request('POST','/api/chat',body=json.dumps({'question':'test','allow_context':True}),
+                       headers={'Host':AUTHORITY,'Origin':'http://'+AUTHORITY,
+                                'Content-Type':'application/json','Cookie':cookie,
+                                'Accept':'text/event-stream','X-ATA-Token':__import__('app').CSRF_TOKEN})
+    response=connection.getresponse()
+    self.assertEqual(response.status,200)
+    self.assertEqual(response.readline(),b'event: start\n')
+    self.assertEqual(response.readline(),b'data: {}\n')
+    self.assertEqual(response.readline(),b'\n')
+    self.assertEqual(response.readline(),b'event: heartbeat\n')
+    released.set()
+    stream=response.read().decode()
+   result_line=stream.split('event: result\ndata: ',1)[1].splitlines()[0]
+   result=json.loads(result_line)
+   self.assertEqual(result['answer'],answer['answer'])
+   audit=self.backend.server.get_workflow().audit.read(result['trace_id'])
+   self.assertEqual([kind for _,kind,_ in audit],['agent_chat_request','agent_model','agent_chat_result'])
+  finally:released.set();connection.close()
+
  def test_stream_passes_first_chunk_without_waiting_for_completion(self):
   from http.server import BaseHTTPRequestHandler,HTTPServer
   release=threading.Event();started=threading.Event()

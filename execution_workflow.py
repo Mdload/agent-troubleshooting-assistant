@@ -48,6 +48,8 @@ def result_summary(item, question=''):
     output=item.get('output','') if isinstance(item.get('output'),str) else ''
     check=item['check'];p=profile(item['device'])
     if check=='services':
+        if p['group'] == 'router':
+            return '已读取 Router 的 Keepalived、NetworkManager 和 route-envset 单元状态。'
         state=croc_state(output,p['croc_unit'])
         keep=croc_state(output,'keepalived.service')
         prefix={'running':'负责主备切换的 Keepalived 正在运行。','stopped':'负责主备切换的 Keepalived 没有运行。','unknown':''}[keep]

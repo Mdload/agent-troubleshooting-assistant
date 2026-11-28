@@ -1,13 +1,34 @@
-"""公开演示登记，使用文档专用地址。网页和模型不能修改此表。"""
+"""Public demo registry with documentation-only addresses."""
+import re
+
+GENERAL_CHECK_LABELS = {
+    'all_services': '已加载、运行及失败的 systemd 服务摘要',
+    'listening_ports': 'TCP/UDP 监听端口和对应进程',
+    'system_overview': '负载、内存、磁盘、CPU 占用最高的进程和 Docker 容器',
+}
 CHECK_LABELS = {'services': '服务状态', 'interfaces': '接口、VIP与连接',
                 'routes': '主路由表与策略规则', 'logs': '固定服务的限量历史日志'}
 CHECK_NAMES = tuple(CHECK_LABELS)
+CHECK_LABELS.update(GENERAL_CHECK_LABELS)
+PROBE_KINDS = ('service', 'package', 'process', 'port', 'binary')
+PROBE_TARGET_PATTERN = r'[A-Za-z0-9._:@-]{1,64}'
+PROBE_PORT_PATTERN = r'[0-9]{1,5}'
+MAX_PARALLEL_READS = 4
 HOPS = {
     'jump_host': {'address': '203.0.113.140', 'hostname': 'example-jump', 'user': 'ubuntu', 'uid': 500},
     'local_ingress': {'address': '203.0.113.251', 'hostname': 'example-local-primary', 'user': 'root',
                       'interface': 'eth0', 'identity_address': '192.0.2.251/24'},
 }
+ROUTER_CONTRACT = {'units':('keepalived.service','NetworkManager.service','route-envset.service'),
+    'interfaces':tuple('eth'+str(i) for i in range(8)),
+    'ha_vips':{'eth0':'203.0.113.61','eth1':'203.0.113.62','eth2':'203.0.113.63',
+               'eth3':'203.0.113.64','eth6':'203.0.113.65','eth7':'203.0.113.66','eth5':'192.0.2.25'},
+    'rule_refs':('KB-003','KB-008','KB-010')}
+
 PROFILES = {
+    'router_ha': {**ROUTER_CONTRACT, 'group': 'router', 'side_label': '路由器',
+                  'business_role': '中间网络转发', 'management_interface': 'eth5',
+                  'prefix': '/24', 'croc_unit': None, 'checks': CHECK_NAMES},
     'local_ha': {'group': 'local', 'side_label': '局端', 'business_role': 'Croc接收侧，连接实验室业务网络',
                  'management_interface': 'eth2', 'prefix': '/24',
                  'units': ('keepalived.service', 'croc-sar.service'), 'croc_unit': 'croc-sar.service',
@@ -36,24 +57,20 @@ DEVICES = {
     'remote-backup': {'label': '远端备机', 'address': '198.51.100.134', 'hostname': 'example-backup',
                       'profile': 'remote_ha', 'inventory_role': 'backup',
                       'management_path': ('jump_host',), 'scenes': ('ha_topology',)},
+    'router-1': {'label': 'Router1', 'address': '192.0.2.23', 'hostname': 'example-router-1',
+                 'profile': 'router_ha', 'inventory_role': 'primary',
+                 'management_path': ('jump_host', 'local_ingress'), 'scenes': ('ha_topology',)},
+    'router-2': {'label': 'Router2', 'address': '192.0.2.24', 'hostname': 'example-router-2',
+                 'profile': 'router_ha', 'inventory_role': 'backup',
+                 'management_path': ('jump_host', 'local_ingress'), 'scenes': ('ha_topology',)},
 }
 SCENE_DEFINITIONS = {
-    'ha_topology': {'title': '双机热备拓扑', 'note': '支持已登记的局端、远端主备；Router等节点尚未接入。'},
+    'ha_topology': {'title': '双机热备拓扑', 'note': '支持已登记的局端、远端和 Router 主备。'},
     'remote_device': {'title': '独立三卡 / 六卡设备', 'note': '待接入代表设备、核实身份与检查工具。'},
     'croc_local': {'title': 'Croc业务局端', 'note': '支持已登记局端；独立物理机和云服务器待登记。'},
 }
 
-# 仅待接入资料，不加入DEVICES、SCENES或worker白名单。管理接口须现场核验。
-ROUTER_CONTRACT = {'units':('keepalived.service','NetworkManager.service','route-envset.service'),
-    'interfaces':tuple('eth'+str(i) for i in range(8)),
-    'ha_vips':{'eth0':'203.0.113.61','eth1':'203.0.113.62','eth2':'203.0.113.63',
-               'eth3':'203.0.113.64','eth6':'203.0.113.65','eth7':'203.0.113.66','eth5':'192.0.2.1'},
-    'evidence_date':'2026-09-28','rule_refs':('KB-003','KB-008','KB-010')}
-PENDING_DEVICES = {
-    'router-1':{'label':'Router1','address':'192.0.2.23','historical_hostname':'example-router-1'},
-    'router-2':{'label':'Router2','address':'192.0.2.24','historical_hostname':'example-router-2'},
-}
-
+PENDING_DEVICES = {}
 
 PING_TARGETS = {'ping_' + key.replace('-', '_'): key for key in DEVICES}
 TUNNEL_CHECK = 'ping_tunnel_peer'
@@ -67,7 +84,7 @@ PROBE_CHECKS = frozenset(PING_TARGETS) | TUNNEL_CHECKS
 
 
 def tunnel_endpoints(device, check=TUNNEL_CHECK):
-    if check not in TUNNEL_CHECKS or check==TUNNEL_BACKUP_CHECK and profile(device)['group']!='local':
+    if device not in TUNNEL_ENDPOINTS or check not in TUNNEL_CHECKS or check==TUNNEL_BACKUP_CHECK and profile(device)['group']!='local':
         raise ValueError('Unregistered tunnel direction')
     target=('local-primary' if profile(device)['group']=='remote' else
             'remote-backup' if check==TUNNEL_BACKUP_CHECK else 'remote-primary')
@@ -89,8 +106,9 @@ def profile(device):
 
 
 def checks_for(device):
-    return profile(device)['checks'] + tuple(check for check in EXTRA_CHECK_LABELS
+    return profile(device)['checks'] + tuple(GENERAL_CHECK_LABELS) + tuple(check for check in EXTRA_CHECK_LABELS
                                              if PING_TARGETS.get(check)!=device and
+                                             (check not in TUNNEL_CHECKS or device in TUNNEL_ENDPOINTS) and
                                              (check!=TUNNEL_BACKUP_CHECK or profile(device)['group']=='local'))
 
 
@@ -103,6 +121,15 @@ def allows_check(device, check):
     return isinstance(device,str) and device in DEVICES and isinstance(check,str) and check in checks_for(device)
 
 
+def allows_probe(device, kind, target):
+    if (not isinstance(device, str) or device not in DEVICES or
+            kind not in PROBE_KINDS or not isinstance(target, str)):
+        return False
+    if kind == 'port':
+        return bool(re.fullmatch(PROBE_PORT_PATTERN, target)) and 1 <= int(target) <= 65535
+    return bool(re.fullmatch(PROBE_TARGET_PATTERN, target))
+
+
 def public_catalog():
     # 固定管理地址用于管理员核对目标；不输出凭据或执行命令。
     return {'kind': 'reviewed_runtime_allowlist', 'current_state_verified': False,
@@ -112,9 +139,6 @@ def public_catalog():
                              management_path=list(value['management_path']), current_role='unknown')
                         for key,value in DEVICES.items()],
             'check_labels': CHECK_LABELS,
-            'pending_devices':[dict(value,id=key,execution_enabled=False,management_interface=None,
-                                    evidence_date=ROUTER_CONTRACT['evidence_date'],
-                                    blocker='待核验当前管理接口与身份，未加入运行白名单')
-                               for key,value in PENDING_DEVICES.items()],
+            'pending_devices': [],
             'scenes': [{'id':key,'title':value['title'],'available':bool(value['devices']),'note':value['note']}
                        for key,value in scenes().items()]}

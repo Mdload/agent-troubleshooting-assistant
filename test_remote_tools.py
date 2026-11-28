@@ -48,7 +48,7 @@ class RemoteToolsTests(unittest.TestCase):
         self.assertNotIn('check_croc_links.sh', body)
 
     def test_worker_rejects_unregistered_commands_and_malformed_values(self):
-        requests = [{'device': 'router-1', 'check': 'services'},
+        requests = [{'device': 'router-1', 'check': 'ping_tunnel_peer'},
                     {'device': 'remote-primary', 'check': 'reboot'},
                     {'device': 'remote-primary; id', 'check': 'services'},
                     {'device': 'remote-primary', 'check': ['services']},
@@ -105,7 +105,7 @@ class RemoteToolsTests(unittest.TestCase):
 
     def test_catalog_matches_remote_scope_and_does_not_include_router(self):
         catalog = tool_catalog()
-        self.assertEqual(set(catalog), {'local-primary', 'local-backup', 'remote-primary', 'remote-backup'})
+        self.assertEqual(set(catalog), set(device_worker.DEVICES))
         self.assertIn('不检查拨号进程', catalog['remote-primary']['checks']['services'])
         self.assertIn('策略表内容', catalog['remote-primary']['checks']['routes'])
 
