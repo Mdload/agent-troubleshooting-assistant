@@ -1,15 +1,12 @@
 """同一审批内的跨节点证据回放；替身数据不是实机验收或模型准确率。"""
-if not __package__:
-    import _bootstrap
-
 import datetime
 import unittest
 from unittest.mock import Mock
-from ha_croc_case import assess_case, assess_pairs, answer_issues
+from legacy.ha_croc_case import assess_case, assess_pairs, answer_issues
 from tests.ha_case_test_support import case_probe, case_planner
-from topology_model import snapshot, peer_relation
-from diagnostic_report import build_report, investigation_plan
-from diagnostic_context import model_view
+from retrieval.topology_model import snapshot, peer_relation
+from devices.diagnostic_report import build_report, investigation_plan
+from devices.diagnostic_context import model_view
 from tests.workflow_test_support import RunningApp
 
 
@@ -160,7 +157,7 @@ class TopologyEvidenceTests(unittest.TestCase):
                 self.assertEqual(pair['finding'],finding)
                 self.assertFalse(pair['root_cause_confirmed'])
         rows=pair_observations('partial_vip','partial_vip')
-        rows[-1]['output']='eth2 UP\neth3 UP 192.0.2.37/24'
+        rows[-1]['output']='eth2 UP\neth3 UP 172.27.10.37/24'
         self.assertEqual(assess_pairs(rows,SCOPE)[0]['finding'],'resource_distribution_split')
 
     def test_missing_failed_stale_synthetic_or_duplicate_interface_is_not_a_pair_fact(self):

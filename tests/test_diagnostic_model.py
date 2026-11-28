@@ -1,8 +1,5 @@
-if not __package__:
-    import _bootstrap
-
 import unittest
-from diagnostic_model import make_planner
+from devices.diagnostic_model import make_planner
 
 class ModelPermissionTests(unittest.TestCase):
     def test_explicit_consent_required_before_config_use(self):
@@ -12,9 +9,3 @@ class ModelPermissionTests(unittest.TestCase):
     def test_destination_is_fixed(self):
         with self.assertRaises(ValueError):
             make_planner({'LLM_BASE_URL':'https://elsewhere.invalid/v1'},True)
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

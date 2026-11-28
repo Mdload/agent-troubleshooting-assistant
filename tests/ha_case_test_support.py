@@ -1,7 +1,7 @@
 """Croc案例的固定替身：只用于离线测试，不代表实机或真实模型输出。"""
-from device_registry import profile
+from devices.device_registry import profile
 from tests.workflow_test_support import current_probe_fixture
-from ha_croc_case import assess_case
+from legacy.ha_croc_case import assess_case
 
 VARIANTS=('nonowner_stopped','owner_stopped','nonowner_running','owner_running','partial_vip','missing_unit','read_failure')
 

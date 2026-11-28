@@ -1,14 +1,11 @@
 """一次范围批准的实际HTTP边界；全程使用固定模型/设备替身。"""
-if not __package__:
-    import _bootstrap
-
 import unittest
 import time
 from contextlib import closing
 from unittest.mock import Mock
-from approval_store import SINGLE_APPROVAL,DIAGNOSTIC_DATA_USE
-from chat_model import ModelFailure
-from question_routing import classify
+from server.approval_store import SINGLE_APPROVAL,DIAGNOSTIC_DATA_USE
+from agent.chat_model import ModelFailure
+from legacy.question_routing import classify
 from tests.workflow_test_support import RunningApp,current_probe_fixture
 
 
@@ -258,7 +255,7 @@ class SingleApprovalTests(unittest.TestCase):
 
     def test_account_cannot_confirm_another_accounts_task(self):
         from unittest.mock import patch
-        with patch('user_accounts.ITERATIONS',1000):
+        with patch('server.user_accounts.ITERATIONS',1000):
             payload={'username':'first_user','password':'testonly','allow_storage':True}
             self.assertEqual(self.client.call('/api/account/register',payload)[0],200)
             self.client.call('/api/conversations/once/mode',{'mode':'assistant','scene':None})
@@ -335,7 +332,7 @@ class SingleApprovalTests(unittest.TestCase):
 
 
     def test_admin_session_and_trusted_admin_actor_cannot_approve_requester_task(self):
-        from approval_store import TaskError
+        from server.approval_store import TaskError
         task=self.request()[1]['task'];self.client.login()
         for actor in ('authenticated-admin','local-admin'):
             with self.assertRaisesRegex(TaskError,'requester_required'):

@@ -1,12 +1,9 @@
 """面试追问对应的语句反例与正式HTTP验收，零外部模型/设备。"""
-if not __package__:
-    import _bootstrap
-
 import unittest
 from unittest.mock import Mock
-from ha_croc_case import assess_case,answer_issues,pair_role_overclaim,completion_overclaim,stop_cause_overclaim
+from legacy.ha_croc_case import assess_case,answer_issues,pair_role_overclaim,completion_overclaim,stop_cause_overclaim
 from tests.ha_case_test_support import case_probe,case_planner
-from conversation_topic import resolve_topic
+from legacy.conversation_topic import resolve_topic
 from tests.workflow_test_support import RunningApp
 
 

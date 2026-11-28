@@ -1,11 +1,8 @@
 """Exercise history learning through the authenticated chat and approval endpoints."""
-if not __package__:
-    import _bootstrap
-
 import time
 import unittest
 
-from approval_store import SINGLE_APPROVAL
+from server.approval_store import SINGLE_APPROVAL
 from tests.test_diagnostic_dialogues import run_task
 from tests.workflow_test_support import RunningApp, current_probe_fixture
 
@@ -233,9 +230,3 @@ class InvestigationLearningTests(unittest.TestCase):
         self.assertNotIn('aa:bb:cc:dd:ee:ff',result['answer'])
         self.assertEqual(1,len(self.reads))
         self.assertFalse(self.calls)
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

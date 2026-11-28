@@ -1,7 +1,4 @@
 """Recovery contracts using real temporary SQLite files and synthetic records."""
-if not __package__:
-    import _bootstrap
-
 import json
 from pathlib import Path
 import sqlite3
@@ -9,13 +6,13 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from approval_store import ApprovalStore, TaskError
-from chat_history import HistoryStore
-from recovery_bundle import (DATABASES, RecoveryError, create_bundle, verify_bundle,
+from server.approval_store import ApprovalStore, TaskError
+from server.chat_history import HistoryStore
+from server.recovery_bundle import (DATABASES, RecoveryError, create_bundle, verify_bundle,
                              restore_bundle, digest, snapshot)
-from recovery_fixture import seed_fixture, SYNTHETIC_PASSWORD
-from task_memory import TaskMemory
-from user_accounts import AccountStore
+from tests.recovery_fixture import seed_fixture, SYNTHETIC_PASSWORD
+from legacy.task_memory import TaskMemory
+from server.user_accounts import AccountStore
 
 
 class DataRecoveryTests(unittest.TestCase):
@@ -33,9 +30,9 @@ class DataRecoveryTests(unittest.TestCase):
         return create_bundle(self.live/'data', self.bundle, True)
 
     def test_store_connections_use_busy_timeout_and_close_on_exit(self):
-        from diagnostic_core import AuditStore
-        from experience_store import ExperienceStore
-        from text_materials import MaterialStore
+        from devices.diagnostic_core import AuditStore
+        from legacy.experience_store import ExperienceStore
+        from server.text_materials import MaterialStore
 
         stores = (ApprovalStore, HistoryStore, AccountStore, ExperienceStore, MaterialStore, AuditStore)
         for factory in stores:
@@ -140,14 +137,14 @@ class DataRecoveryTests(unittest.TestCase):
         with self.assertRaises(RecoveryError): create_bundle(self.live/'data', self.live/'data/new', True)
 
     def test_partial_backup_or_restore_never_has_success_marker(self):
-        with patch('recovery_bundle.snapshot', side_effect=OSError('synthetic disk full')):
+        with patch('server.recovery_bundle.snapshot', side_effect=OSError('synthetic disk full')):
             with self.assertRaises(OSError): self.backup()
         self.assertTrue((self.bundle/'INCOMPLETE.json').is_file())
         self.assertFalse((self.bundle/'BACKUP.json').exists())
         with self.assertRaises(RecoveryError): verify_bundle(self.bundle)
         clean = self.root/'good'
         create_bundle(self.live/'data', clean, True)
-        with patch('recovery_bundle.quarantine_authority', side_effect=OSError('synthetic failure')):
+        with patch('server.recovery_bundle.quarantine_authority', side_effect=OSError('synthetic failure')):
             with self.assertRaises(OSError): restore_bundle(clean, self.root/'partial-restore')
         self.assertTrue((self.root/'partial-restore/INCOMPLETE.json').is_file())
         self.assertFalse((self.root/'partial-restore/RESTORE-REPORT.json').exists())
@@ -164,7 +161,7 @@ class DataRecoveryTests(unittest.TestCase):
         with self.assertRaises(RecoveryError): verify_bundle(self.bundle)
 
     def test_snapshot_has_finite_busy_or_copy_deadline(self):
-        with patch('recovery_bundle.time.monotonic', side_effect=[0, 100]):
+        with patch('server.recovery_bundle.time.monotonic', side_effect=[0, 100]):
             with self.assertRaisesRegex(RecoveryError, 'limit'):
                 snapshot(self.live/'data/chats.sqlite3', self.root/'limited.sqlite3', 'chats.sqlite3', timeout=1)
 

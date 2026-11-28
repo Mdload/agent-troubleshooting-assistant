@@ -1,15 +1,12 @@
 """格式错误可有限纠正，权限/预算边界保持关闭，离线不接模型或设备。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
-from chat_model import ModelFailure, make_model
-from diagnostic_core import AuditStore
-from unified_chat import run, search
+from agent.chat_model import ModelFailure, make_model
+from devices.diagnostic_core import AuditStore
+from legacy.unified_chat import run, search
 
 def answer(refs=None, text='规则解释', basis='general', usage=5):
     return {'action':'answer','answer':text,'refs':refs or [],'basis':basis},usage
@@ -102,7 +99,7 @@ class ProtocolRecoveryTests(unittest.TestCase):
             response.__exit__=Mock(return_value=False)
             response.read.return_value=json.dumps({'usage':usage_data,
                 'choices':[{'message':{'content':json.dumps(answer()[0])},'finish_reason':'stop'}]}).encode()
-            with patch('chat_model.urllib.request.build_opener') as factory:
+            with patch('agent.chat_model.urllib.request.build_opener') as factory:
                 factory.return_value.open.return_value=response
                 planner=make_model({'LLM_BASE_URL':'https://api.inferera.com/v1',
                                     'LLM_API_KEY':'test','LLM_MODEL_ID':'test'})

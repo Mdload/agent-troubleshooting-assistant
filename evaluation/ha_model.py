@@ -14,10 +14,10 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-import chat_model
-import qa
-from device_registry import profile
-from device_tools import tool_catalog
+from agent import chat_model
+from retrieval import qa
+from devices.device_registry import profile
+from devices.device_tools import tool_catalog
 from tests.ha_case_test_support import VARIANTS, case_probe, case_planner
 from tests.workflow_test_support import RunningApp
 from version import VERSION

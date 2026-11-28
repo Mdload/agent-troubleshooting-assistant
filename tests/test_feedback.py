@@ -1,11 +1,8 @@
 """用户原话与同义问法回归，避免只测展示按钮。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import unittest
 from unittest.mock import patch
-import qa
+import retrieval.qa as qa
 
 class FeedbackTests(unittest.TestCase):
     def test_switch_rule_paraphrases_have_conditions(self):
@@ -35,7 +32,7 @@ class FeedbackTests(unittest.TestCase):
         self.assertLess(len(text), 150)
 
     def test_failed_model_does_not_dump_documents(self):
-        with patch('qa.ask_model', side_effect=RuntimeError('private error')):
+        with patch('retrieval.qa.ask_model', side_effect=RuntimeError('private error')):
             result = qa.answer('局端触发切换的规则是什么', allow_new_topology=True)
         self.assertLess(len(result['answer']), 250)
         self.assertTrue(result['hits'])

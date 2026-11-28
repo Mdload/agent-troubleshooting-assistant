@@ -99,10 +99,15 @@ dialog{padding:0;border:1px solid #e2e8dd;border-radius:18px;max-width:calc(100v
       <div class="mode-toolbar" aria-label="当前对话空间"><span id="mode-label">通用助手 · 通用与实验室知识</span></div>
       <form id="form" class="composer">
         <textarea id="question" aria-label="提问" required rows="2" placeholder="输入问题，或继续追问…"></textarea>
+        <div id="execution-mode-notice" class="execution-mode-notice" role="status" hidden>自动修复已开启。白名单动作自动执行，运维命令仍须人工批准。</div>
         <small id="input-meter" role="status"></small><p id="material-selected" class="experience-note" hidden></p>
         <label id="memory-consent" class="consent-label" hidden><input id="use-task-memory" type="checkbox">本次将已确认的历史原话摘录发送给Inferera辅助问答；不恢复设备权限。</label>
         <label id="material-consent" class="consent-label" hidden><input id="allow-materials" type="checkbox">我同意将所选材料的相关片段发送给Inferera分析；本次只分析材料，不读取设备。</label>
         <div class="composer-tools"><div class="task-actions"><button id="material-open" class="secondary-button" type="button">＋ 文本 / 日志</button><button id="convert-long" class="secondary-button" type="button" hidden>将长内容作为材料</button><button id="material-clear" class="secondary-button" type="button" hidden>移除材料选择</button></div><div class="composer-row"><span class="composer-hint">Enter 发送 · Shift + Enter 换行</span><button id="stop-generation" type="button" class="secondary-button" hidden>停止生成</button><button id="send" class="send-button" type="submit" title="发送" aria-label="发送"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button></div></div>
+        <div class="execution-mode" role="group" aria-label="修复执行方式">
+          <button id="execution-approval" type="button" aria-pressed="true">🛡 批准模式</button>
+          <button id="execution-auto" type="button" aria-pressed="false">⚡ 自动修复</button>
+        </div>
         <div id="status" role="status" aria-live="polite"></div>
       </form><p class="composer-footnote"></p>
     </div>
@@ -241,6 +246,7 @@ for(const node of document.querySelectorAll('[data-app-name]'))node.textContent=
 for(const node of document.querySelectorAll('[data-app-about]'))node.textContent='关于'+APP_NAME;
 const csrf='__CSRF_TOKEN__', el=id=>document.getElementById(id), storageKey='ata.chats.v1';
 let chats=[],activeId=null,storageFailed=false,modeLoading=false;
+let executionMode='approval';
 const chatRuns=new Map();
 const chatBusy=(chat=current())=>!!chat&&(chatRuns.has(chat.id)||chat.messages.some(m=>taskOf(m)?.status==='running'));
 let answerReveal=null;
@@ -434,7 +440,10 @@ function preferredChat(space){
   return candidates.find(chat=>chat.id===lastChatInSpace[space])||candidates.sort((a,b)=>b.updated-a.updated)[0];
 }
 function selectChat(chat,space=spaceOf(chat)){
-  if(chat?.id!==activeId)answerReveal=null;
+  if((chat?.id||null)!==activeId||space!==activeSpace){
+    answerReveal=null;
+    executionMode='approval';
+  }
   chatDrafts.set(activeId||'@'+activeSpace,el('question').value);
   if(activeSpace!==space)el('history-search').value='';
   activeSpace=space;activeId=chat?.id||null;lastChatInSpace[space]=activeId;
@@ -808,7 +817,7 @@ async function api(path,data){
   if(data!==undefined){options.method='POST';options.headers['Content-Type']='application/json';options.body=JSON.stringify(data);}
   const response=await fetch(path,options),result=await response.json();
   if(identity!==accountEpoch){const error=Error('账号已改变，本次响应不再显示');error.status=409;throw error;}
-  if(!response.ok){if(response.status===401&&account&&!path.startsWith('/api/account/')&&!path.startsWith('/api/admin/'))expireAccount();const error=Error(result.error||'操作未完成');error.status=response.status;throw error;}return result;
+  if(!response.ok){if(response.status===401&&account&&!path.startsWith('/api/account/')&&!path.startsWith('/api/admin/'))expireAccount();const error=Error(result.error||'操作未完成');error.status=response.status;error.reason=result.reason;throw error;}return result;
 }
 function taskOf(message){return message.workflowTask||(message.result&&typeof message.result.task==='object'?message.result.task:null);}
 function taskScope(box,task){
@@ -1046,7 +1055,7 @@ function taskCard(box,message){
 }
 async function refreshAdmin(){
   const state=await api('/api/admin/status');el('admin-login').hidden=state.authenticated;el('admin-panel').hidden=!state.authenticated;
-  el('admin-note').textContent=state.configured?'':'管理员尚未设置。请由项目作者在部署服务器的项目目录执行 python3 -B admin_auth.py。按终端提示设置后刷新页面；无需重启服务。';
+  el('admin-note').textContent=state.configured?'':'管理员尚未设置。请由项目作者在部署服务器的项目目录执行 python3 -B -m server.admin_auth。按终端提示设置后刷新页面；无需重启服务。';
   el('admin-password').disabled=!state.configured;
   el('admin-login').querySelector('button').disabled=!state.configured;
   if(!state.authenticated)return;
@@ -1232,6 +1241,109 @@ function startChatRun(chat,initialText,identity){
   return run;
 }
 el('stop-generation').onclick=()=>chatRuns.get(activeId)?.controller?.abort();
+function renderRepairProposal(box,change,c){
+  const card=add(box,'section','','task-card repair-proposal');
+  const validId=/^[a-f0-9]{32}$/.test(change.proposal_id||'');
+  const auto=change.execution_mode==='auto';
+  const labels={pending_approval:'待批准',executing:'正在执行并复查',executed:auto?'已自动执行':'已批准执行',
+    rejected:'已拒绝',failed:auto?'自动修复失败':'修复执行失败',manual:'未生成批准按钮'};
+  card.dataset.state=change.status;
+  add(card,'h3',labels[change.status]||'修复建议','task-state');
+  if(change.reason)add(card,'p',change.reason);
+  if(change.steps?.length){
+    const list=add(card,'ol','','repair-proposal-steps');
+    change.steps.forEach((step,index)=>{
+      const row=add(list,'li');
+      const target=step.action==='run_command'?'':step.target;
+      add(row,'strong',[step.device_label,step.action_label,target].filter(Boolean).join(' · '));
+      add(add(row,'pre','','repair-command'),'code',step.command);
+      if(step.risk)add(row,'small',step.risk,'repair-proposal-risk');
+      const result=change.step_results?.[index];
+      if(result){
+        add(row,'p',({executed:'此步已执行',failed:'此步执行失败',skipped:'此步未执行'})[result.status]);
+        if(result.execution?.error)add(row,'small',result.execution.error);
+        if(result.review)add(row,'p','只读复查：'+result.review.summary);
+        if(result.review?.collected_at)add(row,'small','采集时间 '+result.review.collected_at);
+      }
+    });
+  }else if(change.commands?.length){
+    add(card,'p','模型给出的人工操作参考');
+    add(card,'pre',change.commands.join('\n'));
+  }
+  if(change.rollback||validId)add(card,'p','回滚说明：'+(change.rollback||'由维护人员核对业务状态后按设备恢复流程处理。'));
+  const status=add(card,'div','','repair-proposal-result');
+  status.setAttribute('role','status');
+  if(change.review&&!change.step_results?.length)add(status,'p','只读复查：'+change.review.summary);
+  if(change.execution?.error&&!change.step_results?.length)add(status,'p','执行结果：'+change.execution.error);
+  const blockReasons={account_required:'登录后可生成批准按钮。',unknown_device:'无法匹配登记设备。',
+    action_not_allowed:'至少一个步骤超出受控修复范围。',proposal_storage_unavailable:'建议暂时无法保存。',
+    proposal_transport_unavailable:'修复通道暂不可用。',missing_action_parameters:'缺少修复动作或目标。',
+    invalid_steps:'步骤结构无效。',unsupported_command:'命令不在受控修复范围内。',too_many_steps:'单张建议卡最多六步。',
+    invalid_command:'请输入最多四条有效命令，每行一条。',rollback_required:'请补充回滚说明。',
+    high_risk_disk:'已拦截高危磁盘或文件操作。',high_risk_power:'已拦截关机或系统重启。',
+    high_risk_firewall:'已拦截高危防火墙操作。',high_risk_management:'已拦截涉及管理链路、服务或凭据的高危操作。',
+    repair_action_already_proposed:'本轮已有相同修复动作，已拦截重复操作。',
+    repair_verification_pending:'请先核实上次修复的业务结果。',repair_verification_budget:'本轮剩余时间或步骤不足以完成新修复及验证。'};
+  if(change.block_reason)add(status,'p',blockReasons[change.block_reason]||'修复参数无效。');
+  if(change.approvalError)add(status,'p',change.approvalError);
+  if(change.verifying)add(status,'p','已执行修复，助手正在深度验证故障是否彻底恢复…');
+  if(!validId||change.status!=='pending_approval'||!change.approval_button_rendered||!account)return;
+  const actions=add(card,'div','','task-actions');
+  const approve=add(actions,'button','批准执行','primary-button repair-proposal-approve');
+  const reject=add(actions,'button','拒绝','secondary-button');
+  approve.type=reject.type='button';
+  approve.disabled=reject.disabled=!!change.deciding||chatBusy(c);
+  if(change.deciding)add(status,'p',change.deciding==='execute'?'正在执行并复查…':'正在拒绝…');
+  const decide=async action=>{
+    if(change.deciding||change.status!=='pending_approval'||!account||chatBusy(c))return;
+    const identity=accountEpoch,state=interaction(c);
+    const mode=change.steps?.some(step=>step.action==='run_command')?'approval':executionMode;
+    const run=action==='execute'?startChatRun(c,'正在执行修复并初步复查…',identity):null;
+    change.deciding=action;delete change.approvalError;
+    render();
+    const id=change.proposal_id;
+    try{
+      let result;
+      try{result=await api('/api/proposals/'+id+'/'+action,{});}
+      catch(error){
+        if(error.status!==404||error.message!=='接口不存在')throw error;
+        result=await api('/api/repairs/'+id+(action==='execute'?'/execute':'/decision'),
+          {approval_type:'structured_proposal',...(action==='reject'?{decision:'reject'}:{})});
+      }
+      if(identity!==accountEpoch)return;
+      Object.assign(change,result);
+      if(action==='execute'&&['executed','failed'].includes(result.status)&&result.step_results?.length){
+        change.verifying=true;
+        run.progress.text='已执行修复，助手正在深度验证故障是否彻底恢复…';
+        if(current()===c)render();
+        // The server loads the action, execution result and initial review by this receipt ID.
+        const {response,data}=await requestChat({
+          verify_proposal_id:id,conversation_id:c.id,history:modelHistoryView(c,state).history,
+          chat_space:spaceOf(c),interaction_mode:state.mode,interaction_revision:state.revision,
+          execution_mode:mode,allow_context:true,
+        },run.controller.signal);
+        if(identity!==accountEpoch||run.controller.signal.aborted)return;
+        if(response.status===401&&account){expireAccount();return;}
+        if(!response.ok)throw Error(data.error||'请求失败');
+        const reply={role:'assistant',content:data.answer,context:true,contextRevision:state.revision,result:data};
+        c.messages.push(reply);
+        revealReply(c,reply);
+      }
+    }catch(error){
+      if(identity!==accountEpoch)return;
+      change.approvalError=change.verifying
+        ?(run.controller.signal.aborted?'深度验证已停止。':'深度验证请求未完成，请在此对话继续排查。')
+        :error.status?error.message:'连接中断，请刷新核对建议卡状态。';
+    }finally{
+      run?.finish();
+      delete change.deciding;
+      delete change.verifying;
+      if(identity===accountEpoch){c.updated=Date.now();save();render();}
+    }
+  };
+  approve.onclick=()=>decide('execute');
+  reject.onclick=()=>decide('reject');
+}
 function renderAgentDetails(box,message,foot=box){
   const data=message.result;
   if(!data||data.route!=='agent_v2')return;
@@ -1300,6 +1412,7 @@ function renderAgentDetails(box,message,foot=box){
           interaction_mode:state.mode,
           interaction_revision:state.revision,
           allow_context:true,
+          execution_mode:data.verification_mode||executionMode,
           pending_id:data.pending_id,
           ...(approved?{grant_devices:devices.map(d=>d.id)}:{deny_pending:true}),
         };
@@ -1320,14 +1433,6 @@ function renderAgentDetails(box,message,foot=box){
     allowBtn.onclick=()=>decide(true);
     denyBtn.onclick=()=>decide(false);
   }
-  for(const change of (data.proposed_changes||[])){
-    const card=add(box,'div','','task-card');
-    add(card,'p','配置修改建议（未执行，需人工确认）','task-state');
-    add(card,'p','目标：'+change.device+' · 操作：'+change.action);
-    if(change.reason)add(card,'p','原因：'+change.reason);
-    if(change.commands?.length)add(card,'pre',change.commands.join('\n'));
-    if(change.rollback)add(card,'small','回滚方式：'+change.rollback);
-  }
   if(data.saved_learnings?.length){
     const titles=data.saved_learnings.map(item=>item.title).join('、');
     add(box,'p','已自动记住：'+titles+'（可在顶部“记忆与学习”中查看或删除）','scope-note');
@@ -1335,6 +1440,10 @@ function renderAgentDetails(box,message,foot=box){
 
 }
 function render(){
+  el('execution-approval').setAttribute('aria-pressed',String(executionMode==='approval'));
+  el('execution-auto').setAttribute('aria-pressed',String(executionMode==='auto'));
+  el('execution-auto').disabled=!account||accountLoading||accountExpired;
+  el('execution-mode-notice').hidden=executionMode!=='auto';
   const c=current();
   const busy=chatBusy(c);
   for(const chat of chats)for(const message of chat.messages){const task=taskOf(message);if(task?.status==='running'||task?.approval_flow==='single_scope_v1'&&['pending','approved'].includes(task.status))watchTask(message,task.id);}
@@ -1350,6 +1459,7 @@ function render(){
       renderAnswer(body,m.content,m.result,targets);
       if(answerReveal?.message===m)progressivelyShow(body,answerReveal);
     }else body.textContent=m.content;
+    for(const change of (m.result?.proposed_changes||[]))renderRepairProposal(box,change,c);
     evidence(box,m.result,targets,m);
     if(typeof renderMaterialEvidence==='function')renderMaterialEvidence(box,m.result);
     taskCard(box,m);
@@ -1438,6 +1548,12 @@ async function openChat(chat,space=spaceOf(chat)){
 for(const space of ['general','ha'])el('space-'+space).onclick=()=>openChat(preferredChat(space),space);
 window.addEventListener('DOMContentLoaded',()=>{loadAccount().then(loadRegistry).then(loadMode).then(()=>account?null:refreshOwnTasks()).then(()=>resolveAssistantStartup(true)).catch(error=>{el('status').textContent='账号、设备或申请状态加载失败，请刷新后重试：'+error.message;resolveAssistantStartup(false);});});syncNavigation();mobileSidebar.addEventListener('change',syncNavigation);
 el('clear').onclick=()=>newChat();
+el('execution-approval').onclick=()=>{executionMode='approval';render();};
+el('execution-auto').onclick=()=>{
+  if(!account||accountLoading||accountExpired)return;
+  if(!current())newChat(activeSpace,el('question').value);
+  executionMode='auto';render();
+};
 el('rename').onclick=()=>{
   const chat=current();if(!chat)return;
   el('rename-title').value=chat.title;el('rename-dialog').showModal();el('rename-title').focus();
@@ -1502,7 +1618,7 @@ el('form').onsubmit=async event=>{
   const run=startChatRun(c,'正在理解问题并规划排查步骤…',identity);
   save();render();resizeQuestion();el('status').textContent='';
   try{
-    const {response,data}=await requestChat({question,history,conversation_id:c.id,chat_space:spaceOf(c),interaction_mode:state.mode,interaction_revision:state.revision,allow_context:true,approval_flow:'single_scope_v1',...memoryPayload,...(material?{material_id:material.id,allow_materials:el('allow-materials').checked}:{})},run.controller.signal);
+    const {response,data}=await requestChat({question,history,conversation_id:c.id,chat_space:spaceOf(c),interaction_mode:state.mode,interaction_revision:state.revision,execution_mode:executionMode,allow_context:true,approval_flow:'single_scope_v1',...memoryPayload,...(material?{material_id:material.id,allow_materials:el('allow-materials').checked}:{})},run.controller.signal);
     if(identity!==accountEpoch||run.controller.signal.aborted)return;if(response.status===401&&account){expireAccount();return;}if(!response.ok)throw Error(data.error||'请求失败');data.ui_elapsed_seconds=(Date.now()-started)/1000;
     if(data.status==='consent_required')throw Error('服务尚未应用默认模型设置，请刷新后重试。');
     if(historyView.excerpted)data.history_info={excerpted_messages:historyView.excerpted,note:'本次仅使用部分历史内容；完整原文仍保留在对话中。'};

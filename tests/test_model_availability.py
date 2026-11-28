@@ -1,7 +1,4 @@
 """模型隔离状态、并发恢复和正式HTTP接线；全部使用替身，零外发/设备读取。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import io
 import socket
@@ -11,11 +8,11 @@ import urllib.error
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import Mock, patch
-from chat_model import make_model, ModelFailure, retry_delay, rate_limit_kind
-from diagnostic_core import AuditStore
-from model_availability import ModelAvailability, CircuitOpen
-from model_trace import safe_metrics
-from unified_chat import run
+from agent.chat_model import make_model, ModelFailure, retry_delay, rate_limit_kind
+from devices.diagnostic_core import AuditStore
+from agent.model_availability import ModelAvailability, CircuitOpen
+from agent.model_trace import safe_metrics
+from legacy.unified_chat import run
 from tests.workflow_test_support import RunningApp
 
 
@@ -152,7 +149,7 @@ class FallbackTests(unittest.TestCase):
         opener.open.side_effect = transport
         planner = make_model(dict(CONFIG, LLM_FALLBACKS=[self.alternate]), opener,
                              approved_urls=[self.alternate_url])
-        with patch('chat_model.time.monotonic', side_effect=lambda: now[0]):
+        with patch('agent.chat_model.time.monotonic', side_effect=lambda: now[0]):
             action, usage = planner({'remaining_seconds': 10.0})
         self.assertEqual(action['action'], 'answer')
         self.assertIsNone(usage)
@@ -341,8 +338,8 @@ class CircuitAdapterTests(unittest.TestCase):
         probe=Mock(side_effect=AssertionError('No device read permitted'))
         with RunningApp(probe=probe,lookup=lambda q:[]) as client:
             client.service.model_availability=ModelAvailability(threshold=2)
-            with patch('unified_chat.qa.model_config',return_value=CONFIG), \
-                 patch('chat_model.urllib.request.build_opener',return_value=opener):
+            with patch('legacy.unified_chat.qa.model_config',return_value=CONFIG), \
+                 patch('agent.chat_model.urllib.request.build_opener',return_value=opener):
                 self.assertEqual(client.chat('Python列表是什么',consent=False)[1]['status'],'consent_required')
                 opener.open.assert_not_called()
                 results=[client.chat('Python列表是什么')[1] for _ in range(3)]

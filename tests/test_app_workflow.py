@@ -1,15 +1,12 @@
 """v0.8正式入口集成检查；上游模型与worker用边界替身，禁止实际外发。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import unittest
 from unittest.mock import Mock, patch
-from admin_auth import AdminAuth, password_record
-from approval_store import SINGLE_APPROVAL
+from server.admin_auth import AdminAuth, password_record
+from server.approval_store import SINGLE_APPROVAL
 from tests.workflow_test_support import RunningApp, TEST_PASSWORD, current_probe_fixture
 from version import VERSION
-from question_routing import classify
+from legacy.question_routing import classify
 
 
 def answer(text='默认路由用于没有更具体匹配的目的地址。',basis='general',refs=None):
@@ -50,7 +47,7 @@ class AppWorkflowTests(unittest.TestCase):
             self.assertIn('v'+VERSION,page);self.assertNotIn('演练',page)
 
     def test_request_waits_without_initializing_model_or_worker(self):
-        with RunningApp() as client, patch('unified_chat.qa.model_config') as config, patch('unified_chat.remote_probe') as probe:
+        with RunningApp() as client, patch('legacy.unified_chat.qa.model_config') as config, patch('legacy.unified_chat.remote_probe') as probe:
             code,result=client.diagnostic_chat()
             self.assertEqual(code,200);self.assertEqual(result['status'],'approval_required')
             config.assert_not_called();probe.assert_not_called()
@@ -68,8 +65,8 @@ class AppWorkflowTests(unittest.TestCase):
     def test_login_approve_resume_and_once_only_real_adapter_wiring(self):
         planner=Mock(side_effect=[({'action':'read_overview','device':'local-backup'},1),
             answer('服务与接口已取得局部观测，端到端业务未验证。','evidence',['OBS-1','OBS-2'])])
-        with RunningApp(lookup=Mock(return_value=[])) as client, patch('unified_chat.make_model',return_value=planner) as factory, \
-             patch('unified_chat.qa.model_config',return_value={}), patch('unified_chat.remote_probe',side_effect=current_probe_fixture) as probe:
+        with RunningApp(lookup=Mock(return_value=[])) as client, patch('legacy.unified_chat.make_model',return_value=planner) as factory, \
+             patch('legacy.unified_chat.qa.model_config',return_value={}), patch('legacy.unified_chat.remote_probe',side_effect=current_probe_fixture) as probe:
             task=client.diagnostic_chat()[1]['task'];self.assertEqual(client.login()[0],200)
             self.assertEqual(client.approve(task['id'])[0],200)
             factory.assert_not_called();probe.assert_not_called()
@@ -89,8 +86,8 @@ class AppWorkflowTests(unittest.TestCase):
         response.read.return_value=json.dumps({'choices':[{'message':{'content':json.dumps(action)},'finish_reason':'stop'}],
             'usage':{'total_tokens':12}}).encode()
         opener=Mock();opener.open.return_value=response
-        with RunningApp(lookup=Mock(return_value=[])) as client, patch('unified_chat.qa.model_config',return_value=config), \
-             patch('chat_model.urllib.request.build_opener',return_value=opener), patch('unified_chat.remote_probe') as probe:
+        with RunningApp(lookup=Mock(return_value=[])) as client, patch('legacy.unified_chat.qa.model_config',return_value=config), \
+             patch('agent.chat_model.urllib.request.build_opener',return_value=opener), patch('legacy.unified_chat.remote_probe') as probe:
             code,result=client.chat('Linux默认路由是什么')
             self.assertEqual(code,200);self.assertEqual(result['status'],'answered')
             self.assertEqual(result['total_tokens'],12);probe.assert_not_called()
@@ -132,7 +129,7 @@ class AppWorkflowTests(unittest.TestCase):
             self.assertEqual(client.store.get(task['id'])['status'],'pending')
 
     def test_legacy_diagnose_endpoint_is_closed(self):
-        with RunningApp() as client,patch('diagnostic_web.diagnose') as legacy,patch('unified_chat.remote_probe') as probe:
+        with RunningApp() as client,patch('devices.diagnostic_web.diagnose') as legacy,patch('legacy.unified_chat.remote_probe') as probe:
             self.assertEqual(client.call('/api/diagnose',{'question':'检查','devices':['local-primary'],'allow_live_data':True})[0],410)
             legacy.assert_not_called();probe.assert_not_called()
 

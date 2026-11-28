@@ -1,15 +1,12 @@
 """已复现越界结论、非断言表达、共享一次纠正和证据留存回归。"""
-if not __package__:
-    import _bootstrap
-
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from chat_model import ModelFailure
-from diagnostic_core import AuditStore
-from mechanism_guard import observation_constraints, contradicted_constraints
-from unified_chat import run
+from agent.chat_model import ModelFailure
+from devices.diagnostic_core import AuditStore
+from legacy.mechanism_guard import observation_constraints, contradicted_constraints
+from legacy.unified_chat import run
 
 
 def final(text):

@@ -1,14 +1,11 @@
 """手动入口的正式接口/迁移检查；模型和设备使用替身，无外发。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from approval_store import ApprovalStore, TaskError
+from server.approval_store import ApprovalStore, TaskError
 from tests.workflow_test_support import RunningApp, fake_planner, current_probe_fixture
 
 

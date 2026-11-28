@@ -1,14 +1,11 @@
 """正常连续使用、隔离、限额和取消能力；仅临时HTTP及确定性替身。"""
-if not __package__:
-    import _bootstrap
-
 import unittest
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import Mock
-from agent_memory import AgentMemoryStore
-from agent_v2 import AutonomousAgent
-from request_limits import RequestLimiter
+from agent.agent_memory import AgentMemoryStore
+from agent.agent_v2 import AutonomousAgent
+from server.request_limits import RequestLimiter
 from tests.test_agent_v2 import FAKE_CONFIG
 from tests.workflow_test_support import RunningApp
 

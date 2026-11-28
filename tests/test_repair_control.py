@@ -1,16 +1,13 @@
 """受限修复授权/状态/HTTP全链路；仅临时库和合成设备，不连接现场。"""
-if not __package__:
-    import _bootstrap
-
 import datetime,json,tempfile,time,unittest
 from pathlib import Path
 from unittest.mock import Mock
-from repair_control import RepairManager,READ_SCOPE,TARGET,PEER,ACTION,pair_state,check_recommendation
-from approval_store import TaskError
+from server.repair_control import RepairManager,READ_SCOPE,TARGET,PEER,ACTION,pair_state,check_recommendation
+from server.approval_store import TaskError
 from tests.workflow_test_support import RunningApp
-from diagnostic_core import AuditStore
-from unified_chat import run
-from device_tools import DEVICES
+from devices.diagnostic_core import AuditStore
+from legacy.unified_chat import run
+from devices.device_tools import DEVICES
 
 def evidence(target_active='inactive',target_vip=False,peer_vip=True):
     now=datetime.datetime.utcnow().isoformat()+'Z';items=[]
@@ -121,9 +118,3 @@ class ModelRecommendationTests(unittest.TestCase):
             result=run('检查远端主备热备服务和VIP',[],planner,lambda q:[],probe,AuditStore(Path(temp)/'audit.db'),
                 permitted_checks=READ_SCOPE,question_policy={'mode':'diagnostic','domain':'topology','require_current_evidence':True},repair_catalog={TARGET:{'action':ACTION}})
         self.assertEqual(result['status'],'answered',result);self.assertEqual(result['repair_recommendation']['action'],ACTION);self.assertEqual(len(calls),4)
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

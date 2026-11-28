@@ -1,13 +1,10 @@
 """单次短解释和正式流式HTTP；仅受控传输替身。"""
-if not __package__:
-    import _bootstrap
-
 import io,json,unittest,threading
 from unittest.mock import Mock,patch
 from urllib.request import Request
-from selection_explain import stream_explanation,PROMPT
-from chat_model import ModelFailure
-from model_availability import ModelAvailability
+from retrieval.selection_explain import stream_explanation,PROMPT
+from agent.chat_model import ModelFailure
+from agent.model_availability import ModelAvailability
 from tests.workflow_test_support import RunningApp
 import app
 CONFIG={'LLM_BASE_URL':'https://api.inferera.com/v1','LLM_MODEL_ID':'test-model','LLM_API_KEY':'test-only'}
@@ -68,7 +65,7 @@ class SelectionExplainTests(unittest.TestCase):
         result=stream_explanation(CONFIG,'示例',lambda *v:None,lambda:None,{},opener=opener)
         self.assertEqual(result['answer'],'完整解释');self.assertFalse(result['total_tokens_complete']);opener.open.assert_called_once()
     def test_http_stream_retains_csrf_origin_size_and_model_quota_no_workflow_or_probe(self):
-        with RunningApp(planner=Mock(),probe=Mock()) as client,patch('app.qa.model_config',return_value=CONFIG),patch('selection_explain.urllib.request.build_opener') as factory:
+        with RunningApp(planner=Mock(),probe=Mock()) as client,patch('app.qa.model_config',return_value=CONFIG),patch('retrieval.selection_explain.urllib.request.build_opener') as factory:
             factory.return_value.open.side_effect=lambda *a,**k:response()
             self.assertEqual(client.call('/api/selection/explain',{'text':'示例','allow_context':True},token=False)[0],403)
             self.assertEqual(client.call('/api/selection/explain',{'text':'示例','allow_context':True},origin='https://evil.invalid')[0],403)
@@ -78,9 +75,3 @@ class SelectionExplainTests(unittest.TestCase):
             self.assertIn('event: delta',body);self.assertIn('event: done',body);self.assertIn('第一句',body)
             client.service.planner.assert_not_called();client.service.probe.assert_not_called()
             self.assertTrue(any(key[0]=='model' for key in client.server.request_limiter.buckets))
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

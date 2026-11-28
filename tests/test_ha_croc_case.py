@@ -1,11 +1,8 @@
 """正常/异常/证据缺失分支与真实HTTP接线；全部为测试替身。"""
-if not __package__:
-    import _bootstrap
-
 import datetime
 import unittest
 from unittest.mock import Mock
-from ha_croc_case import selected,assess_case,croc_state,vip_state,answer_issues,stop_cause_overclaim
+from legacy.ha_croc_case import selected,assess_case,croc_state,vip_state,answer_issues,stop_cause_overclaim
 from tests.ha_case_test_support import VARIANTS,case_probe,case_planner
 from tests.workflow_test_support import RunningApp
 
@@ -76,9 +73,9 @@ class CaseRuleTests(unittest.TestCase):
             self.assertEqual(self.report(variant)['nodes'][0]['finding'],finding)
 
     def test_missing_wrong_interface_and_conflicting_address_rows_remain_unknown(self):
-        expected={'eth2':'192.0.2.15','eth3':'192.0.2.37'}
+        expected={'eth2':'192.0.2.15','eth3':'172.27.10.37'}
         for output in ['VIP absent','eth2 UP','eth2 UP 00:11:22:33:44:55 <UP>\neth3 UP',
-                       'eth2 UP 192.0.2.37/24\neth3 UP 192.0.2.15/24',
+                       'eth2 UP 172.27.10.37/24\neth3 UP 192.0.2.15/24',
                        'eth2 UP 192.0.2.15/24\neth2 UP\neth3 UP']:
             self.assertEqual(vip_state(output,expected),'unknown')
         self.assertEqual(vip_state('eth2 UP 192.0.2.150/24\neth3 DOWN',expected),'non_owner')

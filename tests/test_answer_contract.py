@@ -1,14 +1,11 @@
 """已见回答缺陷的开发回归，非独立模型质量评估。"""
-if not __package__:
-    import _bootstrap
-
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from diagnostic_core import AuditStore
-from response_contract import response_policy, remote_rules, answer_issues
-from unified_chat import run, search
+from devices.diagnostic_core import AuditStore
+from legacy.response_contract import response_policy, remote_rules, answer_issues
+from legacy.unified_chat import run, search
 
 
 class AnswerContractTests(unittest.TestCase):
@@ -133,7 +130,7 @@ class AnswerContractTests(unittest.TestCase):
         self.assertIn('平时一台工作、一台待机',result['answer']);self.probe.assert_not_called()
 
     def test_translation_preserves_raw_code_citations_and_uncertainty(self):
-        from response_contract import plain_language_answer
+        from legacy.response_contract import plain_language_answer
         text='角色回调的预期行为不代表硬件损坏，尚未检查主机。[OBS-1]\n\n`角色回调`\n```text\n以上是文档描述的机制。\n```'
         result=plain_language_answer(text)
         self.assertIn('不代表硬件损坏，尚未检查主机。[OBS-1]',result)
@@ -146,7 +143,7 @@ class AnswerContractTests(unittest.TestCase):
         self.assertEqual(answer_issues('根据资料中的记载解释。',[],policy,[]),[])
 
     def test_explicit_concept_only_does_not_request_a_live_target(self):
-        from question_routing import classify
+        from legacy.question_routing import classify
         self.assertEqual(classify('只讲平时的情况，不查现场：Croc没运行，就说明设备坏了吗？')['route'],'lab_knowledge')
         self.assertEqual(classify('不查现场，局端主机现在正常吗？')['route'],'current_unverified')
 
@@ -162,7 +159,7 @@ class AnswerContractTests(unittest.TestCase):
 
 class ReasoningPromptTests(unittest.TestCase):
     def test_conditions_and_evidence_policy_reaches_every_actual_prompt_route(self):
-        from chat_model import select_prompt, ANSWER_REASONING_POLICY
+        from agent.chat_model import select_prompt, ANSWER_REASONING_POLICY
         cases=[({'mode':'knowledge','domain':'general'},'general_learning'),
                ({'mode':'knowledge','domain':'basics'},'general_learning'),
                ({'mode':'knowledge','domain':'lab'},'lab_knowledge'),

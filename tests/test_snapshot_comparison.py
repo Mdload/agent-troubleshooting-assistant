@@ -1,15 +1,12 @@
 """跨调查历史快照、版本/时间边界和正式HTTP归属；全部为替身。"""
-if not __package__:
-    import _bootstrap
-
 import copy
 import unittest
 from unittest.mock import Mock
-from diagnostic_report import build_report
-from ha_croc_case import assess_case
+from devices.diagnostic_report import build_report
+from legacy.ha_croc_case import assess_case
 from tests.ha_case_test_support import case_probe,case_planner
 from tests.test_topology_evidence import pair_observations,SCOPE
-from snapshot_comparison import compare_snapshots,object_fingerprint
+from devices.snapshot_comparison import compare_snapshots,object_fingerprint
 from tests.workflow_test_support import RunningApp
 
 
@@ -40,7 +37,7 @@ class SnapshotComparisonTests(unittest.TestCase):
     def test_registry_fingerprint_changes_with_identity_or_expected_object_not_inventory_role(self):
         from unittest.mock import patch
         baseline=object_fingerprint('local-primary','interfaces')
-        from device_registry import DEVICES,PROFILES
+        from devices.device_registry import DEVICES,PROFILES
         with patch.dict(DEVICES['local-primary'],hostname='different-identity'):
             self.assertNotEqual(object_fingerprint('local-primary','interfaces'),baseline)
         with patch.dict(PROFILES['local_ha']['ha_vips'],eth2='192.0.2.99'):

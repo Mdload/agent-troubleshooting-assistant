@@ -1,16 +1,13 @@
 """固定登记的一致性和工具边界；无模型或设备调用。"""
-if not __package__:
-    import _bootstrap
-
 import ast
 import shlex
 import unittest
 from unittest.mock import Mock,patch
-import device_tools
-from device_registry import DEVICES,PROFILES,HOPS,public_catalog,allows_check,checks_for
-from diagnostic_logs import UNITS
-from interaction_mode import SCENES
-from question_routing import target_devices
+import devices.device_tools as device_tools
+from devices.device_registry import DEVICES,PROFILES,HOPS,public_catalog,allows_check,checks_for
+from devices.diagnostic_logs import UNITS
+from legacy.interaction_mode import SCENES
+from legacy.question_routing import target_devices
 from migration.protocol import REMOTE_CODE
 from tests.workflow_test_support import RunningApp
 
@@ -31,7 +28,7 @@ class RegistryTests(unittest.TestCase):
     def test_target_routing_is_derived_from_inventory_roles_not_live_roles(self):
         self.assertEqual(target_devices('远端主机'),['remote-primary'])
         self.assertEqual(set(target_devices('局端主备')),{'local-primary','local-backup'})
-        self.assertFalse(allows_check('198.51.100.46','services'))
+        self.assertFalse(allows_check('203.0.113.112','services'))
         self.assertFalse(allows_check('local-primary','restart'))
         self.assertTrue(all(d['current_role']=='unknown' for d in public_catalog()['devices']))
 

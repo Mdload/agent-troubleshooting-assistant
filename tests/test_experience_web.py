@@ -1,7 +1,4 @@
 """经验闭环的合成隔离测试；不审核真实样例、不调用模型或设备。"""
-if not __package__:
-    import _bootstrap
-
 import copy
 import json
 import sqlite3
@@ -12,8 +9,8 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import app
-import qa
-from experience_store import ExperienceStore, ExperienceError
+import retrieval.qa as qa
+from legacy.experience_store import ExperienceStore, ExperienceError
 from tests.workflow_test_support import RunningApp
 
 
@@ -38,7 +35,7 @@ def approve(store,item):
 
 class ExperienceStoreTests(unittest.TestCase):
     def test_principle_does_not_inherit_reference_checklist_or_configuration_coverage(self):
-        from knowledge_coverage import assess,answer_issue
+        from retrieval.knowledge_coverage import assess,answer_issue
         self.publish()
         query='局端备机如何检查Croc服务与VIP'
         records=self.store.records(query)
@@ -189,7 +186,7 @@ class ExperienceStoreTests(unittest.TestCase):
         records=self.store.records('JSON格式是什么')
         hits=qa.retrieve('JSON格式是什么',library='general_basics',extra_records=records)
         self.assertTrue(any(h['case']['id']=='EXP-'+item['id'] for h in hits))
-        from knowledge_coverage import assess
+        from retrieval.knowledge_coverage import assess
         self.assertEqual(assess('JSON格式是什么',records,basics=True)['status'],'supported')
 
 

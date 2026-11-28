@@ -117,3 +117,26 @@ body{font-family:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei",sans-seri
 .agent-manual-command button{padding:1px 5px;border:0;border-radius:4px;background:transparent;color:#40564a;font:inherit;cursor:pointer}
 .agent-manual-command button:hover,.agent-manual-command button:focus-visible{background:#e8eeea}
 .agent-step-list details>summary{cursor:pointer;color:#505d56;font-size:12px}
+
+.repair-proposal{border-left:3px solid #ab7333}
+.repair-proposal .repair-proposal-risk{color:#744817}
+.repair-proposal pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.repair-proposal-approve{background:#885222;color:#fff;margin-top:8px}
+.repair-proposal-approve:hover{background:#703f18}
+.repair-proposal-approve:disabled{opacity:.72;cursor:wait}
+.repair-proposal-result:not(:empty){margin-top:9px;padding:7px 10px;border-radius:7px;background:#f0f4ed}
+.repair-proposal-result p{margin:3px 0}
+.execution-mode{display:inline-flex;gap:2px;padding:3px;margin-top:8px;border:1px solid var(--line);border-radius:999px;background:#f5f7f3}
+.execution-mode button{padding:5px 10px;border-radius:999px;background:transparent;color:var(--muted);font-size:12px;white-space:nowrap}
+.execution-mode [aria-pressed="true"]{background:#e4eddf;color:#31573a;font-weight:650}
+.execution-mode #execution-auto[aria-pressed="true"]{background:#fae6bd;color:#704311}
+.execution-mode-notice{margin:6px 0;padding:7px 10px;border-radius:8px;background:#fff1d8;color:#744417;font-size:13px}
+.task-card.repair-proposal{margin-top:14px;padding:14px 16px;border:1px solid #dbe4d5;border-left:3px solid #789c73;background:#fbfcfa}
+.task-card.repair-proposal[data-state="pending_approval"]{border-color:#dbbd81;background:#fffbef}
+.task-card.repair-proposal[data-state="failed"]{border-left-color:#b7664f}
+.task-card.repair-proposal[data-state="rejected"]{border-left-color:#90978b}
+.repair-proposal h3{font-size:14px;margin:0 0 6px}
+.repair-proposal-steps{margin:8px 0;padding-left:20px}
+.repair-proposal-steps li{margin:8px 0}
+.repair-proposal-steps pre{margin:4px 0;padding:6px 8px;border-radius:6px;background:#eef2eb;white-space:pre-wrap;overflow-wrap:anywhere}
+.repair-proposal-steps small{color:var(--muted)}

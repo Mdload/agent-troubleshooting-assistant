@@ -1,13 +1,10 @@
 """修复申请、管理员许可与执行后核查；临时库和固定合成证据。"""
-if not __package__:
-    import _bootstrap
-
 import json,tempfile,threading,time,unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import Mock
-from approval_store import TaskError
-from repair_control import RepairManager,READ_SCOPE,TARGET,ACTION,service_assessment
+from server.approval_store import TaskError
+from server.repair_control import RepairManager,READ_SCOPE,TARGET,ACTION,service_assessment
 from tests.test_repair_control import evidence
 from tests.workflow_test_support import RunningApp,TEST_PASSWORD
 

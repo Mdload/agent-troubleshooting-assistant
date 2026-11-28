@@ -1,15 +1,12 @@
 """Execution record projection, lifecycle and ownership; no real model/device calls."""
-if not __package__:
-    import _bootstrap
-
 import json,threading,unittest
 from contextlib import closing
 from unittest.mock import Mock
-from execution_workflow import observation_step,check_request,observation_steps
-from approval_store import TaskError
+from legacy.execution_workflow import observation_step,check_request,observation_steps
+from server.approval_store import TaskError
 from tests.workflow_test_support import RunningApp
 from tests.ha_case_test_support import case_probe
-from device_tools import LOCAL_COMMANDS,REMOTE_CHECKS
+from devices.device_tools import LOCAL_COMMANDS,REMOTE_CHECKS
 
 class ExecutionProjectionTests(unittest.TestCase):
     def test_commands_come_from_actual_fixed_registry_not_model_text(self):
@@ -39,7 +36,7 @@ class ExecutionProjectionTests(unittest.TestCase):
 
 
     def test_saved_technical_records_get_plain_words_without_rewriting_original_commands(self):
-        from execution_workflow import readable_steps
+        from legacy.execution_workflow import readable_steps
         item=dict(case_probe('nonowner_stopped')('local-backup','services'),device='local-backup',check='services',
                   id='OBS-1',origin='device_read',freshness='historical')
         saved=observation_step(item);saved['command']='ORIGINAL_RECORDED_COMMAND';saved['summary']='OLD_TECHNICAL_SUMMARY'
@@ -74,7 +71,7 @@ class ExecutionHttpTests(unittest.TestCase):
             final=results[0][1];self.assertEqual(final['status'],'completed')
             self.assertEqual(len(final['result']['execution_steps']),2)
             with closing(client.store.connect()) as db:owner=client.store.row(db,task['id'])['owner']
-            import investigation_history
+            import legacy.investigation_history as investigation_history
             old=investigation_history.get_record(client.store,owner,'default',task['id'])
             self.assertTrue(all(s['freshness']=='historical' for s in old['result']['execution_steps']))
             self.assertEqual(client.resume(task['id'])[0],409)

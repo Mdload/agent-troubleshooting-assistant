@@ -1,15 +1,12 @@
 """较长单次等待仍受宿主剩余时间约束；不重试。"""
-if not __package__:
-    import _bootstrap
-
 import socket,unittest
 from unittest.mock import patch
-from chat_model import make_model,ModelFailure
+from agent.chat_model import make_model,ModelFailure
 
 
 class TimeoutPolicyTests(unittest.TestCase):
     def execute(self,context):
-        with patch('chat_model.urllib.request.build_opener') as factory:
+        with patch('agent.chat_model.urllib.request.build_opener') as factory:
             factory.return_value.open.side_effect=socket.timeout()
             planner=make_model({'LLM_BASE_URL':'https://api.inferera.com/v1','LLM_API_KEY':'test','LLM_MODEL_ID':'test'})
             with self.assertRaises(ModelFailure):planner(context)
@@ -24,7 +21,7 @@ class TimeoutPolicyTests(unittest.TestCase):
         self.assertEqual(self.execute({'remaining_seconds':0.001}),0.001)
 
     def test_exhausted_host_budget_never_opens_transport(self):
-        with patch('chat_model.urllib.request.build_opener') as factory:
+        with patch('agent.chat_model.urllib.request.build_opener') as factory:
             planner=make_model({'LLM_BASE_URL':'https://api.inferera.com/v1','LLM_API_KEY':'test','LLM_MODEL_ID':'test'})
             for remaining in (0,-1):
                 with self.assertRaises(ModelFailure) as error:

@@ -1,16 +1,13 @@
 """澄清接续、对话隔离与新申请；使用实际HTTP入口，禁止实际模型/设备调用。"""
-if not __package__:
-    import _bootstrap
-
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from approval_store import ApprovalStore
-from lab_workflow import WorkflowService
-from conversation_topic import target_reply,resolve_topic
+from server.approval_store import ApprovalStore
+from legacy.lab_workflow import WorkflowService
+from legacy.conversation_topic import target_reply,resolve_topic
 from tests.workflow_test_support import RunningApp,current_probe_fixture
-from unified_chat import search
+from legacy.unified_chat import search
 
 
 def general_answer(context):

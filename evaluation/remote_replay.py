@@ -7,9 +7,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from device_tools import build_command
-from diagnostic_core import AuditStore
-from unified_chat import run, search
+from devices.device_tools import build_command
+from devices.diagnostic_core import AuditStore
+from legacy.unified_chat import run, search
 
 
 def load_cases():

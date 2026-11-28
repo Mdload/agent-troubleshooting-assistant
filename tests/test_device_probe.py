@@ -1,7 +1,4 @@
 """Offline checks for the parameter and evidence boundaries."""
-if not __package__:
-    import _bootstrap
-
 import copy
 import os
 from pathlib import Path
@@ -13,13 +10,13 @@ import threading
 import unittest
 from unittest.mock import Mock, patch
 
-from agent_memory import AgentMemoryStore
-from agent_v2 import AutonomousAgent
-from device_registry import DEVICES, GENERAL_CHECK_LABELS, PROBE_KINDS, allows_probe, checks_for
-from device_tools import build_command, build_probe_command, probe, probe_device
-from device_worker import dispatch
+from agent.agent_memory import AgentMemoryStore
+from agent.agent_v2 import AutonomousAgent
+from devices.device_registry import DEVICES, GENERAL_CHECK_LABELS, PROBE_KINDS, allows_probe, checks_for
+from devices.device_tools import GENERAL_COMMANDS, build_command, build_probe_command, probe, probe_device
+from devices.device_worker import dispatch
 from migration import bridge
-import qa
+import retrieval.qa as qa
 
 
 ROUTER = 'router-1'
@@ -37,17 +34,29 @@ class DeviceProbeTests(unittest.TestCase):
                     command = build_command(device, check)
                     self.assertEqual(command[:4], ['sudo', '-n', '-H', '/usr/bin/ssh'])
                     self.assertIn('IDENTITY_OK', command[-1])
-                    with patch('device_worker.probe', return_value={'ok': True}) as read:
+                    with patch('devices.device_worker.probe', return_value={'ok': True}) as read:
                         self.assertTrue(dispatch(request)['ok'])
                         read.assert_called_once_with(device, check)
+
+    def test_nat_firewall_is_read_only_and_keeps_independent_sections(self):
+        reads = ('iptables -t nat -S', 'iptables -S', 'ip -4 rule show')
+        self.assertEqual(len(GENERAL_COMMANDS['nat_firewall']), len(reads))
+        for command, read in zip(GENERAL_COMMANDS['nat_firewall'], reads):
+            self.assertIn('{ ' + read + ' 2>/dev/null || printf', command)
+            self.assertIn('CHECK_UNAVAILABLE', command)
+        output = b'IDENTITY_OK\niptables -t nat -S\nCHECK_UNAVAILABLE\niptables -S\n-P INPUT ACCEPT\nip -4 rule show\n'
+        result = probe(ROUTER, 'nat_firewall', executor=Mock(return_value=Mock(returncode=0, stdout=output)))
+        self.assertTrue(result['ok'])
+        self.assertIn('CHECK_UNAVAILABLE', result['output'])
+        self.assertIn('-P INPUT ACCEPT', result['output'])
 
     def test_five_kinds_follow_the_same_allowlist_and_preserve_not_found(self):
         for kind, target in ARGUMENTS.items():
             with self.subTest(kind=kind):
                 request = {'device': ROUTER, 'kind': kind, 'target': target}
                 self.assertTrue(bridge.valid_request(request))
-                with patch('device_worker.probe_device', wraps=probe_device) as read, \
-                        patch('device_tools.subprocess.run', return_value=Mock(
+                with patch('devices.device_worker.probe_device', wraps=probe_device) as read, \
+                        patch('devices.device_tools.subprocess.run', return_value=Mock(
                             returncode=0, stdout=b'IDENTITY_OK\nNOT_FOUND\n')):
                     result = dispatch(request)
                     read.assert_called_once_with(**request)
@@ -62,11 +71,11 @@ class DeviceProbeTests(unittest.TestCase):
                  for kind in PROBE_KINDS for payload in ('; id', '$(whoami)', '../etc/passwd', 'sshd\n', 'a' * 65)]
         cases += [dict(device=ROUTER, kind='port', target=value)
                   for value in ('0', '65536', '-1', '３３０６', 3306)]
-        cases += [dict(device='198.51.100.46', kind='service', target='sshd'),
+        cases += [dict(device='203.0.113.112', kind='service', target='sshd'),
                   dict(device=ROUTER, kind='restart', target='sshd')]
         fn = Mock()
         agent = AutonomousAgent(None, probe_device_fn=fn)
-        with patch('migration.bridge.call_remote') as remote, patch('device_worker.probe_device') as worker:
+        with patch('migration.bridge.call_remote') as remote, patch('devices.device_worker.probe_device') as worker:
             for request in cases:
                 with self.subTest(request=request):
                     self.assertFalse(allows_probe(**request))
@@ -128,7 +137,7 @@ class DeviceProbeTests(unittest.TestCase):
         fake = {'id': 'snap', 'title': '设备运行快照', 'kind': 'historical_snapshot',
                 'historical_finding': 'OLD_DB_STATE'}
         agent = AutonomousAgent(None)
-        with patch('agent_v2.qa.retrieve', return_value=[{'case': fake}, {'case': mixed}]):
+        with patch('agent.agent_v2.qa.retrieve', return_value=[{'case': fake}, {'case': mixed}]):
             result = agent._run_search_knowledge('Router1 现在安装了哪些软件')
             history = agent._run_search_knowledge('回顾 2026-09-28 当时的状态')
         self.assertEqual([item['id'] for item in result['hits']], ['KB-008'])
@@ -216,9 +225,3 @@ class ProbeCommandTests(unittest.TestCase):
         self.assertEqual(overview['output'].split(), ['load', 'memory', 'disk', 'process', 'DOCKER_UNAVAILABLE'])
         ports = self.run_on_mock_router('ss(){ printf "%s\\n" "$1"; }', check='listening_ports')
         self.assertEqual(ports['output'].strip(), '-tulnp')
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

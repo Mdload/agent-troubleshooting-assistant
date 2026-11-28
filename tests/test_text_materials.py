@@ -1,7 +1,4 @@
-if not __package__:
-    import _bootstrap
-
-from chat_model import ANSWER_REASONING_POLICY
+from agent.chat_model import ANSWER_REASONING_POLICY
 """纯文本材料边界、原文选段与正式HTTP分析；不调用真实模型或设备。"""
 import base64
 import hashlib
@@ -11,9 +8,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock,patch
 import app
-from text_materials import MaterialStore,MaterialError,decode_upload,select_excerpts,MAX_BYTES
-from material_analysis import MATERIAL_PROMPT,NOTICE
-from chat_model import select_prompt
+from server.text_materials import MaterialStore,MaterialError,decode_upload,select_excerpts,MAX_BYTES
+from server.material_analysis import MATERIAL_PROMPT,NOTICE
+from agent.chat_model import select_prompt
 from tests.workflow_test_support import RunningApp
 
 
@@ -63,9 +60,9 @@ class MaterialStoreTests(unittest.TestCase):
     def test_total_and_owner_byte_limits_are_atomic(self):
         with tempfile.TemporaryDirectory() as directory:
             store=MaterialStore(Path(directory)/'materials.db')
-            with patch('text_materials.OWNER_BYTES',5):
+            with patch('server.text_materials.OWNER_BYTES',5):
                 with self.assertRaisesRegex(MaterialError,'material_owner_limit'):store.add('a',upload())
-            with patch('text_materials.TOTAL_BYTES',5):
+            with patch('server.text_materials.TOTAL_BYTES',5):
                 with self.assertRaisesRegex(MaterialError,'material_store_full'):store.add('a',upload())
             self.assertEqual(store.list('a','material-chat'),[])
 
@@ -178,8 +175,8 @@ class MaterialHttpTests(unittest.TestCase):
         self.probe.assert_not_called()
 
     def test_material_mode_disables_default_tools_even_without_explicit_empty_scope(self):
-        from unified_chat import run
-        from text_materials import select_excerpts
+        from legacy.unified_chat import run
+        from server.text_materials import select_excerpts
         sources=select_excerpts({'id':'a'*32,'name':'test.log','sha256':'hash','text':'error line'},'error')['sources']
         result=run('分析材料',[],self.planner,self.lookup,self.probe,self.client.service.audit,
                    question_policy={'mode':'material_analysis','domain':'material'},material_sources=sources)

@@ -1,18 +1,15 @@
 """长窗口接续、来源撤回、并发与权限回归；仅使用替身模型。"""
-if not __package__:
-    import _bootstrap
-
 import unittest
 import base64
 from unittest.mock import Mock,patch
 import app
 from tests.workflow_test_support import RunningApp
-from task_memory import TTL
+from legacy.task_memory import TTL
 
 
 class TaskMemoryTests(unittest.TestCase):
     def setUp(self):
-        self.kdf=patch('user_accounts.ITERATIONS',1000);self.kdf.start()
+        self.kdf=patch('server.user_accounts.ITERATIONS',1000);self.kdf.start()
         self.planner=Mock(return_value=({'action':'answer','answer':'按学习目标分步练习。','refs':[],'basis':'general'},0))
         self.probe=Mock();self.client=RunningApp(self.planner,self.probe,lookup=lambda q:[]).__enter__()
         self.call('/api/account/register',{'username':'alice','password':'offline-password-only-123','allow_storage':True})
@@ -71,11 +68,7 @@ class TaskMemoryTests(unittest.TestCase):
 
     def test_other_account_guest_and_wrong_conversation_cannot_read_or_use(self):
         self.save_memory();guest=self.client.new_browser();self.call('/api/session',browser=guest)
-        code, guest_memory = self.call(self.path(), browser=guest)
-        self.assertEqual(code, 200)
-        self.assertEqual(guest_memory['state'], 'empty')
-        self.assertEqual(guest_memory['entries'], [])
-        self.assertEqual(guest_memory['agent_memory']['memories'], [])
+        self.assertEqual(self.call(self.path(),browser=guest)[0],401)
         self.call('/api/account/register',{'username':'bob','password':'offline-password-only-123','allow_storage':True},browser=guest)
         self.assertEqual(self.call(self.path(),browser=guest)[0],404)
         self.assertEqual(self.call('/api/conversations/other/memory')[0],404)

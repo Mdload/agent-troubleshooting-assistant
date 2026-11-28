@@ -1,14 +1,11 @@
 """Acceptance preparation correctness, not real-model answer quality."""
-if not __package__:
-    import _bootstrap
-
 import json
 from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-import chat_model
+import agent.chat_model as chat_model
 from evaluation import context_quality as evaluation
 
 

@@ -1,7 +1,4 @@
 """指标口径：未知不补零，回答不算答对，重复ID不混入统计。"""
-if not __package__:
-    import _bootstrap
-
 import json
 from pathlib import Path
 import tempfile
@@ -56,9 +53,3 @@ class ResultSummaryTests(unittest.TestCase):
         for ids in (['A01','A01'],['../A01']):
             self.save('run.json',{'status':'stopped','cases':[{'id':i} for i in ids],'unexecuted_cases':[]})
             with self.assertRaises(ValueError):summarize(self.root)
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

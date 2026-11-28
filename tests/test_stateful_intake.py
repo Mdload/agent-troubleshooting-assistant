@@ -1,12 +1,9 @@
 """Multi-turn HA intake with controlled actions, real HTTP and no device access."""
-if not __package__:
-    import _bootstrap
-
 import unittest
 from unittest.mock import Mock
 import threading
 from contextlib import closing
-from chat_model import ModelFailure
+from agent.chat_model import ModelFailure
 
 from tests.workflow_test_support import RunningApp, current_probe_fixture
 from tests.test_diagnostic_dialogues import PAIR, post_question, run_task
@@ -41,8 +38,8 @@ class StatefulIntakeTests(unittest.TestCase):
                     tool.assert_not_called()
 
     def test_whole_topology_status_reads_registered_nodes_without_asking_for_a_symptom(self):
-        from device_registry import DEVICES,profile
-        from ha_runbooks import local_intent
+        from devices.device_registry import DEVICES,profile
+        from legacy.ha_runbooks import local_intent
         self.assertEqual(local_intent('远端设备现在有异常吗',[],{})[:2],
                          ('topology_health',['remote-primary','remote-backup']))
         for q in ('当前拓扑有故障吗，不要查设备','假如当前拓扑有故障，怎么办','怎么看当前拓扑有没有故障'):
@@ -86,9 +83,9 @@ class StatefulIntakeTests(unittest.TestCase):
                 planner.assert_not_called()
 
     def test_backup_pair_probes_the_selected_chassis_tunnel_in_both_directions(self):
-        from diagnostic_probes import extended_commands
-        from device_registry import tunnel_endpoints
-        from diagnostic_intake import bounded_request
+        from devices.diagnostic_probes import extended_commands
+        from devices.device_registry import tunnel_endpoints
+        from devices.diagnostic_intake import bounded_request
         topic={'intake':{'phase':'scope_proposed','brief':{'goal':'icmp_reachability',
                            'devices':['local-primary','remote-backup'],'path':'management'}}}
         plan=bounded_request('两端的隧道互相ping一下',topic)
@@ -113,16 +110,16 @@ class StatefulIntakeTests(unittest.TestCase):
             self.assertEqual({m['target'] for m in result['goal_assessment']['measurements']},
                              {'203.0.113.134','203.0.113.1'})
             self.assertEqual(len(result['refs']),2)
-            from topology_observations import project
+            from devices.topology_observations import project
             facts=project('local-primary','ping_tunnel_remote_backup',result['evidence'][0]['output'])
             self.assertIn('203.0.113.134',facts['icmp'])
-            from device_registry import allows_check
+            from devices.device_registry import allows_check
             self.assertFalse(allows_check('remote-backup','ping_tunnel_remote_backup'))
         self.assertCountEqual([c.args for c in tool.call_args_list],
                              [('local-primary','ping_tunnel_remote_backup'),('remote-backup','ping_tunnel_peer')])
 
     def test_reciprocal_communication_request_respects_path_and_topic(self):
-        from diagnostic_intake import bounded_request,connectivity_measurement
+        from devices.diagnostic_intake import bounded_request,connectivity_measurement
         topic={'intake':{'brief':{'goal':'tunnel','path':'tunnel','devices':['local-primary','remote-primary']},
                          'phase':'scope_proposed'}}
         self.assertEqual(bounded_request('两端的隧道互相ping一下',topic)['scope'],
@@ -132,7 +129,7 @@ class StatefulIntakeTests(unittest.TestCase):
             self.assertFalse(connectivity_measurement(q))
 
     def test_communication_followup_compares_paths_and_continues_corrected_pair(self):
-        from device_registry import profile
+        from devices.device_registry import profile
         def sample(device, check):
             if check == 'interfaces':
                 active = device.endswith('primary')
@@ -183,7 +180,7 @@ class StatefulIntakeTests(unittest.TestCase):
         planner.assert_not_called()
 
     def test_overview_keeps_observed_icmp_when_planner_approved_extra_directions(self):
-        from diagnostic_goal import assess_goal
+        from devices.diagnostic_goal import assess_goal
         scope={'local-primary':['ping_remote_primary','ping_remote_backup'],
                'remote-primary':['ping_local_primary']}
         evidence=[dict(device=d,check=c,id='OBS-'+str(i+1),origin='device_read',ok=True,
@@ -195,7 +192,7 @@ class StatefulIntakeTests(unittest.TestCase):
         self.assertIn('未发包',result['answer'])
 
     def test_tunnel_peer_checks_use_registered_endpoint_and_require_matching_route(self):
-        from device_tools import build_command,probe
+        from devices.device_tools import build_command,probe
         import subprocess
         for device,target in [('local-primary','203.0.113.133'),('remote-primary','203.0.113.1')]:
             command=build_command(device,'ping_tunnel_peer')[-1]
@@ -227,7 +224,7 @@ class StatefulIntakeTests(unittest.TestCase):
         self.assertEqual(result['refs'],['OBS-1'])
 
     def test_socket_sample_keeps_ambiguous_addresses_and_distinct_connections_separate(self):
-        from link_inspection import ppp_summary
+        from devices.link_inspection import ppp_summary
         output = ('ppp5 UP 192.0.2.50/32 192.0.2.51/32\neth1 UP 192.0.2.51/24\n'
                   'ESTAB 0 0 192.0.2.50:42000 198.51.100.1:9965\n'
                   'ESTAB 0 0 192.0.2.50:42000 198.51.100.1:9965\n'
@@ -239,7 +236,7 @@ class StatefulIntakeTests(unittest.TestCase):
         self.assertEqual(ppp_summary(output, ('eth1','ppp5'), '看看 VIP 归属'), '')
 
     def test_resuming_a_direction_requires_matching_history_and_an_execution_request(self):
-        from diagnostic_intake import resume_probe
+        from devices.diagnostic_intake import resume_probe
         scope = {'remote-backup':['ping_local_primary']}
         question = '接着之前的那两台设备，按照上次的方向重测一次，仅确认有无回包。'
         self.assertEqual(resume_probe(question, {'scope':scope})['scope'], scope)
@@ -250,7 +247,7 @@ class StatefulIntakeTests(unittest.TestCase):
             self.assertIsNone(resume_probe(changed, {'scope':scope}), changed)
 
     def test_unknown_devices_are_accepted_only_for_clarification(self):
-        from unified_chat import intake_decision, ProtocolFailure
+        from legacy.unified_chat import intake_decision, ProtocolFailure
         brief = {'goal':'icmp_reachability', 'devices':None, 'missing':'destination'}
         decision = intake_decision({'action':'clarify', 'brief':brief, 'question':'要测到哪台设备？'}, {}, True)
         self.assertEqual(decision['status'], 'clarify')
@@ -259,7 +256,7 @@ class StatefulIntakeTests(unittest.TestCase):
             intake_decision({'action':'prepare_diagnostic', 'brief':brief, 'scope':{}}, {}, True)
 
     def test_direction_limits_and_ambiguous_references(self):
-        from diagnostic_intake import bounded_request
+        from devices.diagnostic_intake import bounded_request
         for suffix in ('只查正向', '不要反向', '不做双向测试'):
             plan = bounded_request('从远端备机 ping 局端主机，' + suffix)
             self.assertEqual(plan['scope'], {'remote-backup': ['ping_local_primary']})
@@ -319,7 +316,7 @@ class StatefulIntakeTests(unittest.TestCase):
             self.assertNotIn('局端和远端不通',result['answer'])
 
     def test_runbook_uses_evidence_to_choose_next_step_and_retains_targets(self):
-        from device_registry import profile
+        from devices.device_registry import profile
         cases=(('远端的视频画面收不到了','logs','发现服务与 VIP 分布不一致'),
                ('帮我排查远端的 Croc 传输中断','policy_routes','业务端到端收发仍待验证'))
         for question,last_check,conclusion in cases:
@@ -368,7 +365,7 @@ class StatefulIntakeTests(unittest.TestCase):
                     planner.assert_not_called()
 
     def test_model_selects_runbook_without_constructing_tool_scope(self):
-        from device_registry import profile
+        from devices.device_registry import profile
         def planner(context):
             self.assertIn('ha_state',context['investigation_runbooks'])
             return {'action':'investigate','runbook':'ha_state','devices':['remote-primary','remote-backup']},0
@@ -403,7 +400,7 @@ class StatefulIntakeTests(unittest.TestCase):
                 probe.assert_not_called()
 
     def test_reciprocal_ping_continues_completed_overview_through_background_approval(self):
-        from device_registry import profile
+        from devices.device_registry import profile
         from tests.test_diagnostic_dialogues import approve
 
         scenarios=(('远端和局端现在通的吗','你互相发起ping包探测一下啊','remote-primary',False),
@@ -461,7 +458,7 @@ class StatefulIntakeTests(unittest.TestCase):
                     lookup.assert_not_called()
 
     def test_reciprocal_ping_scope_respects_explicit_targets_and_topic_boundaries(self):
-        from diagnostic_intake import bounded_request
+        from devices.diagnostic_intake import bounded_request
         no_topic=bounded_request('互相 ping 一下')
         self.assertFalse(no_topic['scope'])
         self.assertIn('同一端',no_topic['question'])
@@ -478,7 +475,7 @@ class StatefulIntakeTests(unittest.TestCase):
         self.assertFalse(bounded_request('互相ping一下',previous)['scope'])
 
     def test_current_side_to_side_question_starts_passive_checks_without_model(self):
-        from device_registry import DEVICES,profile
+        from devices.device_registry import DEVICES,profile
         expected={device:['interfaces'] for device in DEVICES}
         for question in ('远端和局端现在通的吗','局端跟远端这会儿还连得上吗？',
                          '局端和远端是通的吗？','当前局端到远端的 Croc 隧道通不通？'):
@@ -523,7 +520,7 @@ class StatefulIntakeTests(unittest.TestCase):
                     planner.assert_not_called()
 
     def test_connectivity_explanation_and_general_space_do_not_start_a_probe(self):
-        from diagnostic_intake import bounded_request
+        from devices.diagnostic_intake import bounded_request
         for question in ('平时局端和远端为什么能通？','怎么判断局端和远端现在通不通？',
                          '假如现在局端和远端不通，会怎样？','现在局端和远端通吗，先别查。'):
             with self.subTest(question=question):self.assertIsNone(bounded_request(question))
@@ -537,7 +534,7 @@ class StatefulIntakeTests(unittest.TestCase):
         planner.assert_not_called();probe.assert_not_called()
 
     def test_interface_findings_distinguish_absent_missing_and_conflicting_output(self):
-        from link_inspection import check_interfaces
+        from devices.link_inspection import check_interfaces
         output='tun16 UP 192.0.2.1/24\ntun16 DOWN\nINTERFACE_ABSENT=tun7\neth2@peer LOWERLAYERDOWN'
         findings=check_interfaces(output,('tun16','tun7','eth2','eth3'))
         self.assertEqual({'state':'unconfirmed','line':None},findings['tun16'])
@@ -589,7 +586,7 @@ class StatefulIntakeTests(unittest.TestCase):
                         self.assertEqual('approval_required',result['status'])
                         self.assertEqual(scope,result['task']['scope'])
                         with self.assertRaisesRegex(ValueError,'invalid_scope'):
-                            from approval_store import AUTO_READ_ACTOR, LOCAL_READ_USE
+                            from server.approval_store import AUTO_READ_ACTOR, LOCAL_READ_USE
                             task=result['task']['id']
                             with closing(client.store.connect()) as db:owner=client.store.row(db,task)['owner']
                             client.store.decide(task,True,AUTO_READ_ACTOR,LOCAL_READ_USE,owner,server_owned=True)

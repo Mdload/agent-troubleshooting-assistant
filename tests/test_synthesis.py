@@ -1,11 +1,8 @@
 """离线验收真实检索和模型协议；模拟响应不等于真实模型质量验收。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import unittest
 from unittest.mock import patch
-import qa
+import retrieval.qa as qa
 
 # 15题覆盖机制、启动链、模式、历史冲突和未确认项。
 QUESTIONS = [
@@ -57,7 +54,7 @@ class SynthesisTests(unittest.TestCase):
                 return json.dumps({'choices': [{'message': {'content': json.dumps(response)}}],
                                    'usage': {'total_tokens': 100}}).encode()
         cfg = dict(LLM_API_KEY='TEST-ONLY', LLM_MODEL_ID='fake', LLM_BASE_URL='https://api.inferera.com/v1')
-        with patch('qa.model_config', return_value=cfg), patch('qa.urllib.request.urlopen', return_value=FakeResponse()) as call:
+        with patch('retrieval.qa.model_config', return_value=cfg), patch('retrieval.qa.urllib.request.urlopen', return_value=FakeResponse()) as call:
             result = qa.answer(question, allow_new_topology=True)
         self.assertEqual(result['kind'], 'model')
         self.assertIn('[KB-003]', result['answer'])
@@ -76,7 +73,7 @@ class SynthesisTests(unittest.TestCase):
                 qa.parse_synthesis(json.dumps(content), hits)
 
     def test_failure_keeps_multiple_sources(self):
-        with patch('qa.ask_model', side_effect=ValueError('SECRET-SENTINEL')):
+        with patch('retrieval.qa.ask_model', side_effect=ValueError('SECRET-SENTINEL')):
             result = qa.answer(QUESTIONS[0][0], allow_new_topology=True)
         self.assertEqual(result['kind'], 'extract')
         self.assertIn('[KB-001]', result['answer'])
@@ -112,7 +109,7 @@ class SynthesisTests(unittest.TestCase):
                 return json.dumps({'choices': [{'message': {'content': 'SECRET-SENTINEL'},
                     'finish_reason': 'length'}], 'usage': {'total_tokens': 4500}}).encode()
         cfg = dict(LLM_API_KEY='TEST-ONLY', LLM_MODEL_ID='fake', LLM_BASE_URL='https://api.inferera.com/v1')
-        with patch('qa.model_config', return_value=cfg), patch('qa.urllib.request.urlopen', return_value=TruncatedResponse()):
+        with patch('retrieval.qa.model_config', return_value=cfg), patch('retrieval.qa.urllib.request.urlopen', return_value=TruncatedResponse()):
             result = qa.answer(QUESTIONS[0][0], allow_new_topology=True)
         self.assertEqual(result['kind'], 'extract')
         self.assertEqual(result['error_code'], 'output_truncated')

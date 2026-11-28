@@ -1,7 +1,4 @@
 """测时覆盖响应/超时/解析失败；轨迹不保存正文或凭据。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import socket
 import ssl
@@ -10,10 +7,10 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock,patch
-from chat_model import make_model,ModelFailure
-from diagnostic_core import AuditStore
-from unified_chat import run
-from model_trace import safe_metrics
+from agent.chat_model import make_model,ModelFailure
+from devices.diagnostic_core import AuditStore
+from legacy.unified_chat import run
+from agent.model_trace import safe_metrics
 
 CONFIG={'LLM_BASE_URL':'https://api.inferera.com/v1','LLM_API_KEY':'PRIVATE_KEY','LLM_MODEL_ID':'test'}
 
@@ -29,7 +26,7 @@ class ModelTraceTests(unittest.TestCase):
 
     def test_success_has_sizes_and_stages_without_content(self):
         response=self.response('{"action":"answer","answer":"PRIVATE_ANSWER","refs":[],"basis":"general"}')
-        with patch('chat_model.urllib.request.build_opener') as factory:
+        with patch('agent.chat_model.urllib.request.build_opener') as factory:
             factory.return_value.open.return_value=response
             planner=make_model(CONFIG)
             action,usage=planner({'question':'PRIVATE_QUESTION'})
@@ -40,7 +37,7 @@ class ModelTraceTests(unittest.TestCase):
             self.assertNotIn('PRIVATE',json.dumps(planner.last_metrics))
 
     def test_timeout_before_headers_is_not_retried(self):
-        with patch('chat_model.urllib.request.build_opener') as factory:
+        with patch('agent.chat_model.urllib.request.build_opener') as factory:
             factory.return_value.open.side_effect=socket.timeout('PRIVATE_NETWORK')
             planner=make_model(CONFIG)
             with self.assertRaises(ModelFailure): planner({})
@@ -52,7 +49,7 @@ class ModelTraceTests(unittest.TestCase):
 
     def test_body_timeout_identified_separately(self):
         response=self.response('{}');response.read.side_effect=socket.timeout()
-        with patch('chat_model.urllib.request.build_opener') as factory:
+        with patch('agent.chat_model.urllib.request.build_opener') as factory:
             factory.return_value.open.return_value=response
             planner=make_model(CONFIG)
             with self.assertRaises(ModelFailure): planner({})
@@ -61,7 +58,7 @@ class ModelTraceTests(unittest.TestCase):
             self.assertIn('wait_headers_ms',planner.last_metrics)
 
     def test_decode_failure_keeps_usage_and_metrics(self):
-        with patch('chat_model.urllib.request.build_opener') as factory:
+        with patch('agent.chat_model.urllib.request.build_opener') as factory:
             factory.return_value.open.return_value=self.response('PRIVATE_NOT_JSON')
             planner=make_model(CONFIG)
             with self.assertRaises(ModelFailure) as error: planner({})

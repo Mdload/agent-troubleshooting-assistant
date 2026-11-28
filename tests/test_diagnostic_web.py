@@ -1,6 +1,3 @@
-if not __package__:
-    import _bootstrap
-
 import json
 import os
 import threading
@@ -10,7 +7,7 @@ import urllib.error
 from html.parser import HTMLParser
 from unittest.mock import patch
 import app
-import diagnostic_web
+import devices.diagnostic_web as diagnostic_web
 from tests.workflow_test_support import RunningApp
 
 class DiagnosticWebTests(unittest.TestCase):
@@ -35,15 +32,15 @@ class DiagnosticWebTests(unittest.TestCase):
 
     def test_csrf_and_scope_before_execution(self):
         data = {'question':'检查', 'devices':['local-primary'], 'allow_live_data':True}
-        with patch('diagnostic_web.diagnose') as run:
+        with patch('devices.diagnostic_web.diagnose') as run:
             self.assertEqual(self.request(data, token=False)[0],403)
             self.assertEqual(self.request(data, host='evil.example')[0],403)
-            data['devices']=['198.51.100.46']
+            data['devices']=['203.0.113.112']
             self.assertEqual(self.request(data)[0],410)
             run.assert_not_called()
 
     def test_legacy_consent_cannot_bypass_approval(self):
-        with patch('diagnostic_web.make_planner') as model, patch('diagnostic_web.remote_probe') as tool:
+        with patch('devices.diagnostic_web.make_planner') as model, patch('devices.diagnostic_web.remote_probe') as tool:
             code, result=self.request({'question':'检查', 'devices':['local-primary']})
             self.assertEqual(code,410); self.assertEqual(result['status'],'approval_required')
             model.assert_not_called(); tool.assert_not_called()
@@ -62,11 +59,11 @@ class DiagnosticWebTests(unittest.TestCase):
 
     @unittest.skipIf(os.name=='nt','Unix worker only')
     def test_worker_rejects_arbitrary_command(self):
-        import device_worker
-        with patch('device_worker.probe') as tool:
+        import devices.device_worker as device_worker
+        with patch('devices.device_worker.probe') as tool:
             for data in ({'device':'local-primary','check':'reboot'},
                          {'device':'local-primary','check':'services','command':'id'},
-                         {'device':'198.51.100.46','check':'services'}):
+                         {'device':'203.0.113.112','check':'services'}):
                 with self.assertRaises(ValueError): device_worker.dispatch(data)
             tool.assert_not_called()
 

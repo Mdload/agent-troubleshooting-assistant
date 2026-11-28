@@ -8,11 +8,11 @@ const elements=new Map();
 const watched=[];
 const message={role:'assistant',content:'正在调查',workflowTask:{id:'old-task',status:'running'}};
 const chat={id:'restored',title:'刷新前的调查',messages:[message]};
-const sandbox={chats:[chat],busy:false,requestBusy:false,modeLoading:false,registryReady:true,liveProgressState:null,
+const sandbox={chats:[chat],busy:false,requestBusy:false,modeLoading:false,registryReady:true,
   account:null,accountLoading:false,accountExpired:false,
   activeSpace:'ha',sidebar(){},current:()=>chat,
   el:id=>{if(!elements.has(id))elements.set(id,element());return elements.get(id);},
-  taskOf:m=>m.workflowTask,watchTask:(message,id)=>watched.push(id),add:()=>element(),messageHeader(){},answerCopyText:text=>text,renderAnswer(){},evidence(){},taskCard(){},renderAgentDetails(){},
+  taskOf:m=>m.workflowTask,watchTask:(message,id)=>watched.push(id),add:()=>element(),messageHeader(){},answerCopyText:text=>text,renderAnswer(){},evidence(){},taskCard(){},
   interaction:()=>({mode:'diagnostic',scene:'ha_topology',revision:1}),
   document:{querySelectorAll:()=>[]}};
 vm.createContext(sandbox);

@@ -1,20 +1,17 @@
 """长会话与异常时序；检查状态/轨迹，模型及设备均为可控替身。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import random
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from approval_store import ApprovalStore
-from diagnostic_core import AuditStore
-from chat_model import ModelFailure
-from lab_workflow import WorkflowService
+from server.approval_store import ApprovalStore
+from devices.diagnostic_core import AuditStore
+from agent.chat_model import ModelFailure
+from legacy.lab_workflow import WorkflowService
 from tests.workflow_test_support import RunningApp
 from tests.ha_case_test_support import case_probe
-from unified_chat import run
+from legacy.unified_chat import run
 
 
 def general(context):

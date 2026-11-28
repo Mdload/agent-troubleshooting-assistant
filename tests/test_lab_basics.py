@@ -1,17 +1,14 @@
 """实验室基础知识的检索与正式接口验证；模型和设备均为替身。"""
-if not __package__:
-    import _bootstrap
-
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-import qa
-from diagnostic_core import AuditStore
-from knowledge_coverage import assess
-from lab_basics import BY_ID, SECTIONS, is_basics_query
-from question_routing import classify
-from unified_chat import run, search
+import retrieval.qa as qa
+from devices.diagnostic_core import AuditStore
+from retrieval.knowledge_coverage import assess
+from retrieval.lab_basics import BY_ID, SECTIONS, is_basics_query
+from legacy.question_routing import classify
+from legacy.unified_chat import run, search
 from tests.workflow_test_support import RunningApp
 
 

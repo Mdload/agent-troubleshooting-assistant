@@ -1,13 +1,10 @@
 """证据卡、检查目的和正式HTTP保留证据的回归；全部为合成替身。"""
-if not __package__:
-    import _bootstrap
-
 import copy
 import unittest
 from unittest.mock import Mock
-from chat_model import ModelFailure
-from diagnostic_report import build_report, investigation_plan
-from ha_croc_case import assess_case
+from agent.chat_model import ModelFailure
+from devices.diagnostic_report import build_report, investigation_plan
+from legacy.ha_croc_case import assess_case
 from tests.test_topology_evidence import pair_observations, SCOPE
 from tests.ha_case_test_support import case_probe, case_planner
 from tests.workflow_test_support import RunningApp

@@ -1,13 +1,10 @@
 """长对话自动接续：来源、改目标、撤回、过期、归属及在途守卫。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import unittest
 from unittest.mock import Mock,patch
-from rolling_context import summarize,select_entries,TTL
-from chat_model import make_model
-from approval_store import SINGLE_APPROVAL
+from legacy.rolling_context import summarize,select_entries,TTL
+from agent.chat_model import make_model
+from server.approval_store import SINGLE_APPROVAL
 from tests.workflow_test_support import RunningApp
 
 
@@ -58,7 +55,7 @@ class RollingSummaryTests(unittest.TestCase):
 
 class RollingHttpTests(unittest.TestCase):
     def setUp(self):
-        self.kdf=patch('user_accounts.ITERATIONS',1000);self.kdf.start()
+        self.kdf=patch('server.user_accounts.ITERATIONS',1000);self.kdf.start()
         self.planner=Mock(return_value=({'action':'answer','answer':'可以继续按当前学习目标练习，并核对每一步的输出。','refs':[],'basis':'general'},0))
         self.probe=Mock();self.client=RunningApp(self.planner,self.probe,lookup=lambda q:[]).__enter__()
         self.call('/api/account/register',{'username':'alice','password':'offline-only-password-123','allow_storage':True})

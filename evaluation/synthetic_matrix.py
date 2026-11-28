@@ -1,6 +1,6 @@
 """完整设备×检查矩阵；缺样本在模型调用前报错，不伪装成设备故障。"""
 import copy
-from device_tools import CHECKS
+from devices.device_tools import CHECKS
 
 # 冻结题库当时采集的三类状态。新工具不能反向要求旧样本编造日志。
 BASE_DEVICES = ('local-primary', 'local-backup', 'remote-primary', 'remote-backup')

@@ -5,7 +5,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from knowledge_modules import compile_archive
+from retrieval.knowledge_modules import compile_archive
 
 
 def rebuild(root=ROOT, check=False):

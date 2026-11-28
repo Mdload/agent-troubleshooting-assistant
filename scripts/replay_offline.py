@@ -5,8 +5,8 @@ from pathlib import Path
 import sys
 
 ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT/'evaluation'))
-from remote_replay import load_cases,replay
+sys.path.insert(0,str(ROOT))
+from evaluation.remote_replay import load_cases,replay
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)

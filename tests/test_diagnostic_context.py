@@ -1,14 +1,11 @@
-if not __package__:
-    import _bootstrap
-
-from chat_model import ANSWER_REASONING_POLICY
+from agent.chat_model import ANSWER_REASONING_POLICY
 """诊断投影和因果边界回归；禁止真实模型或设备访问。"""
 import copy
 import json
 import unittest
 from unittest.mock import Mock
-from chat_model import make_model, PROMPT, KNOWLEDGE_PROMPT
-from diagnostic_context import model_view, compact_logs, causal_issues, DIAGNOSTIC_PROMPT
+from agent.chat_model import make_model, PROMPT, KNOWLEDGE_PROMPT
+from devices.diagnostic_context import model_view, compact_logs, causal_issues, DIAGNOSTIC_PROMPT
 from tests.workflow_test_support import RunningApp
 from tests.ha_case_test_support import case_probe
 

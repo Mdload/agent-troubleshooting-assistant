@@ -1,13 +1,10 @@
 """跨模块回归：来源生效周期、运输提示、文字资格和有限历史视图。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import unittest
 from unittest.mock import Mock,patch
 import app
-from context_history import prepare_history,EXCERPT_NOTE
-from chat_model import make_model
+from legacy.context_history import prepare_history,EXCERPT_NOTE
+from agent.chat_model import make_model
 import tests.test_experience_web as experience_tests
 QUESTION=experience_tests.QUESTION
 from tests.workflow_test_support import RunningApp
@@ -43,7 +40,7 @@ class SourceLifecycleTests(unittest.TestCase):
 
 class MemoryPromptContractTests(unittest.TestCase):
     def test_selected_memory_policy_reaches_both_actual_qa_payloads_only_when_used(self):
-        from chat_model import TASK_MEMORY_POLICY
+        from agent.chat_model import TASK_MEMORY_POLICY
         payloads=[]
         class Response:
             status=200
@@ -72,7 +69,7 @@ class HistoryBudgetTests(unittest.TestCase):
             with self.subTest(value_type=type(invalid)),self.assertRaises(ValueError):prepare_history(invalid)
     def test_save_restore_followup_keeps_eligibility_and_reports_excerpt(self):
         planner=Mock(return_value=({'action':'answer','answer':'offline answer','refs':[],'basis':'general'},2))
-        with patch('user_accounts.ITERATIONS',1000),RunningApp(planner,Mock(),lookup=lambda q:[]) as client:
+        with patch('server.user_accounts.ITERATIONS',1000),RunningApp(planner,Mock(),lookup=lambda q:[]) as client:
             def call(*args):return client.call(*args)
             call('/api/account/register',{'username':'budget_user','password':'offline-only-password-123','allow_storage':True})
             messages=[{'role':'user','content':'Python '+'x'*3500,'context':False,'contextRevision':0}]
@@ -88,7 +85,7 @@ class HistoryBudgetTests(unittest.TestCase):
             bad=dict(messages[0],context='yes')
             self.assertEqual(call('/api/history',{'id':'bad','title':'bad','messages':[bad],'expected_revision':0})[0],400)
     def test_context_metadata_upgrade_does_not_invalidate_same_memory_text(self):
-        from task_memory import fingerprint
+        from legacy.task_memory import fingerprint
         base=[{'role':'user','content':'same goal'}]
         self.assertEqual(fingerprint(base),fingerprint([dict(base[0],context=False,contextRevision=2)]))
 

@@ -1,7 +1,4 @@
 """Isolated file store, model tool and authenticated HTTP checks."""
-if not __package__:
-    import _bootstrap
-
 import json
 import os
 from pathlib import Path
@@ -11,9 +8,9 @@ from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.request import Request
 
-import agent_skills
-from agent_memory import AgentMemoryStore
-from agent_v2 import AutonomousAgent
+import agent.agent_skills as agent_skills
+from agent.agent_memory import AgentMemoryStore
+from agent.agent_v2 import AutonomousAgent
 import app
 from tests.test_agent_v2 import FAKE_CONFIG
 from tests.workflow_test_support import RunningApp
@@ -128,9 +125,3 @@ class AgentSkillTests(unittest.TestCase):
             agent_skills.write_skill(**SAMPLE)
             self.assertEqual(server.call(legacy_path, {'action': 'delete_skill', 'slug': 'example'})[0], 200)
             self.assertEqual(server.call('/api/skills')[1], {'skills': [], 'summary': ''})
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

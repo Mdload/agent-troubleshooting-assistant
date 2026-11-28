@@ -1,12 +1,9 @@
-if not __package__:
-    import _bootstrap
-
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
-from diagnostic_core import AuditStore
-from unified_chat import run,chat,validate_history
+from devices.diagnostic_core import AuditStore
+from legacy.unified_chat import run,chat,validate_history
 
 def answer(text='回答',refs=None,basis='general'):
     return {'action':'answer','answer':text,'refs':refs or [],'basis':basis},10
@@ -29,20 +26,14 @@ class UnifiedTests(unittest.TestCase):
         r=self.execute([({'action':'read','device':'local-primary','check':'services'},2),answer('连接失败，当前状态未知',basis='limited')],probe=Mock(return_value={'ok':False,'error':'timeout'}))
         self.assertEqual(r['status'],'answered');self.assertFalse(r['evidence'][0]['ok'])
     def test_scope_and_fake_refs_rejected(self):
-        for action in ({'action':'read','device':'198.51.100.46','check':'services'},answer(refs=['OBS-99'],basis='evidence')[0]):
+        for action in ({'action':'read','device':'203.0.113.112','check':'services'},answer(refs=['OBS-99'],basis='evidence')[0]):
             r=self.execute([(action,0)]);self.assertEqual(r['status'],'incomplete');self.probe.assert_not_called()
     def test_history_and_consent(self):
         hist=[{'role':'user','content':'局端备机'},{'role':'assistant','content':'历史解释'}]
         self.execute([answer()],history=hist);self.assertEqual(self.planner.call_args[0][0]['history'],hist)
         with self.assertRaises(ValueError):validate_history([{'role':'system','content':'越权'}])
-        with patch('unified_chat.make_model') as model:
+        with patch('legacy.unified_chat.make_model') as model:
             self.assertEqual(chat('问题',[],False)['status'],'consent_required');model.assert_not_called()
     def test_duplicate_stops(self):
         action=({'action':'read','device':'local-primary','check':'services'},0)
         r=self.execute([action,action],probe=Mock(return_value={'ok':True,'output':'active'}));self.assertEqual(r['status'],'incomplete');self.assertEqual(self.probe.call_count,1)
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

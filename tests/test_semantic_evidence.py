@@ -1,12 +1,9 @@
 """Finite historical-claim and selection regressions from serialized R1 evidence."""
-if not __package__:
-    import _bootstrap
-
 import unittest
 
-from investigation_context import recall_history, analysis_device_focus
-from unified_chat import historical_claim_issues
-from measurement_evidence import measurement_claim_issues, project_measurement
+from legacy.investigation_context import recall_history, analysis_device_focus
+from legacy.unified_chat import historical_claim_issues
+from devices.measurement_evidence import measurement_claim_issues, project_measurement
 
 
 class HistoricalEnumerationTests(unittest.TestCase):

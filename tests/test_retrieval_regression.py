@@ -1,8 +1,5 @@
-if not __package__:
-    import _bootstrap
-
 import unittest
-import qa
+import retrieval.qa as qa
 
 class RetrievalRegression(unittest.TestCase):
     def test_additional_wordings(self):
@@ -41,9 +38,3 @@ class RetrievalRegression(unittest.TestCase):
             for hit in qa.retrieve('局端健康路由和Recv-Q问题',group=group):
                 groups=hit['case']['device_groups']
                 self.assertTrue(not groups or group in groups)
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

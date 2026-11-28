@@ -1,13 +1,10 @@
 """经验提炼的来源、审核、适用范围与隐私边界；全程本地无模型。"""
-if not __package__:
-    import _bootstrap
-
 import copy
 import json
 from pathlib import Path
 import tempfile
 import unittest
-from experience_learning import collect, review, approved_records, retrieve, write_new
+from legacy.experience_learning import collect, review, approved_records, retrieve, write_new
 
 
 class ExperienceLearningTests(unittest.TestCase):

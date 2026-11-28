@@ -1,7 +1,4 @@
 """新题评测工具不将真值传入模型，保持原运行权限与隔离。"""
-if not __package__:
-    import _bootstrap
-
 import copy
 from pathlib import Path
 import tempfile

@@ -1,15 +1,12 @@
 """实验室口令仅用于注册；真实临时HTTP/SQLite，无模型或设备调用。"""
-if not __package__:
-    import _bootstrap
-
 import hashlib,unittest
 from unittest.mock import Mock,patch
 from tests.workflow_test_support import RunningApp
-from user_accounts import AccountStore,AccountError
+from server.user_accounts import AccountStore,AccountError
 
 class LabRegistrationTests(unittest.TestCase):
  def setUp(self):
-  self.patch=patch('user_accounts.ITERATIONS',1000);self.patch.start()
+  self.patch=patch('server.user_accounts.ITERATIONS',1000);self.patch.start()
   self.client=RunningApp(planner=Mock(),probe=Mock(),registration_password=None).__enter__()
   self.accounts=self.client.server.get_accounts()
   self.original_token,self.original=self.accounts.register('原有用户','1',True)
@@ -57,7 +54,7 @@ class LabRegistrationTests(unittest.TestCase):
   def calculate(*args):
    if args[1]==b'new-account-password' and not changed[0]:changed[0]=True;self.accounts.configure_registration('new-code',1)
    return real(*args)
-  with patch('user_accounts.hashlib.pbkdf2_hmac',side_effect=calculate):
+  with patch('server.user_accounts.hashlib.pbkdf2_hmac',side_effect=calculate):
    with self.assertRaisesRegex(AccountError,'lab_password_changed'):self.accounts.register_invited('race','new-account-password',True,'old-code')
   with self.accounts.connect() as db:self.assertIsNone(db.execute('SELECT id FROM user_accounts WHERE name=?',('race',)).fetchone())
  def test_settings_require_live_account_csrf_and_same_origin(self):
@@ -74,7 +71,7 @@ class LabRegistrationTests(unittest.TestCase):
   def calculate(*args):
    if args[1]==b'new-lab-code':self.accounts.logout(self.original_token)
    return real(*args)
-  with patch('user_accounts.hashlib.pbkdf2_hmac',side_effect=calculate):
+  with patch('server.user_accounts.hashlib.pbkdf2_hmac',side_effect=calculate):
    with self.assertRaisesRegex(AccountError,'account_session_expired'):
     self.accounts.configure_registration('new-lab-code',0,self.original_token)
   self.assertFalse(self.accounts.registration()['configured'])

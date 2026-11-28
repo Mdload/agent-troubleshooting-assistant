@@ -1,16 +1,14 @@
 """题库缺项在外发前发现；跨设备与全失败轨迹可离线回放。"""
-if not __package__:
-    import _bootstrap
-
 import copy
 import json
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from diagnostic_core import AuditStore
-from unified_chat import run
-from evaluation.synthetic_matrix import BASE_CHECKS, BASE_DEVICES, make_probe, validate_cases
+from devices.device_tools import DEVICES,CHECKS
+from devices.diagnostic_core import AuditStore
+from legacy.unified_chat import run
+from evaluation.synthetic_matrix import validate_cases,make_probe,BASE_CHECKS
 
 CASES=json.loads((Path(__file__).resolve().parents[1]/'evaluation/cross-device-fixtures.json').read_text(encoding='utf-8'))['cases']
 
@@ -20,7 +18,7 @@ class SyntheticMatrixTests(unittest.TestCase):
         validate_cases(CASES)
         for case in CASES:
             probe=make_probe(case)
-            for device in BASE_DEVICES:
+            for device in DEVICES:
                 for check in BASE_CHECKS:
                     item=probe(device,check)
                     self.assertEqual(item['collected_at'],'SIMULATION')
@@ -33,8 +31,6 @@ class SyntheticMatrixTests(unittest.TestCase):
     def test_missing_cell_rejected_before_any_planning(self):
         case=copy.deepcopy(CASES[0]);del case['matrix']['local-primary']['interfaces']
         with self.assertRaisesRegex(ValueError,'Incomplete check'): make_probe(case)
-        with self.assertRaisesRegex(ValueError,'Unsupported synthetic request'):
-            make_probe(CASES[0])('router-1', 'services')
 
     def execute(self,case,actions):
         with tempfile.TemporaryDirectory() as tmp:

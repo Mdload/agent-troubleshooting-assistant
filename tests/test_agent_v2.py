@@ -1,7 +1,4 @@
 """Agent v2 核心能力离线回归测试：自主多步推理、首次授权后直通、写操作保护、连续上下文、长期记忆与自学习。"""
-if not __package__:
-    import _bootstrap
-
 import http.client
 import json
 from pathlib import Path
@@ -11,10 +8,11 @@ import time
 import unittest
 from unittest.mock import Mock
 
-from agent_memory import AgentMemoryStore
-from agent_v2 import AutonomousAgent, ToolsUnsupportedError, _display_time, _human_step, _polish_answer
-from agent_v2 import _manual_commands
-from device_registry import DEVICES, checks_for
+from agent.agent_memory import AgentMemoryStore
+from agent.agent_v2 import AutonomousAgent, ToolsUnsupportedError, _display_time, _human_step, _polish_answer
+from agent.agent_v2 import _manual_commands
+from devices.device_registry import DEVICES, checks_for
+from agent.repair_proposals import RepairProposals
 import app
 
 
@@ -32,6 +30,108 @@ class AgentV2CoreTests(unittest.TestCase):
 
     def tearDown(self):
         self.tmp.cleanup()
+
+    def test_stale_allowlist_refusal_retries_through_live_policy(self):
+        refusal = dict(content='旧白名单不允许重启 MySQL。')
+        proposal = {'id': 'repair', 'name': 'propose_config_change', 'arguments': {
+            'device': 'router-1', 'action': 'restart_service', 'target': 'mysql',
+        }}
+        for second, expected in (
+            (dict(tool_calls=[proposal]), 'pending_approval'),
+            (refusal, None),
+        ):
+            with self.subTest(expected=expected):
+                llm = Mock(side_effect=[refusal, second, dict(content='等待批准。')])
+                store = RepairProposals(Path(self.tmp.name) / 'proposals.sqlite3')
+                agent = AutonomousAgent(self.memory, proposal_store=store, llm_client=llm,
+                                        config_fn=lambda: FAKE_CONFIG, background_learning=False)
+                result = agent.chat('owner', 'mysql-repair', '请重启 Router1 的 MySQL',
+                                    allow_repair_proposals=True)
+                if expected:
+                    self.assertEqual(result['proposed_changes'][0]['status'], expected)
+                else:
+                    self.assertEqual(result['answer'], '本轮未提交修复提案，服务端尚未裁决。')
+                    self.assertEqual(llm.call_count, 2)
+
+    def test_repair_loop_requires_fresh_evidence_and_follows_failed_service_into_logs(self):
+        device = 'local-primary'
+        target = 'croc-sar.service'
+        calls = []
+        repaired = False
+
+        def probe(device, check):
+            calls.append(check)
+            return {'ok': True, 'output': {
+                'services': f'Id={target}\n' + ('ActiveState=active\nSubState=running\n' if repaired
+                            else 'ActiveState=failed\nSubState=failed\n'),
+                'interfaces': 'tun16 UNKNOWN 203.0.113.1/24',
+                'logs': '启动后退出',
+                'ping_tunnel_peer': 'ICMP_TX=3\nICMP_RX=3\n',
+            }[check]}
+
+        def repair(device, action, target):
+            nonlocal repaired
+            repaired = action == 'start_service'
+            return {'ok': True, 'return_code': 0}
+
+        def inspect(check):
+            return {'id': check, 'name': 'inspect_device', 'arguments': {'device': device, 'check': check}}
+
+        def propose(action):
+            return {'id': action, 'name': 'propose_config_change',
+                    'arguments': dict(device=device, action=action, target=target)}
+
+        def response(*tools, content=''):
+            return dict(content=content, tool_calls=list(tools))
+
+        llm = Mock(side_effect=[
+            response(propose('restart_service')),
+            response(content='已修复。'),
+            response(inspect('services'), inspect('interfaces')),
+            response(content='已修复。'),
+            response(inspect('logs')),
+            response(propose('start_service')),
+            response(inspect('services'), inspect('interfaces'), inspect('ping_tunnel_peer')),
+            response(content='服务正在运行，隧道探测三次收到回复。'),
+        ])
+        self.memory.grant_devices('owner', [device])
+        agent = AutonomousAgent(self.memory, probe_fn=probe, repair_fn=repair, llm_client=llm,
+                                proposal_store=RepairProposals(Path(self.tmp.name)/'repairs.sqlite3'),
+                                config_fn=lambda: FAKE_CONFIG, max_steps=3, background_learning=False)
+        result = agent.chat('owner', 'conversation', '恢复隧道', execution_mode='auto', allow_repair_proposals=True)
+        self.assertEqual(result['status'], 'answered')
+        self.assertEqual(result['answer'], '服务正在运行，隧道探测三次收到回复。')
+        self.assertEqual(calls.count('services'), 4)  # Two preliminary checks and two fresh checks
+        self.assertLess(calls.index('logs'), calls.index('ping_tunnel_peer'))
+        self.assertEqual(len(result['proposed_changes']), 2)
+
+    def test_repair_loop_blocks_failed_action_hidden_in_a_different_batch(self):
+        device = 'local-primary'
+        args = dict(device=device, action='restart_service', target='croc-sar.service')
+        proposal = {'id': 'first', 'name': 'propose_config_change', 'arguments': args}
+        repeat = dict(proposal, id='repeat', arguments={'steps': [
+            dict(device=device, action='start_service', target='keepalived.service'), args]})
+        llm = Mock(side_effect=[
+            dict(tool_calls=[proposal]),
+            dict(tool_calls=[repeat]),
+            dict(tool_calls=[{'id': check, 'name': 'inspect_device', 'arguments': dict(device=device, check=check)}
+                             for check in ('services', 'interfaces', 'logs')]),
+            dict(tool_calls=[repeat]),
+            dict(content='现场还需检查服务配置。'),
+        ])
+        self.memory.grant_devices('owner', [device])
+        repair = Mock(return_value={'ok': False, 'return_code': 1})
+        def probe(device, check):
+            return {'ok': True, 'output': 'Id=croc-sar.service\nActiveState=failed\nSubState=failed\n'
+                    if check == 'services' else '故障证据'}
+        agent = AutonomousAgent(self.memory, probe_fn=probe, repair_fn=repair, llm_client=llm,
+                                proposal_store=RepairProposals(Path(self.tmp.name)/'repairs.sqlite3'),
+                                config_fn=lambda: FAKE_CONFIG, background_learning=False)
+        result = agent.chat('owner', 'conversation', '恢复隧道', execution_mode='auto', allow_repair_proposals=True)
+        self.assertEqual(result['proposed_changes'][0]['status'], 'failed')
+        self.assertEqual(result['proposed_changes'][1]['block_reason'], 'repair_action_already_proposed')
+        self.assertIn('复查仍发现异常', result['answer'])
+        repair.assert_called_once_with(device, args['action'], args['target'])
 
     def test_first_device_access_asks_once_then_direct_read_only_and_multi_step_reasoning(self):
         probe_calls = []
@@ -291,8 +391,8 @@ class AgentV2CoreTests(unittest.TestCase):
         self.assertTrue(any(m['title'] == '远端无路由先查策略表' for m in recalled))
 
     def test_http_end_to_end_chat_grant_and_memory_management(self):
-        from approval_store import ApprovalStore
-        from lab_workflow import WorkflowService
+        from server.approval_store import ApprovalStore
+        from legacy.lab_workflow import WorkflowService
 
         store = ApprovalStore(Path(self.tmp.name) / 'workflow.sqlite3')
         workflow = WorkflowService(store, probe=lambda d, c: {'ok': True, 'output': 'ACTIVE', 'duration_ms': 10})

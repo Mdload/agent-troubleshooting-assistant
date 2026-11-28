@@ -1,7 +1,4 @@
 """Conversation continuity through the real HTTP entry, with isolated tools/models."""
-if not __package__:
-    import _bootstrap
-
 import threading
 import unittest
 from unittest.mock import Mock
@@ -185,7 +182,7 @@ class DiagnosticContinuityTests(unittest.TestCase):
         self.assertEqual(('remote-backup','policy_routes'), self.reads[-1])
 
     def test_dual_path_restrictions_are_not_turned_into_extra_probes(self):
-        from diagnostic_intake import bounded_request
+        from devices.diagnostic_intake import bounded_request
         for question in ('从局端主机 ping 远端主机的管理地址和隧道，只测管理地址',
                          '从局端主机 ping 远端主机的管理地址和隧道，不测隧道'):
             with self.subTest(question=question):

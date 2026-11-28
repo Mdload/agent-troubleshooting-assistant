@@ -1,20 +1,17 @@
 """资料范围与正式入口的离线开发检查；不等于真人问答正确率。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
-import qa
-from knowledge_coverage import SUPPORT, HISTORY_TOPICS, assess, requirements, answer_issue
-from diagnostic_core import AuditStore
-from unified_chat import run, search
+import retrieval.qa as qa
+from retrieval.knowledge_coverage import SUPPORT, HISTORY_TOPICS, assess, requirements, answer_issue
+from devices.diagnostic_core import AuditStore
+from legacy.unified_chat import run, search
 from tests.workflow_test_support import RunningApp
-from question_routing import classify
-from lab_basics import BY_ID
-from chat_model import ModelFailure
+from legacy.question_routing import classify
+from retrieval.lab_basics import BY_ID
+from agent.chat_model import ModelFailure
 
 
 def action(text='一般原理：需核对配置和启动入口，实验室具体值未知。', refs=None, basis='limited'):
@@ -180,7 +177,7 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(assess('这套系统的许可证是什么', [])['status'], 'missing')
 
     def test_legacy_ask_cannot_guess_missing_port_or_restart_steps(self):
-        with patch('qa.ask_model') as model:
+        with patch('retrieval.qa.ask_model') as model:
             result = qa.answer('局端Croc监听什么端口，如何重启', allow_new_topology=True)
         self.assertEqual(result['kind'], 'insufficient')
         self.assertIn('操作步骤', result['answer'])

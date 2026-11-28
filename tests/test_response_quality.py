@@ -1,7 +1,4 @@
-if not __package__:
-    import _bootstrap
-
-from chat_model import ANSWER_REASONING_POLICY
+from agent.chat_model import ANSWER_REASONING_POLICY
 """回答可读性、工具规划视图及运输指标的离线行为验证。"""
 import copy
 import json
@@ -11,16 +8,16 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock
 
-from chat_model import make_model, select_prompt, PROMPT, KNOWLEDGE_PROMPT, LEARNING_PROMPT, ModelFailure
-from device_tools import tool_catalog
-from diagnostic_core import AuditStore
+from agent.chat_model import make_model, select_prompt, PROMPT, KNOWLEDGE_PROMPT, LEARNING_PROMPT, ModelFailure
+from devices.device_tools import tool_catalog
+from devices.diagnostic_core import AuditStore
 from evaluation.ha_model import FixtureResponse, isolated_io
 from evaluation.representative import run_case, fixture_probe
-from mechanism_guard import contradicted_constraints, observation_constraints
-from unified_chat import available_catalog, run
+from legacy.mechanism_guard import contradicted_constraints, observation_constraints
+from legacy.unified_chat import available_catalog, run
 from tests.workflow_test_support import RunningApp
-from knowledge_coverage import assess
-import qa
+from retrieval.knowledge_coverage import assess
+import retrieval.qa as qa
 
 
 def answer(text='一般原理说明。'):
@@ -177,7 +174,7 @@ class EvaluationTransportTests(unittest.TestCase):
         self.assertEqual(adapter.last_metrics['finish_reason'],'length')
         self.assertEqual(adapter.last_metrics['reasoning_tokens'],55)
         self.assertEqual(adapter.last_metrics['completion_tokens'],60)
-        from model_trace import safe_metrics
+        from agent.model_trace import safe_metrics
         recorded=safe_metrics(adapter.last_metrics)
         self.assertEqual(recorded['prompt_tokens'],40)
         self.assertEqual(recorded['response_content_bytes'],21)

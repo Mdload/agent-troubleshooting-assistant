@@ -8,7 +8,7 @@ function fixture({material,answerStatus='answered',modelTrace,evidenceScope}={})
  const sandbox={busy:false,modeLoading:false,accountLoading:false,accountExpired:false,account:null,accountEpoch:1,requestBusy:false,csrf:'offline-token',
   current:()=>chat,spaceOf:()=> 'general',interaction:()=>({mode:'qa',revision:0}),inputLength:s=>[...s].length,
   el:id=>{assert.notEqual(id,'allow-context','移除勾选后仍访问旧控件');if(!nodes.has(id))nodes.set(id,{value:'',checked:false,textContent:'',disabled:false,focus(){}});return nodes.get(id);},
-  save(){},render(){},resizeQuestion(){},startLiveProgress(){return ()=>{};},openMaterialEditor(){throw Error('unexpected material conversion');},
+  save(){},render(){},resizeQuestion(){},openMaterialEditor(){throw Error('unexpected material conversion');},
   fetch:async(url,options)=>{requests.push({url,body:JSON.parse(options.body)});return {ok:true,status:200,json:async()=>({status:answerStatus,answer:'offline fixture',model_trace:modelTrace,evidence_scope:evidenceScope})};}};
  vm.createContext(sandbox);vm.runInContext(history+'\n'+submit,sandbox);sandbox.el('question').value='Python列表是什么';
  return {sandbox,requests,chat,send:()=>sandbox.el('form').onsubmit({preventDefault(){}})};

@@ -8,10 +8,10 @@ from urllib.request import Request, build_opener, ProxyHandler, HTTPCookieProces
 from urllib.error import HTTPError
 from http.cookiejar import CookieJar
 import app
-from admin_auth import AdminAuth, password_record
-from approval_store import ApprovalStore, DIAGNOSTIC_DATA_USE
-from lab_workflow import WorkflowService
-from device_tools import DEVICES
+from server.admin_auth import AdminAuth, password_record
+from server.approval_store import ApprovalStore, DIAGNOSTIC_DATA_USE
+from legacy.lab_workflow import WorkflowService
+from devices.device_tools import DEVICES
 
 TEST_PASSWORD = 'test-only-password'
 TEST_LAB_PASSWORD = 'offline-lab-registration'

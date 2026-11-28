@@ -12,10 +12,10 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import app
-import chat_model
-import qa
+from agent import chat_model
+from retrieval import qa
 from evaluation.ha_model import isolated_io
-from model_trace import safe_metrics
+from agent.model_trace import safe_metrics
 from tests.workflow_test_support import RunningApp
 
 

@@ -1,12 +1,9 @@
 """真实HTTP线程下检查只读进度、归属隔离、取消和重启恢复。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import threading
 import unittest
 from contextlib import closing
-from approval_store import ApprovalStore, TaskError
+from server.approval_store import ApprovalStore, TaskError
 from tests.workflow_test_support import RunningApp, current_probe_fixture
 from tests.ha_case_test_support import case_probe
 

@@ -1,15 +1,23 @@
-// 普通账号只保存文字历史；不自动上传旧访客记录，不在localStorage保存账号聊天或密码。
+// 账号历史包含正文和服务器签发的建议卡引用。
 let historyQueue=Promise.resolve();
 let accountSubmitting=false;
 let labRevision=0,labSubmitting=false;
-function historySnapshot(chat){return {title:chat.title,messages:chat.messages.filter(m=>!m.recoveredTask).map(m=>({role:m.role,content:m.content,context:m.context===true,
-  ...(Number.isInteger(m.contextRevision)&&m.contextRevision>=0?{contextRevision:m.contextRevision}:{})}))};}
+function historySnapshot(chat){
+  const messages=chat.messages.filter(m=>!m.recoveredTask).map(m=>{
+    const ids=(m.result?.proposed_changes||[]).map(card=>card.proposal_id).filter(Boolean);
+    return {role:m.role,content:m.content,context:m.context===true,
+      ...(Number.isInteger(m.contextRevision)&&m.contextRevision>=0?{contextRevision:m.contextRevision}:{}),
+      ...(ids.length?{proposed_changes:ids}:{})};
+  });
+  return {title:chat.title,messages};
+}
 function resetIdentityView(){
   accountEpoch++;
   for(const id of [...taskPollers.keys()])stopWatchingTask(id);
   for(const run of chatRuns.values())run.finish?.();
   chatRuns.clear();answerReveal=null;
   chats=[];activeId=null;modeLoading=false;
+  executionMode='approval';
   resetChatSpaces();
   el('question').value='';el('admin-password').value='';
   el('repair-admin-password').value='';
@@ -33,6 +41,7 @@ async function loadHistoryChat(chat){
   chat.title=data.title;chat.updated=data.updated;chat.serverRevision=data.revision;
   chat.legacyHistory=data.messages.some(m=>typeof m.context!=='boolean');
   chat.messages=data.messages.map(m=>({role:m.role,content:m.content,context:m.context===true,
+    ...(m.proposed_changes?.length?{result:{proposed_changes:m.proposed_changes}}:{}),
     ...(Number.isInteger(m.contextRevision)&&m.contextRevision>=0?{contextRevision:m.contextRevision}:{})}));
   chat.loaded=true;chat.restored=true;chat.lastQueued=JSON.stringify(historySnapshot(chat));
 }
@@ -76,7 +85,7 @@ function queueHistorySaves(){
 }
 async function deleteHistoryChat(chat){
   await historyQueue;
-  if(chat.serverRevision)await api('/api/history/'+encodeURIComponent(chat.id)+'/delete',{expected_revision:chat.serverRevision});
+  if(Number.isInteger(chat.serverRevision))await api('/api/history/'+encodeURIComponent(chat.id)+'/delete',{expected_revision:chat.serverRevision});
   chat.syncBlocked=true;
 }
 function showAccount(){

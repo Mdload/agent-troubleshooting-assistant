@@ -1,14 +1,11 @@
 """真实HTTP的连续问答与统一入口回归；模型/读取均为替身。"""
-if not __package__:
-    import _bootstrap
-
 import unittest
 from unittest.mock import Mock
-import qa
-import topology_entities as entities
-from knowledge_coverage import assess,answer_issue
-from question_routing import classify
-from unified_chat import search,prefetch_query
+import retrieval.qa as qa
+import retrieval.topology_entities as entities
+from retrieval.knowledge_coverage import assess,answer_issue
+from legacy.question_routing import classify
+from legacy.unified_chat import search,prefetch_query
 from tests.workflow_test_support import RunningApp,fake_planner,current_probe_fixture
 
 class EntityTests(unittest.TestCase):
@@ -220,9 +217,3 @@ class AssistantHttpTests(unittest.TestCase):
         self.assertEqual(self.client.resume(task['id'])[0],409)
         self.assertEqual(self.client.store.get(task['id'])['status'],'cancelled')
         self.probe.assert_not_called()
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

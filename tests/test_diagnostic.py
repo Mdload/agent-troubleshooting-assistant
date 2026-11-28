@@ -1,6 +1,3 @@
-if not __package__:
-    import _bootstrap
-
 import json
 import sqlite3
 import subprocess
@@ -8,8 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from diagnostic_core import AuditStore, run_diagnosis
-from device_tools import build_command, probe
+from devices.diagnostic_core import AuditStore, run_diagnosis
+from devices.device_tools import build_command, probe
 
 class DiagnosticTests(unittest.TestCase):
     def setUp(self):
@@ -32,7 +29,7 @@ class DiagnosticTests(unittest.TestCase):
         self.assertEqual(len([r for r in self.audit.read(result['task']) if r[1]=='observation']),2)
 
     def test_unregistered_target_and_commands_rejected(self):
-        for device,check in [('198.51.100.46','services'),('local-primary','reboot'),('local-primary; id','services')]:
+        for device,check in [('203.0.113.112','services'),('local-primary','reboot'),('local-primary; id','services')]:
             with self.assertRaises(ValueError): build_command(device,check)
         tool=Mock()
         result=run_diagnosis('检查',lambda c:{'action':'check','device':'local-backup','check':'services'},tool,self.audit,['local-primary'])
@@ -72,9 +69,3 @@ class DiagnosticTests(unittest.TestCase):
         args=fake.call_args[0][0]
         self.assertEqual(args[:4],['sudo','-n','-H','/usr/bin/ssh'])
         self.assertNotIn('shell',fake.call_args[1])
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

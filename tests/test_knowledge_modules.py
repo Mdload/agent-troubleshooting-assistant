@@ -1,16 +1,13 @@
 """模块主入口、条件隔离、按需来源和已审经验更新的离线回归。"""
-if not __package__:
-    import _bootstrap
-
 import copy
 import json
 from pathlib import Path
 import unittest
 from unittest.mock import patch
-import qa
-from knowledge_modules import compile_archive, load_corpus, clean_body, model_modules, module_document
-from response_contract import response_policy
-from unified_chat import search, prefetch_query
+import retrieval.qa as qa
+from retrieval.knowledge_modules import compile_archive, load_corpus, clean_body, model_modules, module_document
+from legacy.response_contract import response_policy
+from legacy.unified_chat import search, prefetch_query
 from tests.test_model_protocol import adapter
 from tests.workflow_test_support import RunningApp
 
@@ -35,7 +32,7 @@ class ModuleKnowledgeTests(unittest.TestCase):
         self.assertIn('203.0.113.134',payload['messages'][1]['content'])
 
     def test_topology_rules_reach_intake_and_diagnostic_model_prompts(self):
-        from chat_model import select_prompt
+        from agent.chat_model import select_prompt
         for view in (
             {'workflow_policy':{'mode':'knowledge','domain':'topology','chat_space':'ha'},'diagnostic_options':{}},
             {'workflow_policy':{'mode':'diagnostic','domain':'topology'}},
@@ -166,15 +163,10 @@ class ModuleKnowledgeTests(unittest.TestCase):
         self.assertIn('本次资源状态',history['knowledge_modules'][0]['sections'][0]['content'])
 
     def test_old_connection_and_process_observations_are_not_current_model_input(self):
-        from knowledge_freshness import source_for_model,historical_request
+        from retrieval.knowledge_freshness import source_for_model,historical_request
         for ident,old in [('KB-002','现场在6个源地址看到TCP9965 ESTAB'),
                           ('KB-005','脚本哈希在本轮一致'),('KB-009','MySQL/nginx/node进程已看到')]:
-            excerpts = {
-                'KB-002': old+'，局端也观察到对应连接。',
-                'KB-005': '- 两局端的health/role/watchdog脚本哈希在本轮一致；两远端health/check_croc_links哈希一致。未比较所有文件。',
-                'KB-009': old,
-            }
-            source={'id':ident,'historical_finding':'合成示例。\n'+excerpts[ident]}
+            source=next(row for row in qa.RECORDS if row['id']==ident)
             self.assertIn(old,source['historical_finding'])
             self.assertNotIn(old,source_for_model(source,'解释两端程序怎样配合')['historical_finding'])
             self.assertEqual(source_for_model(source,'回顾2026-09-28当时的状态'),source)

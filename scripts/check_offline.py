@@ -14,6 +14,15 @@ from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
+EXTRA_TESTS = ['tests.test_repair_permissions','tests.test_lab_registration','tests.test_public_http','tests.test_repair_control','tests.test_repair_entry','tests.test_selection_explain','tests.test_lab_workflow','tests.test_app_workflow','tests.test_current_evidence',
+    'tests.test_conversation_topic','tests.test_knowledge_coverage','tests.test_lab_basics',
+    'tests.test_knowledge_catalog','tests.test_diagnostic_logs','tests.test_interaction_mode',
+    'tests.test_device_registry','tests.test_ha_croc_case','tests.test_ha_model_evaluation',
+    'tests.test_workflow_package','tests.test_diagnostic_context','tests.test_diagnostic_progress','tests.test_robustness',
+    'tests.test_experience_learning','tests.test_representative_evaluation','tests.test_response_quality','tests.test_experience_web',
+    'tests.test_model_availability','tests.test_result_summary','tests.test_topology_evidence','tests.test_adversarial_quality',
+    'tests.test_knowledge_modules','tests.test_training_data','tests.test_simulated_user_regression','tests.test_reliability_learning',
+    'tests.test_diagnostic_report','tests.test_model_protocol','tests.test_snapshot_comparison','tests.test_accounts_history','tests.test_text_materials','tests.test_investigation_history','tests.test_investigation_learning','tests.test_diagnostic_continuity','tests.test_investigation_context','tests.test_semantic_evidence','tests.test_task_memory','tests.test_robustness_fixes','tests.test_data_recovery','tests.test_context_quality','tests.test_conversation_rework','tests.test_answer_contract','tests.test_request_limits','tests.test_single_approval','tests.test_investigation_stages','tests.test_business_path','tests.test_rolling_context','tests.test_public_lookup','tests.test_execution_workflow','tests.test_diagnostic_dialogues','tests.test_stateful_intake','tests.test_extended_diagnostics']
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
@@ -22,6 +31,10 @@ def main():
     output=Path(args.output).resolve() if args.output else None
     if output and output.exists():
         parser.error('结果已存在，请使用新文件路径')
+    manifest=json.loads((ROOT/'scripts/test-suite.json').read_text(encoding='utf-8'))
+    missing=[name for name in manifest['modules'] if not (ROOT/(name.replace('.', '/')+'.py')).is_file()]
+    if missing:
+        parser.error('测试模块缺失：'+','.join(missing))
     original_connect=socket.socket.connect
     original_popen=subprocess.Popen
     def offline_connect(sock,address):
@@ -51,7 +64,11 @@ def main():
     old_dir=os.getcwd()
     os.chdir(str(ROOT))
     try:
-        suite = unittest.defaultTestLoader.discover(str(ROOT / 'tests'), top_level_dir=str(ROOT), pattern='test_*.py')
+        suite=unittest.defaultTestLoader.loadTestsFromNames(manifest['modules'])
+        discovered=suite.countTestCases()
+        if discovered!=manifest['expected_tests']:
+            raise RuntimeError('Expected %s tests; discovered %s'%(manifest['expected_tests'],discovered))
+        suite.addTests(unittest.defaultTestLoader.loadTestsFromNames(EXTRA_TESTS))
         with patch('builtins.open', guard_private_open(builtins.open)), patch('io.open', guard_private_open(io.open)):
             result=unittest.TextTestRunner(verbosity=2).run(suite)
     finally:

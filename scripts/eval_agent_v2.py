@@ -507,9 +507,9 @@ def main():
         guards.enter_context(patch.object(socket, 'getaddrinfo', forbidden))
         guards.enter_context(patch.object(subprocess, 'Popen', forbidden))
         guards.enter_context(patch.object(urllib.request, 'urlopen', forbidden))
-        import agent_v2
-        from agent_memory import AgentMemoryStore
-        import qa
+        import agent.agent_v2 as agent_v2
+        from agent.agent_memory import AgentMemoryStore
+        import retrieval.qa as qa
         guards.enter_context(patch.object(qa, 'model_config', forbidden))
 
         for name, scenario in CASES:

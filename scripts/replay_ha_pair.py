@@ -10,7 +10,7 @@ sys.path.insert(0,str(ROOT))
 from evaluation.ha_model import isolated_io
 from tests.ha_case_test_support import case_probe,case_planner
 from tests.workflow_test_support import RunningApp
-from topology_model import snapshot
+from retrieval.topology_model import snapshot
 
 SCENARIOS=(
     ('primary_owner','owner_running','nonowner_stopped','single_resource_holder_observed'),
@@ -30,7 +30,7 @@ def replay():
                 reads.append({'device':device,'check':check})
                 item=case_probe(primary if device=='local-primary' else backup)(device,check)
                 if name=='split_resources' and device=='local-backup' and check=='interfaces':
-                    item['output']='eth2 UP\neth3 UP 192.0.2.37/24'
+                    item['output']='eth2 UP\neth3 UP 172.27.10.37/24'
                 return item
             def planner(context):
                 action,usage=case_planner(context)

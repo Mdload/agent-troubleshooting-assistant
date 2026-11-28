@@ -77,7 +77,7 @@ def main():
         client.thread=threading.Thread(target=client.server.serve_forever,daemon=True)
         client.base='http://127.0.0.1:'+str(args.port)
         if args.memory_fixture or args.history_fixture:
-            from user_accounts import AccountStore
+            from server.user_accounts import AccountStore
             token,account=client.server.get_accounts().register('memory_preview','offline-password-only-123',True)
             messages=[{'role':'user','content':'我的学习目标是看懂Python字典，先写小实验，不换框架。EARLY_GOAL'}]
             messages += [{'role':'assistant' if i%2==0 else 'user','content':'第'+str(i+1)+'轮合成练习记录'} for i in range(12)]

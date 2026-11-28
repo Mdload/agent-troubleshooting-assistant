@@ -1,7 +1,4 @@
 """固定日志工具、审批与多轮取证。替身模型/执行器，不连接设备。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import ast
 import shlex
@@ -10,14 +7,14 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from diagnostic_logs import project_logs, LOG_LIMIT, SAFE_LIMIT, RAW_LIMIT
-from device_tools import build_command, probe, DEVICES, CHECKS
-from diagnostic_core import AuditStore
-from question_routing import classify
-from unified_chat import run, search
+from devices.diagnostic_logs import project_logs, LOG_LIMIT, SAFE_LIMIT, RAW_LIMIT
+from devices.device_tools import build_command, probe, DEVICES, CHECKS
+from devices.diagnostic_core import AuditStore
+from legacy.question_routing import classify
+from legacy.unified_chat import run, search
 from tests.workflow_test_support import RunningApp, current_probe_fixture
 from migration.protocol import REMOTE_CODE
-from device_registry import checks_for
+from devices.device_registry import checks_for, profile
 
 
 def rows(messages):
@@ -39,7 +36,7 @@ class LogToolTests(unittest.TestCase):
         self.assertTrue(all(value==checks_for(device) for device,value in scopes.items()))
         for device in DEVICES:
             command = build_command(device, 'logs')
-            if device.startswith('local-'):
+            if not device.startswith('remote-'):
                 outer = shlex.split(command[-1])
                 nested = outer[outer.index('root@'+DEVICES[device][0])+1]
                 body = shlex.split(nested)[2]
@@ -47,12 +44,15 @@ class LogToolTests(unittest.TestCase):
                 body = shlex.split(command[-1])[2]
             self.assertIn('journalctl -b -n 40 --no-pager --quiet -o json', body)
             self.assertIn('keepalived.service', body)
-            self.assertIn('croc2.0smr.service' if device.startswith('remote-') else 'croc-sar.service', body)
+            if profile(device)['group'] == 'router':
+                self.assertNotIn('croc', body)
+            else:
+                self.assertIn(profile(device)['croc_unit'], body)
             self.assertNotIn('--all', body)
             self.assertNotIn('--follow', body)
             self.assertNotIn('restart', body)
             self.assertNotIn('health.sh', body)
-            self.assertEqual(command[-2], 'root@'+(DEVICES[device][0] if device.startswith('remote-') else '203.0.113.251'))
+            self.assertEqual(command[-2], 'root@'+(DEVICES[device][0] if device.startswith('remote-') else '10.250.251.251'))
 
     def test_sensitive_messages_private_fields_and_key_blocks_are_removed(self):
         output = project_logs(rows(['startup failed', 'password=PRIVATE_PASSWORD',

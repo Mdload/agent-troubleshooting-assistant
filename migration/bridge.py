@@ -1,4 +1,4 @@
-"""同用户本机socket -> 固定SSH -> 登记的只读 worker；健康检查不读设备。"""
+"""同用户本机socket -> 固定SSH -> 140原worker；健康检查不读设备。"""
 import json
 import os
 from pathlib import Path
@@ -10,8 +10,8 @@ import struct
 import subprocess
 import threading
 
-from device_tools import DEVICES, CHECKS
-from device_registry import HOPS, MAX_PARALLEL_READS, allows_check, allows_probe
+from devices.device_tools import DEVICES, CHECKS
+from devices.device_registry import HOPS, MAX_PARALLEL_READS, MAX_REQUEST_BYTES, allows_check, allows_probe, allows_repair_request
 
 ROOT = Path(__file__).resolve().parents[1]
 SOCKET = ROOT / 'data/migration-worker.sock'
@@ -25,13 +25,15 @@ def valid_request(request):
         return False
     if request in ({'operation': 'health'}, {'operation': 'capabilities'}):
         return True
+    if set(request) == {'operation', 'device', 'action', 'target'}:
+        return allows_repair_request(**request)
     if set(request) == {'device', 'kind', 'target'}:
         return allows_probe(**request)
     return set(request) == {'device', 'check'} and allows_check(**request)
 
 
 def decode_line(line):
-    if len(line) > 1024 or not line.endswith(b'\n'):
+    if len(line) > MAX_REQUEST_BYTES or not line.endswith(b'\n'):
         raise ValueError('invalid_frame')
     request = json.loads(line.decode('utf-8'))
     if not valid_request(request):
@@ -44,10 +46,11 @@ def call_remote(request):
                '-o', 'ConnectTimeout=6', '-o', 'ConnectionAttempts=1',
                '-o', 'StrictHostKeyChecking=yes', '-o', 'UpdateHostKeys=no',
                '-o', 'ForwardAgent=no', '-o', 'IdentitiesOnly=yes',
+               '-i', '/etc/ata/example-worker-key',
                HOPS['jump_host']['user']+'@'+HOPS['jump_host']['address'],
                '/usr/bin/python3 -I -B -c ' + shlex.quote(REMOTE_CODE)]
     result = subprocess.run(command, input=json.dumps(request).encode() + b'\n',
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=24)
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=108 if request.get('action') == 'run_command' else 24)
     if result.returncode != 0:
         raise ValueError('transport_failed')
     if len(result.stdout) > 65536 or not result.stdout.endswith(b'\n'):
@@ -57,8 +60,7 @@ def call_remote(request):
         raise ValueError('invalid_response')
     if request == {'operation': 'health'}:
         if (response.get('kind') != 'worker_transport' or response.get('device_reads') != 0 or
-                response.get('host') != HOPS['jump_host']['hostname'] or
-                response.get('user') != HOPS['jump_host']['user']):
+                response.get('host') != 'example-jump' or response.get('user') != 'ubuntu'):
             raise ValueError('identity_unconfirmed')
     return response
 
@@ -81,7 +83,7 @@ class Handler(socketserver.StreamRequestHandler):
                 socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
             if uid != os.getuid():
                 return
-            request = decode_line(self.rfile.readline(1025))
+            request = decode_line(self.rfile.readline(MAX_REQUEST_BYTES + 1))
             acquired = SLOT.acquire(False)
             result = dispatch(request) if acquired else {
                 'ok': False, 'output': '', 'error': 'bridge_busy'}
@@ -100,7 +102,7 @@ def request_worker(request):
     if not valid_request(request):
         raise ValueError('invalid_scope')
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
-        connection.settimeout(26)
+        connection.settimeout(110 if request.get('action') == 'run_command' else 26)
         connection.connect(str(SOCKET))
         connection.sendall(json.dumps(request).encode() + b'\n')
         with connection.makefile('rb') as stream:
@@ -121,6 +123,12 @@ def remote_probe(device, check):
 def remote_probe_device(device, kind, target):
     with _CLIENT_SLOT:
         return request_worker({'device': device, 'kind': kind, 'target': target})
+
+
+def remote_approved_repair(device, action, target):
+    with _CLIENT_SLOT:
+        operation = 'manual_command' if action == 'run_command' else 'approved_repair'
+        return request_worker({'operation': operation, 'device': device, 'action': action, 'target': target})
 
 
 def main():

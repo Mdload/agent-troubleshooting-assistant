@@ -1,7 +1,4 @@
 """验证合成轨迹的引用、范围、分支和审计；不代表真实模型成绩。"""
-if not __package__:
-    import _bootstrap
-
 import unittest
 from evaluation.remote_replay import load_cases, replay
 

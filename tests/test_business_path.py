@@ -1,18 +1,15 @@
 """Router候选工具隔离和业务路径覆盖；无外部模型或真实设备调用。"""
-if not __package__:
-    import _bootstrap
-
 import datetime
 import json
 import shlex
 import unittest
 from unittest.mock import patch
-from business_path import assess_path, selected
-from router_contract import read_commands, assess_replay
-from device_registry import DEVICES, ROUTER_CONTRACT, checks_for, public_catalog
-from device_tools import build_command
-from diagnostic_logs import project_logs
-from device_worker import dispatch
+from devices.business_path import assess_path, selected
+from devices.router_contract import read_commands, assess_replay
+from devices.device_registry import DEVICES, ROUTER_CONTRACT, checks_for, public_catalog
+from devices.device_tools import build_command
+from devices.diagnostic_logs import project_logs
+from devices.device_worker import dispatch
 from tests.ha_case_test_support import case_probe, case_planner
 from tests.test_investigation_stages import request, approve, start
 from tests.workflow_test_support import RunningApp
@@ -39,7 +36,7 @@ def path_rows(forward='1'):
 
 class RouterContractTests(unittest.TestCase):
     def test_routers_share_the_schema_and_worker_allowlist(self):
-        from agent_v2 import TOOL_SCHEMAS
+        from agent.agent_v2 import TOOL_SCHEMAS
 
         schema = next(tool['function']['parameters']['properties'] for tool in TOOL_SCHEMAS
                       if tool['function']['name'] == 'inspect_device')
@@ -50,12 +47,12 @@ class RouterContractTests(unittest.TestCase):
                         'ping_' + peer.replace('-', '_')}
             self.assertTrue(required.issubset(checks_for(device)))
             self.assertTrue(required.issubset(schema['check']['enum']))
-            with patch('device_worker.probe') as probe:
+            with patch('devices.device_worker.probe') as probe:
                 for check in required:
                     request = {'device':device, 'check':check}
                     dispatch(request)
                     probe.assert_called_with(device, check)
-                    self.assertEqual(build_command(device,check)[-2], 'root@203.0.113.251')
+                    self.assertEqual(build_command(device,check)[-2], 'root@10.250.251.251')
                 for check in ('ping_tunnel_peer', 'ping_tunnel_remote_backup', 'restart'):
                     request = {'device':device, 'check':check}
                     with self.assertRaises(ValueError):

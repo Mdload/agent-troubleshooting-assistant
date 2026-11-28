@@ -1,17 +1,14 @@
 """逻辑分区、空库和宿主检索范围回归；不调用真实模型或设备。"""
-if not __package__:
-    import _bootstrap
-
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-import qa
-from diagnostic_core import AuditStore
-from knowledge_catalog import LIBRARIES, catalog, query_scope, allows, filter_sources
-from knowledge_coverage import assess
-from question_routing import classify
-from unified_chat import run, search, prefetch_query
+import retrieval.qa as qa
+from devices.diagnostic_core import AuditStore
+from retrieval.knowledge_catalog import LIBRARIES, catalog, query_scope, allows, filter_sources
+from retrieval.knowledge_coverage import assess
+from legacy.question_routing import classify
+from legacy.unified_chat import run, search, prefetch_query
 from tests.workflow_test_support import RunningApp
 
 

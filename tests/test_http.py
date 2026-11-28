@@ -1,7 +1,4 @@
 """本机临时端口验证API；无服务器部署和设备连接。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import threading
 import unittest
@@ -33,7 +30,7 @@ class HTTPTests(unittest.TestCase):
             request = urllib.request.Request(base + '/api/ask',
                 data=json.dumps({'question': 'Router负责运行Croc吗？', 'allow_new_topology': True}).encode(),
                 headers={'Content-Type': 'application/json'})
-            with patch('qa.ask_model', side_effect=RuntimeError('private upstream')):
+            with patch('retrieval.qa.ask_model', side_effect=RuntimeError('private upstream')):
                 with urllib.request.urlopen(request) as response:
                     data = json.load(response)
             self.assertEqual(data['kind'], 'extract')

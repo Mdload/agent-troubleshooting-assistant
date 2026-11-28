@@ -1,16 +1,13 @@
 """完整JSON边界、脱敏定位和可选供应商参数；无真实模型调用。"""
-if not __package__:
-    import _bootstrap
-
 import copy
 import json
 import urllib.error
 import unittest
 from unittest.mock import Mock
-from action_json import decode_action,ActionJSONError
-from chat_model import make_model,ModelFailure
-from diagnostic_context import model_view
-from model_trace import safe_metrics
+from legacy.action_json import decode_action,ActionJSONError
+from agent.chat_model import make_model,ModelFailure
+from devices.diagnostic_context import model_view
+from agent.model_trace import safe_metrics
 from evaluation.ha_model import FixtureResponse
 
 CONFIG={'LLM_BASE_URL':'https://api.inferera.com/v1','LLM_API_KEY':'PRIVATE_TEST_KEY','LLM_MODEL_ID':'offline-fixture'}
@@ -204,7 +201,7 @@ class GroundedDiagnosticRequestTests(unittest.TestCase):
     def test_only_current_successful_status_enables_direct_inference_and_keeps_limits(self):
         from unittest.mock import Mock
         import json,socket
-        from chat_model import make_model,ModelFailure
+        from agent.chat_model import make_model,ModelFailure
         cfg={'LLM_BASE_URL':'https://api.inferera.com/v1','LLM_API_KEY':'test-placeholder','LLM_MODEL_ID':'test'}
         opener=Mock();opener.open.side_effect=socket.timeout()
         good={'id':'OBS-1','ok':True,'freshness':'current','check':'services'}

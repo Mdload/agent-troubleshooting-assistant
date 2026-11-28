@@ -1,7 +1,4 @@
 """远端登记、命令/身份边界、失败和证据范围，不连接实际设备或模型。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import os
 import shlex
@@ -10,11 +7,11 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
-import device_worker
-from device_tools import build_command, probe, tool_catalog
-from diagnostic_core import AuditStore, run_diagnosis
-from evidence_scope import mark_observation, build_scope
-from unified_chat import run
+import devices.device_worker as device_worker
+from devices.device_tools import build_command, probe, tool_catalog
+from devices.diagnostic_core import AuditStore, run_diagnosis
+from legacy.evidence_scope import mark_observation, build_scope
+from legacy.unified_chat import run
 
 
 class RemoteToolsTests(unittest.TestCase):
@@ -25,7 +22,7 @@ class RemoteToolsTests(unittest.TestCase):
             self.assertEqual(command[:4], ['sudo', '-n', '-H', '/usr/bin/ssh'])
             self.assertEqual(command[-2], 'root@' + address)
             self.assertNotIn('-J', command)
-            self.assertNotIn('root@203.0.113.251', command)
+            self.assertNotIn('root@10.250.251.251', command)
             body = shlex.split(command[-1])[2]
             self.assertIn('hostname', body)
             self.assertIn(hostname, body)
@@ -37,7 +34,7 @@ class RemoteToolsTests(unittest.TestCase):
 
     def test_local_ingress_retained_and_route_failure_not_masked(self):
         command = build_command('local-primary', 'services')
-        self.assertEqual(command[-2], 'root@203.0.113.251')
+        self.assertEqual(command[-2], 'root@10.250.251.251')
         for device in ('local-primary', 'remote-primary'):
             self.assertNotIn('| head', build_command(device, 'routes')[-1])
 
@@ -57,14 +54,14 @@ class RemoteToolsTests(unittest.TestCase):
                     {'device': 'remote-primary', 'check': ['services']},
                     {'device': [], 'check': 'services'},
                     {'device': 'remote-primary', 'check': 'services', 'command': 'id'}]
-        with patch('device_worker.probe') as executor:
+        with patch('devices.device_worker.probe') as executor:
             for request in requests:
                 with self.assertRaises(ValueError):
                     device_worker.dispatch(request)
             executor.assert_not_called()
 
     def test_worker_accepts_only_registered_remote_enum(self):
-        with patch('device_worker.probe', return_value={'ok': True}) as executor:
+        with patch('devices.device_worker.probe', return_value={'ok': True}) as executor:
             device_worker.dispatch({'device': 'remote-backup', 'check': 'interfaces'})
             executor.assert_called_once_with('remote-backup', 'interfaces')
 

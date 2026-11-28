@@ -1,14 +1,11 @@
 """组合检查整批校验、逐项预算与审计，以及失败及时收口。"""
-if not __package__:
-    import _bootstrap
-
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from chat_model import ModelFailure
-from diagnostic_core import AuditStore
-from unified_chat import run
+from agent.chat_model import ModelFailure
+from devices.diagnostic_core import AuditStore
+from legacy.unified_chat import run
 
 
 def overview(device='remote-primary'):return ({'action':'read_overview','device':device},1)

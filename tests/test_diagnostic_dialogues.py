@@ -1,12 +1,9 @@
 """Group related questions, observations and approval transitions through the actual API."""
-if not __package__:
-    import _bootstrap
-
 import time
 import unittest
 
-from approval_store import DIAGNOSTIC_DATA_USE, SINGLE_APPROVAL
-from device_registry import profile
+from server.approval_store import DIAGNOSTIC_DATA_USE, SINGLE_APPROVAL
+from devices.device_registry import profile
 from tests.workflow_test_support import RunningApp, current_probe_fixture
 
 

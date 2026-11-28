@@ -1,20 +1,17 @@
 """调查只读恢复的HTTP归属、来源和生命周期边界；替身，无外网/设备。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import time
 import unittest
 from unittest.mock import Mock,patch
 import app
-from approval_store import DIAGNOSTIC_DATA_USE, SINGLE_APPROVAL
+from server.approval_store import DIAGNOSTIC_DATA_USE, SINGLE_APPROVAL
 from tests.workflow_test_support import RunningApp, current_probe_fixture
-from investigation_history import NOTE
-from user_accounts import AccountStore
+from legacy.investigation_history import NOTE
+from server.user_accounts import AccountStore
 
 class InvestigationHistoryTests(unittest.TestCase):
     def setUp(self):
-        self.patch=patch('user_accounts.ITERATIONS',1000);self.patch.start()
+        self.patch=patch('server.user_accounts.ITERATIONS',1000);self.patch.start()
         self.planner=Mock();self.probe=Mock()
         self.client=RunningApp(self.planner,self.probe,lookup=Mock()).__enter__()
     def tearDown(self):self.client.__exit__(None,None,None);self.patch.stop()

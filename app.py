@@ -12,35 +12,36 @@ from pathlib import Path
 from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
-import qa
-import unified_chat
-from admin_auth import AdminAuth
-from approval_store import ApprovalStore, TaskError, SINGLE_APPROVAL
-from lab_workflow import WorkflowService
-from diagnostic_core import audit_text, request_trace
-import diagnostic_web
-from diagnostic_logs import filter_log_output
-from question_routing import classify
-from conversation_topic import validate_conversation_id
-from interaction_mode import scene_catalog
-from device_registry import public_catalog
+import retrieval.qa as qa
+import legacy.unified_chat as unified_chat
+from server.admin_auth import AdminAuth
+from server.approval_store import ApprovalStore, TaskError, SINGLE_APPROVAL
+from legacy.lab_workflow import WorkflowService
+from devices.diagnostic_core import audit_text, request_trace
+import devices.diagnostic_web as diagnostic_web
+from devices.diagnostic_logs import filter_log_output
+from legacy.question_routing import classify
+from legacy.conversation_topic import validate_conversation_id
+from legacy.interaction_mode import scene_catalog
+from devices.device_registry import public_catalog
 from version import VERSION
-from experience_store import ExperienceStore, ExperienceError
-import agent_skills
-from user_accounts import AccountStore,AccountError,SESSION_SECONDS
-from chat_history import HistoryStore,HistoryError
-from text_materials import MaterialStore,MaterialError
-from task_memory import TaskMemory,MemoryError
-from rolling_context import RollingError
-from public_evidence import PublicEvidenceError
-import investigation_history
-from selection_explain import stream_explanation
-from chat_model import ModelFailure
-from repair_control import RepairManager
-from context_history import prepare_history
-from request_limits import RequestLimiter, category as request_category
-from agent_memory import AgentMemoryStore
-from agent_v2 import AutonomousAgent
+from legacy.experience_store import ExperienceStore, ExperienceError
+import agent.agent_skills as agent_skills
+from server.user_accounts import AccountStore,AccountError,SESSION_SECONDS
+from server.chat_history import HistoryStore,HistoryError
+from server.text_materials import MaterialStore,MaterialError
+from legacy.task_memory import TaskMemory,MemoryError
+from legacy.rolling_context import RollingError
+from retrieval.public_evidence import PublicEvidenceError
+import legacy.investigation_history as investigation_history
+from retrieval.selection_explain import stream_explanation
+from agent.chat_model import ModelFailure
+from server.repair_control import RepairManager
+from legacy.context_history import prepare_history
+from server.request_limits import RequestLimiter, category as request_category
+from agent.agent_memory import AgentMemoryStore
+from agent.agent_v2 import AutonomousAgent
+from agent.repair_proposals import RepairProposals
 
 ROOT = Path(__file__).resolve().parent
 CSRF_TOKEN = secrets.token_urlsafe(32)
@@ -53,6 +54,7 @@ MATERIAL_LIST = re.compile(r'^/api/conversations/([A-Za-z0-9_-]{1,80})/materials
 INVESTIGATION_PATH = re.compile(r'^/api/conversations/([A-Za-z0-9_-]{1,80})/investigations(?:/([a-f0-9]{32}))?$')
 MEMORY_PATH = re.compile(r'^/api/conversations/([A-Za-z0-9_-]{1,80})/memory(?:/(draft|withdraw|rolling))?$')
 REPAIR_PATH = re.compile(r'^/api/repairs/([a-f0-9]{32})(?:/(decision|execute|cancel|reconcile))?$')
+PROPOSAL_PATH = re.compile(r'^/api/proposals/([a-f0-9]{32})/(execute|reject)$')
 REPAIR_WINDOW_PATH = re.compile(r'^/api/(admin/)?repair-windows/([a-f0-9]{32})(?:/(decision|revoke))?$')
 EXPERIENCE_ERRORS = {'experience_not_found':'找不到该经验或没有访问权限',
     'experience_consent_required':'请确认所选纠正用于管理员审核及审核后共享知识',
@@ -65,6 +67,10 @@ EXPERIENCE_ERRORS = {'experience_not_found':'找不到该经验或没有访问�
     'experience_duplicate':'本浏览器已有相同内容的草稿',
     'experience_limit':'经验数量已达上限，请联系管理员整理'}
 ERRORS = {'not_found':'找不到该申请或没有访问权限', 'not_approved':'申请尚未批准或已失效',
+    'proposal_scope_changed':'修复白名单已变化，请生成新的建议卡。',
+    'proposal_device_busy':'此设备已有修复正在执行和复查，请稍后确认。',
+    'proposal_transport_unavailable':'受控修复通道当前不可用。',
+    'proposal_verification_unavailable':'该修复回执不可续跑或已发起过验证，请在原对话继续排查。',
     'repair_device_not_armed':'设备端独立许可尚未开启、已使用或即将到期；网页批准不能越过设备许可。',
     'repair_device_lease_used':'这张设备许可已绑定过申请，请使用新的维护许可。',
     'repair_window_not_pending':'本次修复权限申请已处理或过期，请刷新。',
@@ -117,7 +123,7 @@ ERRORS = {'not_found':'找不到该申请或没有访问权限', 'not_approved':
     'conversation_limit':'本浏览器排障对话数量已达上限，请沿用已有对话',
     'consent_required':'请确认本次问题及批准范围内现场数据的使用',
     'session_required':'浏览器会话已失效，请刷新页面', 'admin_required':'请先登录管理员',
-    'admin_not_configured':'管理员尚未设置，请由作者在项目终端运行 python -B admin_auth.py',
+    'admin_not_configured':'管理员尚未设置，请由作者在项目终端运行 python -B -m server.admin_auth',
     'invalid_credentials':'管理员口令不正确', 'login_limited':'登录尝试过多，请15分钟后再试'}
 
 
@@ -299,17 +305,19 @@ class Handler(BaseHTTPRequestHandler):
             elif HISTORY_PATH.fullmatch(path):
                 ident,action=HISTORY_PATH.fullmatch(path).groups()
                 if action:self.send(404,{'error':'接口不存在'});return
-                self.send(200,self.server.get_history().get(self.account_owner(),ident))
+                owner = self.account_owner()
+                cards = self.server.get_repair_proposals().for_conversation(owner, ident)
+                self.send(200,self.server.get_history().get(owner, ident, cards))
             elif path.startswith('/api/knowledge-libraries/'):
-                from knowledge_modules import module_document
-                from knowledge_catalog import LIBRARY_MAP
+                from retrieval.knowledge_modules import module_document
+                from retrieval.knowledge_catalog import LIBRARY_MAP
                 ident=path[len('/api/knowledge-libraries/'):]
                 if ident not in LIBRARY_MAP:
                     self.send(404,{'error':'知识模块不存在'});return
                 records=qa.RECORDS+self.server.get_experiences().records()
                 self.send(200,module_document(ident,records))
             elif path == '/api/topology-observations':
-                from topology_observations import latest
+                from devices.topology_observations import latest
                 owner=self.account_owner()
                 records=latest(self.server.get_workflow().store,owner,'ha_topology')
                 self.send(200,{'records':records,'window_days':30})
@@ -386,8 +394,9 @@ class Handler(BaseHTTPRequestHandler):
         material_match=MATERIAL_PATH.fullmatch(self.path)
         memory_match=MEMORY_PATH.fullmatch(self.path)
         repair_match=REPAIR_PATH.fullmatch(self.path)
+        proposal_match=PROPOSAL_PATH.fullmatch(self.path)
         window_match=REPAIR_WINDOW_PATH.fullmatch(self.path)
-        if self.path not in ('/api/ask','/api/chat','/api/selection/explain','/api/diagnose','/api/admin/login','/api/admin/logout','/api/experiences','/api/task-comparison','/api/account/register','/api/account/login','/api/account/logout','/api/account/registration','/api/repair-windows','/api/history','/api/materials') and not match and not mode_match and not experience_match and not history_match and not material_match and not memory_match and not repair_match and not window_match:
+        if self.path not in ('/api/ask','/api/chat','/api/selection/explain','/api/diagnose','/api/admin/login','/api/admin/logout','/api/experiences','/api/task-comparison','/api/account/register','/api/account/login','/api/account/logout','/api/account/registration','/api/repair-windows','/api/history','/api/materials') and not match and not mode_match and not experience_match and not history_match and not material_match and not memory_match and not repair_match and not proposal_match and not window_match:
             self.send(404, {'error':'接口不存在'}); return
         if self.path != '/api/ask' and not secrets.compare_digest(self.headers.get('X-ATA-Token','').encode('utf-8'), CSRF_TOKEN.encode('ascii')):
             self.send(403, {'error':'页面凭据失效，请刷新后重试'}); return
@@ -425,6 +434,40 @@ class Handler(BaseHTTPRequestHandler):
             self.send(429, {'error':'正在处理其他提问，请稍后重试','code':'busy'}); return
         chat_trace=None
         try:
+            # The public gateway already forwards this repair route. A separate
+            # exact payload keeps legacy repair approvals on their original path.
+            proposal_alias = repair_match and (
+                (repair_match.group(2) == 'execute' and data == {'approval_type': 'structured_proposal'})
+                or (repair_match.group(2) == 'decision'
+                    and data == {'approval_type': 'structured_proposal', 'decision': 'reject'})
+            )
+            if proposal_match or proposal_alias:
+                if proposal_match and data:
+                    raise ValueError()
+                owner = self.account_owner()
+                ident = (proposal_match or repair_match).group(1)
+                action = proposal_match.group(2) if proposal_match else (
+                    'execute' if repair_match.group(2) == 'execute' else 'reject')
+                service = self.server.get_workflow()
+                proposals = self.server.get_repair_proposals()
+                try:
+                    if action == 'reject':
+                        result = proposals.reject(ident, owner)
+                    else:
+                        if self.server.approved_repair is None:
+                            raise TaskError('proposal_transport_unavailable')
+                        result = proposals.execute(ident, owner, self.server.approved_repair,
+                                                   service.get_probe(), guard=self.identity_guard(owner),
+                                                   probe_target=diagnostic_web.remote_probe_device)
+                except TaskError as error:
+                    service.audit.record(ident, 0, 'repair_proposal_rejected',
+                                         {'owner': owner, 'reason': str(error)})
+                    raise
+                service.audit.record(ident, 0, 'repair_proposal_response',
+                                     {'owner': owner, 'status': result['status'], 'decision': action,
+                                      'execution_mode': result['execution_mode']})
+                self.send(200, result)
+                return
             if self.path=='/api/repair-windows' or window_match:
                 owner=self.account_owner();guard=self.identity_guard(owner);guard()
                 permissions=self.server.get_workflow().repairs.permissions
@@ -559,7 +602,10 @@ class Handler(BaseHTTPRequestHandler):
                 if data:raise ValueError()
                 self.end_identity();result={'authenticated':False,'account':None}
             elif self.path=='/api/history':
-                result=self.server.get_history().put(self.account_owner(),data)
+                owner = self.account_owner()
+                ident = validate_conversation_id(data.get('id'))
+                cards = self.server.get_repair_proposals().for_conversation(owner, ident)
+                result=self.server.get_history().put(owner, data, {card['proposal_id'] for card in cards})
             elif history_match:
                 ident,action=history_match.groups()
                 if action!='delete' or set(data)!={'expected_revision'}:raise ValueError()
@@ -640,12 +686,18 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 question = data.get('question','')
                 is_resume_pending = self.path == '/api/chat' and isinstance(data.get('pending_id'), str) and bool(data.get('pending_id'))
-                if not is_resume_pending and (not isinstance(question,str) or not 1 <= len(question.strip()) <= 1000): raise ValueError()
+                is_verification = self.path == '/api/chat' and 'verify_proposal_id' in data
+                if not (is_resume_pending or is_verification) and (not isinstance(question,str) or not 1 <= len(question.strip()) <= 1000): raise ValueError()
                 if self.path == '/api/chat':
-                    if set(data)-{'question','history','allow_context','conversation_id','interaction_mode','interaction_revision','chat_space','material_id','allow_materials','use_task_memory','memory_revision','approval_flow','grant_devices','pending_id','deny_pending','legacy_mode'}: raise ValueError()
+                    if set(data)-{'question','history','allow_context','conversation_id','interaction_mode','interaction_revision','chat_space','material_id','allow_materials','use_task_memory','memory_revision','approval_flow','grant_devices','pending_id','deny_pending','legacy_mode','execution_mode','verify_proposal_id'}: raise ValueError()
+                    execution_mode = data.get('execution_mode', 'approval')
+                    if execution_mode not in ('approval', 'auto'): raise ValueError()
                     consent = data.get('allow_context',False)
                     if type(consent) is not bool: raise ValueError()
                     history,history_excerpted = prepare_history(data.get('history',[]))
+                    signed_in = bool(self.cookie('ata_account'))
+                    if execution_mode == 'auto' and not signed_in:
+                        raise AccountError('account_required')
                     owner=self.owner(create=True);material_info=None;material_context=None
                     service=self.server.get_workflow()
                     conversation=validate_conversation_id(data.get('conversation_id','default'))
@@ -654,6 +706,17 @@ class Handler(BaseHTTPRequestHandler):
                         and not data.get('legacy_mode')
                         and (self.server.agent_v2 is not None or self.server.agent_v2_enabled)
                     )
+                    verification = None
+                    if is_verification:
+                        ident = data['verify_proposal_id']
+                        if (not isinstance(ident, str) or not re.fullmatch(r'[a-f0-9]{32}', ident)
+                                or not use_agent_v2 or consent is not True
+                                or set(data).intersection(('pending_id', 'grant_devices', 'deny_pending'))):
+                            raise ValueError()
+                        owner = self.account_owner()
+                        self.identity_guard(owner)()
+                        verification = self.server.get_repair_proposals().claim_verification(ident, owner, conversation)
+                        question = '请根据刚才的修复执行回执验证业务是否恢复，并继续排查未恢复的问题。'
                     if use_agent_v2:
                         if consent is not True:
                             result = {'status':'consent_required','answer':'请先确认本次对话的数据使用范围。'}
@@ -669,6 +732,10 @@ class Handler(BaseHTTPRequestHandler):
                                 pending_id=data.get('pending_id'),
                                 deny_pending=bool(data.get('deny_pending', False)),
                                 skills_enabled=bool(self.cookie('ata_account')),
+                                allow_repair_proposals=signed_in,
+                                execution_mode=execution_mode,
+                                repair_guard=self.identity_guard(owner) if signed_in else None,
+                                **({'verification_receipt': verification} if verification else {}),
                             ))
                             return
                         self.send(200, result)
@@ -801,6 +868,16 @@ class Handler(BaseHTTPRequestHandler):
             calls = []
             try:
                 result = agent.chat(**params, on_model=calls.append)
+                proposal_ids = [card['proposal_id'] for card in result.get('proposed_changes', [])
+                                if card.get('proposal_id')]
+                if params['allow_repair_proposals'] and proposal_ids:
+                    latest = {card['proposal_id']: card for card in self.server.get_repair_proposals()
+                              .for_conversation(params['owner'], params['conversation_id'])}
+                    result['proposed_changes'] = [
+                        latest.get(card.get('proposal_id'), card) for card in result['proposed_changes']
+                    ]
+                    self.server.get_history().record_proposal_turn(
+                        params['owner'], params['conversation_id'], params['question'], result['answer'], proposal_ids)
             except Exception as error:
                 audit.record(trace_id, 0, 'agent_chat_error', {'error': type(error).__name__})
                 raise
@@ -874,6 +951,8 @@ class Server(ThreadingMixIn, HTTPServer):
         self.task_memory=None
         self.agent_memory=None
         self.agent_v2=None
+        self.repair_proposals=None
+        self.approved_repair=None
         self.agent_v2_enabled=(workflow is None)
         super().__init__(address,handler)
 
@@ -936,9 +1015,17 @@ class Server(ThreadingMixIn, HTTPServer):
             if self.agent_memory is None:self.agent_memory=AgentMemoryStore(path)
             return self.agent_memory
 
+    def get_repair_proposals(self):
+        path = Path(self.get_workflow().store.path).with_name('repair_proposals.sqlite3')
+        with self.identity_lock:
+            if self.repair_proposals is None:
+                self.repair_proposals = RepairProposals(path)
+            return self.repair_proposals
+
     def get_agent_v2(self):
         workflow=self.get_workflow()
         memory=self.get_agent_memory()
+        proposals=self.get_repair_proposals() if self.approved_repair is not None else None
         with self.identity_lock:
             if self.agent_v2 is None:
                 self.agent_v2=AutonomousAgent(
@@ -948,6 +1035,9 @@ class Server(ThreadingMixIn, HTTPServer):
                     config_fn=qa.model_config,
                     experiences_fn=self.get_experiences,
                     availability=workflow.model_availability,
+                    proposal_store=proposals,
+                    repair_fn=self.approved_repair,
+                    proposal_audit=workflow.audit,
                 )
             return self.agent_v2
 

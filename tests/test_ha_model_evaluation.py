@@ -1,7 +1,4 @@
 """评估入口的隔离、审批、失败保留及记账；响应替身不代表模型准确率。"""
-if not __package__:
-    import _bootstrap
-
 import json
 from pathlib import Path
 import socket
@@ -10,7 +7,7 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
-from chat_model import ModelFailure, make_model
+from agent.chat_model import ModelFailure, make_model
 from evaluation.ha_model import (DEVICE, EXPECTED, VARIANTS, FixtureOpener,
     FixtureResponse, isolated_io, run_batch, main, SIMULATION_NOTICE)
 
@@ -62,7 +59,7 @@ class ModelEvaluationTests(unittest.TestCase):
             row=json.loads((output/'owner_stopped.json').read_text(encoding='utf-8'))
             raw=row['adapter_calls'][-1]['action']['answer']
             self.assertFalse(raw.startswith(SIMULATION_NOTICE))
-            from response_contract import plain_language_answer
+            from legacy.response_contract import plain_language_answer
             self.assertIn('按已有正常HA资料比较', raw)
             self.assertEqual(row['result']['answer'],SIMULATION_NOTICE+'\n\n'+plain_language_answer(raw))
             self.assertNotEqual(row['result']['answer'],SIMULATION_NOTICE+'\n\n'+raw)

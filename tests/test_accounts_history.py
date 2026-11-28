@@ -1,7 +1,4 @@
 """账号A/B、重登/过期、并发代次与历史证据边界；全部为临时身份和离线替身。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import tempfile
 import unittest
@@ -10,10 +7,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import Mock,patch
 import app
-from user_accounts import AccountStore,AccountError,ITERATIONS
-from chat_history import HistoryStore,HistoryError
+from server.user_accounts import AccountStore,AccountError,ITERATIONS
+from server.chat_history import HistoryStore,HistoryError
 from tests.workflow_test_support import RunningApp,TEST_LAB_PASSWORD,current_probe_fixture
-from approval_store import DIAGNOSTIC_DATA_USE
+from server.approval_store import DIAGNOSTIC_DATA_USE
 
 PASSWORD='offline-only-password-123'
 MESSAGES=[{'role':'user','content':'解释Python列表'}, {'role':'assistant','content':'历史回答，非当前设备证据。'}]
@@ -21,7 +18,7 @@ MESSAGES=[{'role':'user','content':'解释Python列表'}, {'role':'assistant','c
 
 class AccountStoreTests(unittest.TestCase):
     def test_nonempty_names_and_passwords_have_no_character_or_length_rules(self):
-        with tempfile.TemporaryDirectory() as directory,patch('user_accounts.ITERATIONS',1000):
+        with tempfile.TemporaryDirectory() as directory,patch('server.user_accounts.ITERATIONS',1000):
             store=AccountStore(Path(directory)/'accounts.db')
             for invalid in ('',None,123):
                 with self.assertRaisesRegex(ValueError,'invalid_account_password'):
@@ -31,7 +28,7 @@ class AccountStoreTests(unittest.TestCase):
                 self.assertEqual(store.login(name,password)[1]['id'],account['id'])
 
     def test_tenth_account_slot_is_atomic_and_existing_logins_still_work(self):
-        with tempfile.TemporaryDirectory() as directory,patch('user_accounts.ITERATIONS',1000):
+        with tempfile.TemporaryDirectory() as directory,patch('server.user_accounts.ITERATIONS',1000):
             path=Path(directory)/'accounts.db';store=AccountStore(path)
             for number in range(9):store.register('user'+str(number),PASSWORD,True)
             barrier=threading.Barrier(2)
@@ -67,7 +64,7 @@ class AccountStoreTests(unittest.TestCase):
             with self.assertRaises(AccountError):store.login('alice','a-wrong-password-123')
 
     def test_restart_expiry_and_logout_are_checked_server_side(self):
-        with tempfile.TemporaryDirectory() as directory,patch('user_accounts.ITERATIONS',1000):
+        with tempfile.TemporaryDirectory() as directory,patch('server.user_accounts.ITERATIONS',1000):
             now=[1000.0];path=Path(directory)/'accounts.db';store=AccountStore(path,lambda:now[0])
             token,a=store.register('alice',PASSWORD,True)
             store=AccountStore(path,lambda:now[0]);self.assertEqual(store.resolve(token),a)
@@ -78,7 +75,7 @@ class AccountStoreTests(unittest.TestCase):
             now[0]+=1201;self.assertIsNone(store.resolve(token))
 
     def test_attempt_guard_applies_to_unknown_accounts_and_validation(self):
-        with tempfile.TemporaryDirectory() as directory,patch('user_accounts.ITERATIONS',1000):
+        with tempfile.TemporaryDirectory() as directory,patch('server.user_accounts.ITERATIONS',1000):
             now=[1000.0];store=AccountStore(Path(directory)/'accounts.db',lambda:now[0])
             for _ in range(10):
                 with self.assertRaisesRegex(AccountError,'account_invalid_credentials'):store.login('unknown',PASSWORD)
@@ -93,7 +90,7 @@ class AccountStoreTests(unittest.TestCase):
 class AccountHttpTests(unittest.TestCase):
     def setUp(self):
         # HTTP边界测试缩小KDF成本，生产参数在上面的非替身测试中单独验证。
-        self.patch=patch('user_accounts.ITERATIONS',1000);self.patch.start()
+        self.patch=patch('server.user_accounts.ITERATIONS',1000);self.patch.start()
         self.planner=Mock();self.probe=Mock()
         self.client=RunningApp(self.planner,self.probe,lookup=lambda q:[]).__enter__()
     def tearDown(self):

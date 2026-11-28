@@ -1,7 +1,4 @@
 """Verify fixed tool arguments and the approved investigation against substitute devices."""
-if not __package__:
-    import _bootstrap
-
 import os
 from contextlib import closing
 import shlex
@@ -12,20 +9,20 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from approval_store import DIAGNOSTIC_DATA_USE
-from device_registry import PING_TARGETS, checks_for
-from device_tools import build_command, commands_for, probe
-from device_worker import dispatch
-from diagnostic_probes import KEEPALIVED_AWK
-from investigation_limits import requested_limits
+from server.approval_store import DIAGNOSTIC_DATA_USE
+from devices.device_registry import PING_TARGETS, checks_for
+from devices.device_tools import build_command, commands_for, probe
+from devices.device_worker import dispatch
+from devices.diagnostic_probes import KEEPALIVED_AWK
+from legacy.investigation_limits import requested_limits
 from tests.test_diagnostic_dialogues import post_question, run_task
 from tests.workflow_test_support import RunningApp, current_probe_fixture
 
 
 class ExtendedDiagnostics(unittest.TestCase):
     def test_completed_goal_skips_final_model_and_optional_explanation_keeps_answer(self):
-        from diagnostic_core import AuditStore
-        from unified_chat import run
+        from devices.diagnostic_core import AuditStore
+        from legacy.unified_chat import run
 
         required = {'local-primary': ['policy_routes']}
         read = {'action': 'read', 'device': 'local-primary', 'check': 'policy_routes'}
@@ -53,7 +50,7 @@ class ExtendedDiagnostics(unittest.TestCase):
                     self.assertIn(answer, result['answer'])
 
     def test_partial_bidirectional_measurement_keeps_the_measured_direction(self):
-        from diagnostic_goal import assess_icmp
+        from devices.diagnostic_goal import assess_icmp
         scope = {'remote-backup': ['ping_local_primary'], 'local-primary': ['ping_remote_backup']}
         observations = [
             {'device': 'remote-backup', 'check': 'ping_local_primary', 'id': 'OBS-1', 'ok': True,
@@ -83,7 +80,7 @@ class ExtendedDiagnostics(unittest.TestCase):
             build_command(source,'ping_1_2_3_4')
 
     def test_worker_discovery_never_reads_devices_and_refuses_unregistered_fields(self):
-        with patch('device_worker.probe') as probe_call:
+        with patch('devices.device_worker.probe') as probe_call:
             caps = dispatch({'operation':'capabilities'})
             self.assertEqual(caps['device_reads'],0)
             self.assertIn('ha_config',caps['devices']['remote-primary'])

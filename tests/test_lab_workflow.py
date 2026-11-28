@@ -1,6 +1,3 @@
-if not __package__:
-    import _bootstrap
-
 import json
 import sqlite3
 import tempfile
@@ -10,12 +7,12 @@ from pathlib import Path
 from unittest.mock import Mock,patch
 from urllib.request import Request,urlopen
 from urllib.error import HTTPError
-from approval_store import ApprovalStore,TaskError
-from diagnostic_core import AuditStore
-from lab_workflow import WorkflowService
+from server.approval_store import ApprovalStore,TaskError
+from devices.diagnostic_core import AuditStore
+from legacy.lab_workflow import WorkflowService
 from tests.workflow_test_support import fake_planner,fake_probe,current_probe_fixture
-from question_routing import classify
-from unified_chat import run,ToolRejection
+from legacy.question_routing import classify
+from legacy.unified_chat import run,ToolRejection
 from tests.workflow_test_support import RunningApp
 import app
 
@@ -254,7 +251,7 @@ class WorkflowHttpTests(unittest.TestCase):
         consent={'allow_context':True,'allow_live_data':True}
         task=self.create();self.assertEqual(self.call('/api/tasks/'+task['id']+'/resume',consent)[0],409)
         self.probe.assert_not_called()
-        from approval_store import DIAGNOSTIC_DATA_USE
+        from server.approval_store import DIAGNOSTIC_DATA_USE
         self.assertEqual(self.call('/api/tasks/'+task['id']+'/decision',
             {'approved':True,'data_use':DIAGNOSTIC_DATA_USE})[0],200)
         code,r=self.call('/api/tasks/'+task['id']+'/resume',consent)

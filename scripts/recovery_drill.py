@@ -9,11 +9,11 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from approval_store import ApprovalStore, TaskError
-from chat_history import HistoryStore
-from recovery_bundle import create_bundle, restore_bundle, verify_bundle, RecoveryError, checked_path, write_json
-from recovery_fixture import seed_fixture
-from user_accounts import AccountStore
+from server.approval_store import ApprovalStore, TaskError
+from server.chat_history import HistoryStore
+from server.recovery_bundle import create_bundle, restore_bundle, verify_bundle, RecoveryError, checked_path, write_json
+from tests.recovery_fixture import seed_fixture
+from server.user_accounts import AccountStore
 from version import VERSION
 
 

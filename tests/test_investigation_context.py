@@ -1,7 +1,4 @@
 """Investigation continuity through HTTP and the production model serializer."""
-if not __package__:
-    import _bootstrap
-
 from contextlib import closing
 import io
 import json
@@ -9,10 +6,10 @@ import threading
 import unittest
 from unittest.mock import patch
 
-from approval_store import ApprovalStore, SINGLE_APPROVAL
-from chat_model import make_model
-from lab_workflow import WorkflowService
-from tests import test_diagnostic_continuity
+from server.approval_store import ApprovalStore, SINGLE_APPROVAL
+from agent.chat_model import make_model
+from legacy.lab_workflow import WorkflowService
+import tests.test_diagnostic_continuity as test_diagnostic_continuity
 from tests.test_diagnostic_dialogues import post_question, run_task
 from tests.workflow_test_support import RunningApp, current_probe_fixture
 
@@ -67,7 +64,7 @@ class InvestigationContextTests(unittest.TestCase):
     def probe(self, device, check):
         self.reads.append((device, check))
         if check == 'policy_routes':
-            output = '100: from all lookup main\ndefault via 192.0.2.240 dev eth0\n'
+            output = '100: from all lookup main\ndefault via 192.0.2.1 dev eth0\n'
         elif check == 'ping_remote_primary' and not self.timeout:
             output = 'ICMP_ROUTE_UNAVAILABLE=1'
         else:
@@ -144,7 +141,7 @@ class InvestigationContextTests(unittest.TestCase):
         self.assertTrue(self.transport.requests)
         for context in self.transport.requests:
             payload = json.dumps(context, ensure_ascii=False)
-            self.assertNotIn('192.0.2.240', payload)
+            self.assertNotIn('192.0.2.1', payload)
             self.assertFalse(any(e['task_id'] == local for e in context['observations']))
         self.assertTrue(any(e['task_id']==task['id'] for view in self.transport.requests for e in view['observations']))
         self.assertEqual(5, len(self.reads))
@@ -193,8 +190,8 @@ class InvestigationContextTests(unittest.TestCase):
         for view in self.transport.requests:
             tasks=view['investigation_context']['related_tasks']
             self.assertEqual('not_disclosed',next(t['state'] for t in tasks if t['task_id']==local))
-            self.assertNotIn('192.0.2.240',json.dumps(view))
-        self.assertIn('192.0.2.240',reply['answer'])
+            self.assertNotIn('192.0.2.1',json.dumps(view))
+        self.assertIn('192.0.2.1',reply['answer'])
 
     def test_mixed_recap_uses_recorded_outcomes_instead_of_unseen_execution_claims(self):
         self.timeout=True
@@ -209,10 +206,10 @@ class InvestigationContextTests(unittest.TestCase):
         self.assertNotIn('还没有执行',reply['answer'])
         self.assertIn('应答 0/3',reply['answer'])
         self.assertIn('本地历史检查',reply['answer'])
-        self.assertIn('192.0.2.240',reply['answer'])
+        self.assertIn('192.0.2.1',reply['answer'])
         self.assertEqual(len(self.transport.requests), 1)
         self.assertTrue(any(o['task_id']==local for o in reply['evidence']))
-        self.assertNotIn('192.0.2.240',json.dumps(self.transport.requests))
+        self.assertNotIn('192.0.2.1',json.dumps(self.transport.requests))
         self.assertEqual(5,len(self.reads))
 
     def test_device_scoped_recall_filters_model_and_fallback_without_new_reads(self):
@@ -306,7 +303,7 @@ class InvestigationContextTests(unittest.TestCase):
 
     def test_effective_device_focus_does_not_cross_account_conversation_or_mode_generation(self):
         data={'username':'scope-alice','password':'offline-only-password-123','allow_storage':True}
-        with patch('user_accounts.ITERATIONS',1000):
+        with patch('server.user_accounts.ITERATIONS',1000):
             self.assertEqual(200,self.client.call('/api/account/register',data)[0])
             self.client.enter_diagnostic('diagnosis')
             self.measure()
@@ -577,7 +574,7 @@ class InvestigationContextTests(unittest.TestCase):
 
     def test_other_account_and_deleted_history_cannot_recover_original_evidence(self):
         data = {'username':'alice','password':'offline-only-password-123','allow_storage':True}
-        with patch('user_accounts.ITERATIONS',1000):
+        with patch('server.user_accounts.ITERATIONS',1000):
             self.assertEqual(200,self.client.call('/api/account/register',data)[0])
             self.client.enter_diagnostic('diagnosis')
             self.measure()
@@ -634,10 +631,10 @@ class InvestigationContextTests(unittest.TestCase):
         code, reply = self.client.call('/api/chat', {'conversation_id':'diagnosis',
             'question':'解释一下 Linux 策略路由的原理', 'allow_context':True,'chat_space':'ha',
             'interaction_mode':'diagnostic','interaction_revision':mode['revision'],'approval_flow':SINGLE_APPROVAL,
-            'history':[{'role':'assistant','content':'最近一次结果是下一跳 192.0.2.240 [OBS-1]'}]})
+            'history':[{'role':'assistant','content':'最近一次结果是下一跳 192.0.2.1 [OBS-1]'}]})
         self.assertEqual(200,code,reply)
         self.assertTrue(self.transport.requests)
-        self.assertNotIn('192.0.2.240',json.dumps(self.transport.requests))
+        self.assertNotIn('192.0.2.1',json.dumps(self.transport.requests))
         self.assertEqual(1,len(self.reads))
 
     def test_historical_citations_cannot_support_a_current_status_or_root_cause_claim(self):
@@ -685,9 +682,9 @@ class InvestigationContextTests(unittest.TestCase):
                 self.assertEqual(5,len(evidence))
                 self.assertEqual(len(evidence),len({e['id'] for e in evidence}))
                 self.assertEqual({e['id'] for e in evidence},set(reply['refs']))
-                self.assertIn('192.0.2.240',reply['answer'])
+                self.assertIn('192.0.2.1',reply['answer'])
                 for context in self.transport.requests:
-                    self.assertNotIn('192.0.2.240',json.dumps(context))
+                    self.assertNotIn('192.0.2.1',json.dumps(context))
                     self.assertFalse(any(e['task_id']==local for e in context['observations']))
         self.assertEqual(5,len(self.reads))
 
@@ -728,7 +725,7 @@ class InvestigationContextTests(unittest.TestCase):
         question = '最近一次现场探测的情况'
         entered = threading.Event()
         resume = threading.Event()
-        from lab_workflow import topology_answer
+        from legacy.lab_workflow import topology_answer
         responses = []
 
         def held(*args):
@@ -739,7 +736,7 @@ class InvestigationContextTests(unittest.TestCase):
                     raise AssertionError('local recap was not resumed')
             return result
 
-        with patch('lab_workflow.topology_answer',held):
+        with patch('legacy.lab_workflow.topology_answer',held):
             thread = threading.Thread(target=lambda:responses.append(post_question(self.client,question)))
             thread.start()
             try:
@@ -755,9 +752,3 @@ class InvestigationContextTests(unittest.TestCase):
         self.assertFalse(any(entry['ok'] for entry in reply.get('evidence',[])),reply)
         self.assertNotIn('3/3',reply['answer'])
         self.assertEqual(8,len(self.reads))
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

@@ -1,9 +1,6 @@
 """连续追问与转向不同设备的检索实测，不调用模型或设备。"""
-if not __package__:
-    import _bootstrap
-
 import unittest
-import unified_chat as chat
+import legacy.unified_chat as chat
 
 def history(*questions):
     result=[]

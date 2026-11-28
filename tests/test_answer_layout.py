@@ -1,12 +1,9 @@
 """正文多重转义可纠正一次；不自动改写代码和路径。"""
-if not __package__:
-    import _bootstrap
-
 import tempfile,unittest
 from pathlib import Path
 from unittest.mock import Mock
-from diagnostic_core import AuditStore
-from unified_chat import run
+from devices.diagnostic_core import AuditStore
+from legacy.unified_chat import run
 
 
 class AnswerLayoutTests(unittest.TestCase):

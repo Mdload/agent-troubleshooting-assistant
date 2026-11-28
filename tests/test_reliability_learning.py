@@ -1,19 +1,16 @@
 """真实失败形成的开发回归：公开知识追问、精简视图与权限边界。"""
-if not __package__:
-    import _bootstrap
-
 import copy
 import unittest
 from unittest.mock import Mock
 from tests.workflow_test_support import RunningApp
-from unified_chat import search
-from response_contract import response_policy, answer_issues, reference_link_rules
-from knowledge_modules import model_modules
+from legacy.unified_chat import search
+from legacy.response_contract import response_policy, answer_issues, reference_link_rules
+from retrieval.knowledge_modules import model_modules
 
 
 class ReliabilityLearningTests(unittest.TestCase):
     def test_plain_model_text_still_cannot_bypass_host_reference_scope(self):
-        from chat_model import make_model
+        from agent.chat_model import make_model
         from evaluation.ha_model import FixtureResponse
         opener=Mock()
         opener.open.return_value=FixtureResponse({'choices':[{'finish_reason':'stop',
@@ -29,7 +26,7 @@ class ReliabilityLearningTests(unittest.TestCase):
         probe.assert_not_called()
 
     def test_discussing_an_answer_does_not_request_a_device_read(self):
-        from question_routing import classify
+        from legacy.question_routing import classify
         for question in ('你刚才说远端Croc启动，那个说法是什么意思？',
                          '我复述一下：远端Croc打包，Router转送，局端Croc拆包，对吗？'):
             self.assertEqual(classify(question)['intent'],'explain')
@@ -37,7 +34,7 @@ class ReliabilityLearningTests(unittest.TestCase):
         self.assertEqual(classify('state MASTER是不是始终负责业务，priority什么时候起作用')['domain'],'basics')
 
     def test_current_question_does_not_inherit_old_requirements(self):
-        from knowledge_coverage import assessment_query, assess
+        from retrieval.knowledge_coverage import assessment_query, assess
         current='Croc是一条线还是软件，它究竟做什么？'
         hint='局端主机为什么停止Croc，Keepalived如何接管？\n追问：'+current
         self.assertEqual(assessment_query(current,hint),current)
@@ -49,8 +46,8 @@ class ReliabilityLearningTests(unittest.TestCase):
         self.assertEqual(assessment_query(comparison,hint,reference_entities=['remote-ha-candidate.sh']),comparison)
 
     def test_concept_background_cannot_replace_primary_evidence(self):
-        from knowledge_coverage import assess, answer_issue
-        import qa
+        from retrieval.knowledge_coverage import assess, answer_issue
+        import retrieval.qa as qa
         sources=[s for s in qa.RECORDS if s['id'] in ('KB-001','KB-002','KB-018')]
         coverage=assess('Croc是软件还是一条线？',sources,conceptual_context=True)
         self.assertIn('KB-001',coverage['context_refs'])
@@ -67,8 +64,8 @@ class ReliabilityLearningTests(unittest.TestCase):
         self.assertNotIn('KB-018',coverage['supporting_refs'])
 
     def test_unrecognized_phrasing_can_cite_provided_context_but_not_a_known_gap(self):
-        from knowledge_coverage import assess, answer_issue
-        import qa
+        from retrieval.knowledge_coverage import assess, answer_issue
+        import retrieval.qa as qa
         sources=[s for s in qa.RECORDS if s['id'] in ('KB-001','KB-018')]
         coverage=assess('顺着发送这个动作讲一遍好吗？',sources,allow_unassessed_context=True)
         self.assertEqual(coverage['status'],'unassessed')
@@ -79,8 +76,8 @@ class ReliabilityLearningTests(unittest.TestCase):
         self.assertEqual(answer_issue(coverage,'limited',['KB-018'],sources),'unsupported_knowledge_citation')
 
     def test_discussion_keeps_documented_path_sources_and_tool_error_principles(self):
-        from unified_chat import prefetch_query
-        from question_routing import classify
+        from legacy.unified_chat import prefetch_query
+        from legacy.question_routing import classify
         anchor='我在现场电脑上点一下发送，文件为什么就能到实验室电脑上，能顺着这个动作讲一遍吗？'
         followup='你说接收地址能在两台机器之间转移，我发文件怎么知道该发给哪台？'
         query=prefetch_query(followup,[{'role':'user','content':anchor}])
@@ -94,8 +91,8 @@ class ReliabilityLearningTests(unittest.TestCase):
                                  [{'role':'user','content':anchor}])['intent'],'explain')
 
     def test_unfamiliar_lab_concept_uses_overview_but_parameters_do_not(self):
-        from unified_chat import search
-        from knowledge_coverage import assess
+        from legacy.unified_chat import search
+        from retrieval.knowledge_coverage import assess
         question='这里两台设备互相备用，是两台一起传还是只有一台干活？'
         sources=search(question)
         self.assertIn('KB-001',{s['id'] for s in sources})
@@ -132,7 +129,7 @@ class ReliabilityLearningTests(unittest.TestCase):
         return contexts
 
     def test_ha_config_fields_and_source_followup_stay_in_public_topic(self):
-        from question_routing import classify
+        from legacy.question_routing import classify
         self.assertEqual(classify('不用读取设备，我只问你给的示例：主机降到 70、备机是 90 时该怎么判断，单凭这两个数能不能确定会切换？')['domain'],'basics')
         contexts=self.chain([
             '我想先离线学会看 Keepalived 配置，判断它有没有检测业务、什么情况下会切到备机，第一步该从哪里看起？',
@@ -178,8 +175,8 @@ class ReliabilityLearningTests(unittest.TestCase):
         self.assertTrue(answer_issues('[另一本](https://example.org/other)',['KB-130'],policy,rules))
 
     def test_software_or_wire_followup_keeps_tunnel_concept_source_and_plain_style(self):
-        from unified_chat import prefetch_query
-        from knowledge_coverage import assess
+        from legacy.unified_chat import prefetch_query
+        from retrieval.knowledge_coverage import assess
         q='这里的 Croc 隧道我还没理解，它是远端和局端里运行的软件，还是它们之间另外接的一条线？'
         history=[{'role':'user','content':'我刚来实验室，你能带我跟着一份文件从现场电脑走到实验室电脑，讲讲中间是谁接手、各负责哪一步吗？'}]
         query=prefetch_query(q,history) or q

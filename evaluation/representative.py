@@ -13,15 +13,15 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-import chat_model
-import qa
+from agent import chat_model
+from retrieval import qa
 from tests.ha_case_test_support import case_probe, case_planner
 from tests.workflow_test_support import RunningApp
-from unified_chat import search, prefetch_query
-from approval_store import SINGLE_APPROVAL
+from legacy.unified_chat import search, prefetch_query
+from server.approval_store import SINGLE_APPROVAL
 from evaluation.ha_model import isolated_io, write_json, utc_now, SIMULATION_NOTICE
 from version import VERSION
-from model_trace import safe_metrics
+from agent.model_trace import safe_metrics
 
 DEFAULT_SUITE = ROOT / 'evaluation/acceptance-20261015/suite.json'
 

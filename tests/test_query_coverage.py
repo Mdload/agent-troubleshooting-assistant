@@ -1,10 +1,7 @@
 """未用于上轮调参的新问法及显式设备/模式边界。"""
-if not __package__:
-    import _bootstrap
-
 import unittest
-import qa
-from unified_chat import needs_topology,search
+import retrieval.qa as qa
+from legacy.unified_chat import needs_topology,search
 
 class QueryCoverageTests(unittest.TestCase):
     def test_new_paraphrases_reach_relevant_rules(self):
@@ -29,9 +26,3 @@ class QueryCoverageTests(unittest.TestCase):
             self.assertEqual(qa.retrieve(question),[])
         self.assertFalse(needs_topology('Python元组怎么用？'))
         self.assertEqual(qa.retrieve('Python元组怎么用？'),[])
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

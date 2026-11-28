@@ -1,7 +1,4 @@
 """公网网关的真实HTTP认证/来源/流式转发；不连外网、模型或设备。"""
-if not __package__:
-    import _bootstrap
-
 import http.client,importlib.util,json,socket,threading,unittest
 from concurrent.futures import wait
 from pathlib import Path
@@ -104,11 +101,11 @@ class PublicHTTPTests(unittest.TestCase):
  def test_proxy_protocol_is_parsed_before_http_and_cannot_be_client_header_spoofed(self):
   self.server.require_proxy=True
   with socket.create_connection(('127.0.0.1',self.server.server_port),timeout=3) as connection:
-   connection.sendall(('PROXY TCP4 203.0.113.1 203.0.113.83 12345 18890\r\nGET /api/health HTTP/1.0\r\nHost: '+AUTHORITY+'\r\nX-Forwarded-For: 198.51.100.46\r\n\r\n').encode())
+   connection.sendall(('PROXY TCP4 203.0.113.1 203.0.113.83 12345 18890\r\nGET /api/health HTTP/1.0\r\nHost: '+AUTHORITY+'\r\nX-Forwarded-For: 203.0.113.112\r\n\r\n').encode())
    response=http.client.HTTPResponse(connection);response.begin();self.assertEqual(response.status,200);response.read()
   self.assertIn(('203.0.113.1',False),self.server.limiter.entries)
-  self.assertNotIn(('198.51.100.46',False),self.server.limiter.entries)
-  for invalid in [b'GET / HTTP/1.1\r\n',b'PROXY TCP4 999.1.1.1 127.0.0.1 80 90\r\n',b'PROXY TCP4 198.51.100.45 198.51.100.47 0 90\r\n']:
+  self.assertNotIn(('203.0.113.112',False),self.server.limiter.entries)
+  for invalid in [b'GET / HTTP/1.1\r\n',b'PROXY TCP4 999.1.1.1 127.0.0.1 80 90\r\n',b'PROXY TCP4 203.0.113.111 203.0.113.222 0 90\r\n']:
    with self.assertRaises(ValueError):gateway.proxy_address(invalid)
  def test_chat_forwards_start_and_heartbeats_before_result(self):
   cookie=self.register_local('gateway-chat-stream')

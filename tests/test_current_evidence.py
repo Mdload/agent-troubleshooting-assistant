@@ -1,12 +1,9 @@
 """当前状态的宿主约束；全部采用隔离HTTP及工具边界夹具，无实际设备或模型调用。"""
-if not __package__:
-    import _bootstrap
-
 import datetime
 import unittest
 from unittest.mock import Mock,patch
-from evidence_scope import mark_observation
-from question_routing import classify
+from legacy.evidence_scope import mark_observation
+from legacy.question_routing import classify
 from tests.workflow_test_support import RunningApp,current_probe_fixture,fake_probe
 
 
@@ -187,7 +184,7 @@ class CurrentEvidenceHttpTests(unittest.TestCase):
             planner.assert_not_called();probe.assert_not_called()
 
     def test_legacy_knowledge_http_cannot_answer_current_state_from_snapshot(self):
-        with RunningApp() as client,patch('qa.answer') as old_answer:
+        with RunningApp() as client,patch('retrieval.qa.answer') as old_answer:
             result=client.call('/api/ask',{'question':'局端备机现在的状态','allow_new_topology':True})[1]
             self.assertEqual(result['status'],'current_unverified')
             self.assertIn('当前状态未核实',result['answer']);old_answer.assert_not_called()

@@ -1,7 +1,4 @@
 """只使用临时历史：纠正、归属、撤回、脱敏、上下文和数据分组。"""
-if not __package__:
-    import _bootstrap
-
 import copy
 import json
 from pathlib import Path
@@ -9,8 +6,8 @@ import tempfile
 import unittest
 import subprocess
 import sys
-from chat_history import HistoryStore
-from training_data import prepare, dataset, export_dataset, grouped_splits, write_new, Redactor
+from server.chat_history import HistoryStore
+from legacy.training_data import prepare, dataset, export_dataset, grouped_splits, write_new, Redactor
 
 
 class TrainingDataTests(unittest.TestCase):
@@ -153,7 +150,7 @@ class TrainingDataTests(unittest.TestCase):
         self.assertTrue(all(len(s['provenance'])==2 for s in output['samples']))
 
     def test_cli_prepare_review_export_is_readable_and_uses_only_selected_history(self):
-        script=Path(__file__).resolve().parents[1]/'training_data.py'
+        script=Path(__file__).resolve().parents[1]/'legacy/training_data.py'
         staged=self.root/'review.json';output=self.root/'cli-dataset'
         result=subprocess.run([sys.executable,'-B',str(script),'prepare','--history-db',str(self.path),
             '--owner','account-a','--conversation','chat-a','--output',str(staged)],capture_output=True,text=True,encoding='utf-8')

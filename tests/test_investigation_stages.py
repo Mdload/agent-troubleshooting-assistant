@@ -1,7 +1,4 @@
 """同一批准下的阶段取证；临时SQLite/HTTP和确定性模型、设备替身。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import tempfile
 import threading
@@ -9,12 +6,12 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from contextlib import closing
-from approval_store import ApprovalStore, TaskError, SINGLE_APPROVAL, DIAGNOSTIC_DATA_USE
-from chat_model import ModelFailure
-from device_registry import CHECK_NAMES
-from investigation_limits import legacy_limits, requested_limits, validate_limits
-from unified_chat import ToolRejection, run
-from diagnostic_core import AuditStore
+from server.approval_store import ApprovalStore, TaskError, SINGLE_APPROVAL, DIAGNOSTIC_DATA_USE
+from agent.chat_model import ModelFailure
+from devices.device_registry import CHECK_NAMES
+from legacy.investigation_limits import legacy_limits, requested_limits, validate_limits
+from legacy.unified_chat import ToolRejection, run
+from devices.diagnostic_core import AuditStore
 from tests.ha_case_test_support import case_probe, case_planner
 from tests.workflow_test_support import RunningApp
 

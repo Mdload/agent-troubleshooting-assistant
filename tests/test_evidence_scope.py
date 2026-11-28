@@ -1,13 +1,10 @@
 """证据性质由宿主保留，部分读数不能标为完整HA/业务验收。"""
-if not __package__:
-    import _bootstrap
-
 import json,tempfile,threading,unittest,urllib.request
 from pathlib import Path
 from unittest.mock import Mock,patch
-from diagnostic_core import AuditStore
-from evidence_scope import mark_observation,build_scope
-from unified_chat import run
+from devices.diagnostic_core import AuditStore
+from legacy.evidence_scope import mark_observation,build_scope
+from legacy.unified_chat import run
 from tests.workflow_test_support import RunningApp
 
 def answer(text='服务处于active，其他状态仍未验证',refs=None):

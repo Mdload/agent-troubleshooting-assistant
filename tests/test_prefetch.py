@@ -1,12 +1,9 @@
-if not __package__:
-    import _bootstrap
-
 import tempfile,unittest
 from pathlib import Path
 from unittest.mock import Mock,patch
-from diagnostic_core import AuditStore
-from unified_chat import run
-from chat_model import ModelFailure,make_model
+from devices.diagnostic_core import AuditStore
+from legacy.unified_chat import run
+from agent.chat_model import ModelFailure,make_model
 
 class PrefetchTests(unittest.TestCase):
     def test_special_question_gets_sources_before_first_model_call(self):
@@ -26,14 +23,8 @@ class PrefetchTests(unittest.TestCase):
             self.assertEqual(r['status'],'answered');self.assertEqual(lookup.call_count,1)
     def test_invalid_json_sanitized(self):
         response=Mock();response.__enter__=Mock(return_value=response);response.__exit__=Mock(return_value=False);response.read.return_value=b'PRIVATE BAD RESPONSE'
-        with patch('chat_model.urllib.request.build_opener') as factory:
+        with patch('agent.chat_model.urllib.request.build_opener') as factory:
             factory.return_value.open.return_value=response
             planner=make_model({'LLM_BASE_URL':'https://api.inferera.com/v1','LLM_API_KEY':'test','LLM_MODEL_ID':'test'})
             with self.assertRaises(ModelFailure) as error:planner({})
             self.assertEqual(error.exception.code,'model_invalid_json');self.assertNotIn('PRIVATE',str(error.exception))
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()

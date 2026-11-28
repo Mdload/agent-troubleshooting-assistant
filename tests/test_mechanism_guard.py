@@ -1,16 +1,13 @@
 """来源限定、已复现矛盾、正常表达、共享纠正预算与失败留痕的离线回归。"""
-if not __package__:
-    import _bootstrap
-
 import json
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from chat_model import ModelFailure
-from diagnostic_core import AuditStore
-from mechanism_guard import mechanism_constraints, contradicted_constraints
-from unified_chat import run, search
+from agent.chat_model import ModelFailure
+from devices.diagnostic_core import AuditStore
+from legacy.mechanism_guard import mechanism_constraints, contradicted_constraints
+from legacy.unified_chat import run, search
 
 
 def final(text, usage=7):

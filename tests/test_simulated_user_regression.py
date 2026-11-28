@@ -1,14 +1,11 @@
 """模拟用户暴露问题的开发回归；不作为新的独立质量评估。"""
-if not __package__:
-    import _bootstrap
-
 import unittest
 from unittest.mock import Mock
-import qa
-import topology_entities as entities
-from knowledge_coverage import assess, answer_issue
-from question_routing import classify
-from unified_chat import search, prefetch_query
+import retrieval.qa as qa
+import retrieval.topology_entities as entities
+from retrieval.knowledge_coverage import assess, answer_issue
+from legacy.question_routing import classify
+from legacy.unified_chat import search, prefetch_query
 from tests.workflow_test_support import RunningApp
 
 NEW='我是刚来实验室的新同学，局端、远端、Router 和 Croc 分别是干什么的，它们怎么配合把数据传过去？'

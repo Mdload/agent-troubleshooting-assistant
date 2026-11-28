@@ -7,7 +7,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from recovery_bundle import create_bundle, verify_bundle, restore_bundle, RecoveryError
+from server.recovery_bundle import create_bundle, verify_bundle, restore_bundle, RecoveryError
 
 
 def main():
