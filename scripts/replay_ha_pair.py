@@ -8,8 +8,8 @@ import sys
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from evaluation.ha_model import isolated_io
-from ha_case_test_support import case_probe,case_planner
-from workflow_test_support import RunningApp
+from tests.ha_case_test_support import case_probe,case_planner
+from tests.workflow_test_support import RunningApp
 from topology_model import snapshot
 
 SCENARIOS=(

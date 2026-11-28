@@ -8,8 +8,8 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from workflow_test_support import RunningApp
-from ha_case_test_support import VARIANTS,case_probe,case_planner
+from tests.workflow_test_support import RunningApp
+from tests.ha_case_test_support import VARIANTS,case_probe,case_planner
 
 EXPECTED={'nonowner_stopped':('non_owner_stop_expected',2),'owner_stopped':('owner_service_stopped',3),
           'nonowner_running':('non_owner_service_running',3),'owner_running':('owner_service_running',4),

@@ -16,7 +16,7 @@ import chat_model
 import qa
 from evaluation.ha_model import isolated_io
 from model_trace import safe_metrics
-from workflow_test_support import RunningApp
+from tests.workflow_test_support import RunningApp
 
 
 def write(path, value):

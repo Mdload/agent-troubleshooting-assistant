@@ -18,8 +18,8 @@ import chat_model
 import qa
 from device_registry import profile
 from device_tools import tool_catalog
-from ha_case_test_support import VARIANTS, case_probe, case_planner
-from workflow_test_support import RunningApp
+from tests.ha_case_test_support import VARIANTS, case_probe, case_planner
+from tests.workflow_test_support import RunningApp
 from version import VERSION
 
 DEVICE = 'local-backup'

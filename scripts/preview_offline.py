@@ -8,9 +8,9 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from workflow_test_support import RunningApp, fake_planner, current_probe_fixture
+from tests.workflow_test_support import RunningApp, fake_planner, current_probe_fixture
 import app
-from ha_case_test_support import VARIANTS,case_probe,case_planner
+from tests.ha_case_test_support import VARIANTS,case_probe,case_planner
 
 
 class PreviewHandler(app.Handler):

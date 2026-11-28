@@ -1,64 +1,79 @@
 # Agent Troubleshooting Assistant
 
-一个用 Python 标准库实现的网络排障助手。它用混合检索查找网络机制和案例，由宿主校验工具请求，并将服务、接口、日志和路由观测纳入回答。
+面向多节点高可用 Linux 网络拓扑的自主排障 Agent Web 应用，能针对主备、隧道和业务路径问题分步取证，并给出带依据的判断。
 
-## v0.10.11
+**典型问题**：“远端能 ping 通，业务为什么还是不通？”Agent 会结合主备角色、VIP、服务和路由状态缩小排查范围，在结论里标出已经观察到的状态和仍待验证的链路。
 
-- Hybrid RAG 融合 BM25 与向量排序，划词追问可以引用相关知识。
-- 六个登记节点覆盖局端、远端及 Router1/2。Agent v2 在用户首次确认后执行只读巡检和定向探查，变更请求生成建议卡。
-- 支持多对话并发、分层记忆和共享 Skill 的检索与沉淀。聊天界面折叠执行步骤并提供可复制的手动命令。
-- 模型输出截断时尝试独立收尾，SSE 等待期间发送保活事件。
+## 核心亮点
 
-公开版使用文档专用设备地址、匿名知识和合成观测，附带空 Skill 库模板。
+| 能力 | 项目实现 |
+| --- | --- |
+| 自主多轮工具编排 | 模型通过 Function Calling 分步选择检查项，宿主校验参数并将观测送回模型。接口拒绝工具协议时，自动降级到 ReAct JSON。 |
+| 轻量 Hybrid RAG | BM25 和本地字符 n-gram 向量各自排序，再用 RRF 融合。公开版 24 条查询的离线消融中，Recall@5 从纯向量的 **0.521** 提升到 **0.667**，BM25 单独为 **0.417**。 |
+| 分级权限与写后验证 | 只读巡检按登记范围取证，批准执行受任务和设备许可约束，自动修复仅在维护窗口内处理满足条件的固定动作。写后重新采样服务和 VIP，形成 Verify-and-Loop，并记录验证结果。 |
+| 分层记忆与自主 Skill | 用近期对话、滚动摘要和跨会话经验维持上下文。Agent 可检索文件化 Skill，并在具备权限时沉淀可复用的排障步骤。 |
+| Web 交互与流式容错 | 支持并发对话和划词知识库检索。模型输出截断时尝试独立收尾，等待期间用 SSE 心跳保持连接。 |
 
-## 本地复现
+## 系统架构
 
-需要 Python 3.8 或更新版本。以下命令无需安装 Python 依赖、配置 API Key 或连接设备。
+```mermaid
+flowchart LR
+    Web["Web 前端"] -->|"问题 / 划词"| HTTP["HTTP 入口 · app.py"]
+    HTTP --> Agent["Agent v2 · 多轮编排"]
+    Agent <-->|"工具请求与观测"| Model["模型 · Function Calling / ReAct JSON"]
+    Agent <--> RAG["Hybrid RAG · BM25 + 向量 + RRF"]
+    Agent <--> Memory["分层记忆 · SQLite"]
+    Agent <--> Skills["文件化 Skill 库"]
+    Agent --> Guard["登记范围 · 宿主校验 · 审批"]
+    Guard --> Device["受控设备执行 · 读取 / 固定写操作"]
+    Device -->|"观测与写后验证"| Agent
+    Agent -->|"带依据的结论"| HTTP
+    HTTP -->|"SSE · 进度与心跳"| Web
+```
+
+## 目录导航
+
+```text
+.
+├── app.py                # HTTP 服务、会话、SSE
+├── agent_v2.py            # 自主工具循环、协议降级、结论收尾
+├── qa.py                  # 知识检索入口
+├── hybrid_retrieval.py    # 本地向量排序和 RRF 融合
+├── agent_memory.py        # SQLite 会话记忆与共享经验
+├── device_tools.py        # 受控设备工具和参数边界
+├── repair_control.py      # 固定修复动作与写后验证
+├── web/                   # 聊天界面、证据展示与划词交互
+├── tests/                 # Python 回归测试及共享夹具
+├── docs/                  # 公开拓扑、运维知识与诊断手册
+├── scripts/               # 离线演示、评测与前端检查
+├── agent_skills/          # Skill 索引模板与运行时文件目录
+├── evaluation/            # 评测实现与合成场景
+├── planning/              # 知识来源、案例及覆盖配置
+├── deploy/                # 公共部署入口
+└── migration/             # 历史数据迁移协议
+```
+
+## 5 分钟本地启动
+
+需要 Python 3.8 或更新版本。离线演示、回放和评测使用 Python 标准库与合成数据，无需 API Key 或设备连接。
+
+```sh
+git clone https://github.com/Mdload/agent-troubleshooting-assistant.git
+cd agent-troubleshooting-assistant
+python -B scripts/preview_offline.py --scenario owner_stopped
+```
+
+打开 [离线演示](http://127.0.0.1:17871/)，提问“远端业务不通，先检查主备的服务和 VIP”，按页面提示确认只读巡检。在终端输入 `stop` 退出。常规服务入口是 `python -B app.py`，默认监听 [本地 Web 界面](http://127.0.0.1:17865/)，实时模型问答需要模型配置。
+
+## 离线评测
 
 ```sh
 python -B scripts/eval_agent_v2.py
 python -B scripts/eval_hybrid_rag.py
 python -B scripts/replay_offline.py --output artifacts/replay.json
+python -B -m unittest tests.test_agent_v2 tests.test_retrieval_regression tests.test_device_probe tests.test_selection_explain
 ```
 
-Agent v2 评测包含 19 个场景，覆盖设备确认、配置建议卡、连续追问、记忆、检索、工具失败和结论收尾。Hybrid RAG 评测用 24 条查询比较 BM25、向量与混合排序。四场景回放使用确定性规划器，预期输出 `scenarios=4`、`engineering_assertions_passed=4`、`model_api_calls=0` 和 `live_device_reads=0`。报告记录工具顺序、合成观测、回答和审计。重复回放时使用新的输出文件名。
+Agent 评测覆盖 19 个场景。四场景回放输出工具顺序、合成观测、结论和审计记录，重复运行时请使用新的输出文件名。离线评测衡量宿主控制流、权限和检索表现，真实模型答复质量及端到端网络状态需在实际环境中单独验证。
 
-运行 `python -B app.py`，在浏览器打开本地页面。模型对话需要配置受支持的模型。 [本地 Web 界面](http://127.0.0.1:17865/)
-
-## 处理流程
-
-```mermaid
-flowchart LR
-    Q[用户问题] --> H[Agent v2 宿主]
-    K[混合检索与案例] <--> H
-    M[SQLite 摘要与记忆] <--> H
-    H <--> P[模型或离线替身]
-    H --> V[设备与检查项校验]
-    V --> C[首次读取确认]
-    C --> F[只读观测或离线夹具]
-    F --> H
-    H --> A[回答与配置建议卡]
-```
-
-| 模块 | 职责 |
-| --- | --- |
-| [app.py](app.py) · [web/](web/) | HTTP 入口、账号和会话，以及聊天界面 |
-| [agent_v2.py](agent_v2.py) | 工具调用循环、设备确认及配置建议卡 |
-| [agent_memory.py](agent_memory.py) | SQLite 会话记忆、滚动摘要和共享经验 |
-| [qa.py](qa.py) · [knowledge_modules.py](knowledge_modules.py) | 混合检索、模块知识手册与来源索引 |
-| [device_registry.py](device_registry.py) · [device_tools.py](device_tools.py) | 登记设备及检查项，校验只读工具范围 |
-| [unified_chat.py](unified_chat.py) · [lab_workflow.py](lab_workflow.py) | 兼容任务和文本材料的诊断编排 |
-| [evaluation/remote_replay.py](evaluation/remote_replay.py) | 四个确定性合成诊断场景 |
-
-## 核心演示场景
-
-从“远端能 ping 通，但业务为什么不通？”出发，结合角色、VIP、Croc 服务和路由逐层分析。设备的管理可达性、隧道探测和端到端业务收发分别需要证据。
-
-| 场景 | 验证点 |
-| --- | --- |
-| R01 · 持有 VIP，服务运行 | 继续检查路由，保留端到端业务状态未知 |
-| R02 · 持有 VIP，服务停止 | 引用两项观测指出不一致，保留根因待查 |
-| R03 · 备机无 VIP，服务停止 | 结合主备分工解释现象，保留接管能力待验收 |
-| R04 · 读取超时 | 停止后续读取，报告状态未知 |
-
-离线结果验证宿主控制流、权限和证据处理。模型答复准确率与真实链路效果需要独立验收。
+可用 `python -B -m unittest discover -s tests` 发现并运行回归套件，也可从根目录直接运行单个文件，例如 `python -B tests/test_device_probe.py`。

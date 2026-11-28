@@ -51,7 +51,7 @@ def main():
     old_dir=os.getcwd()
     os.chdir(str(ROOT))
     try:
-        suite = unittest.defaultTestLoader.discover(str(ROOT), pattern='test_*.py')
+        suite = unittest.defaultTestLoader.discover(str(ROOT / 'tests'), top_level_dir=str(ROOT), pattern='test_*.py')
         with patch('builtins.open', guard_private_open(builtins.open)), patch('io.open', guard_private_open(io.open)):
             result=unittest.TextTestRunner(verbosity=2).run(suite)
     finally:

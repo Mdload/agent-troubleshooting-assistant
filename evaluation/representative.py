@@ -15,8 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import chat_model
 import qa
-from ha_case_test_support import case_probe, case_planner
-from workflow_test_support import RunningApp
+from tests.ha_case_test_support import case_probe, case_planner
+from tests.workflow_test_support import RunningApp
 from unified_chat import search, prefetch_query
 from approval_store import SINGLE_APPROVAL
 from evaluation.ha_model import isolated_io, write_json, utc_now, SIMULATION_NOTICE
